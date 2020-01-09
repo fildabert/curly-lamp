@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/fildabert/curly-lamp#readme",
   "dependencies": {
+    "axios": "^0.19.1",
     "bcrypt": "^3.0.7",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",

@@ -32,11 +32,11 @@ app.use('/', routes);
 app.use((err, req, res, next) => {
   console.log('Error:', err.message);
   if (err.code === 404) {
-    res.status(404).json(err.message);
+    res.status(404).json({ message: err.message, ...err });
   } else if (err.code === 401) {
-    res.status(401).json(err.message);
+    res.status(401).json({ message: err.message, ...err });
   } else if (err.code === 400) {
-    res.status(400).json(err.message);
+    res.status(400).json({ message: err.message, ...err });
   } else if (err.name === 'MongoError' && err.code === 11000) {
     const newerr = err.message.split(' ');
     res.status(400).json(`${newerr[7].split('_')[0]} : ${newerr[12]} already exist`);

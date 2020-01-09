@@ -6,7 +6,7 @@ const encrypt = require('../helpers/encrypt');
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
-    require: [true, 'username is empty'],
+    required: [true, 'username is empty'],
     unique: true,
   },
   email: {
@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-});
+}, { timestamps: true });
 
 userSchema.pre('save', function (next) {
   if (this.isNew) {
