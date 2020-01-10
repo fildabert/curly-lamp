@@ -14,7 +14,7 @@ module.exports = {
     customerAddress,
     customerId,
     totalAmount,
-    ordersCompleted,
+    ordersCompleted = 0,
     approvedBy,
     dueDate,
     status,
@@ -33,6 +33,15 @@ module.exports = {
         dueDate,
         status,
       });
+
+      const product = await Product.findOne({ _id: productId });
+      if (!product) {
+        throw Object.assign(new Error('Product Not Found'), { code: 400 });
+      }
+
+      if (product.stock - totalAmount < 0) {
+        throw Object.assign(new Error(`Product stock not enough, stock for ${product.name}: ${product.stock}`), { code: 400 });
+      }
 
       await newOrder.save();
       resolve(newOrder);
