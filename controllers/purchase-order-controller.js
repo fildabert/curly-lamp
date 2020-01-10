@@ -112,6 +112,10 @@ module.exports = {
       newOrder.approvedBy = approvedBy || newOrder.approvedBy;
       newOrder.dueDate = dueDate || newOrder.dueDate;
 
+      if (newOrder.totalAmount - newOrder.ordersCompleted > 0) {
+        newOrder.status = 'ACTIVE';
+      }
+
       const updatedOrder = await newOrder.save();
       resolve(updatedOrder);
     } catch (error) {
