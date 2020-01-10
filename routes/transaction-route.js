@@ -6,7 +6,7 @@ const transactionController = require('../controllers/transaction-controller');
 const createTransaction = async (req, res, next) => {
   try {
     const { amount, sellingPrice } = req.body;
-    if (!amount || !sellingPrice || sellingPrice <= 0 || amount <= 0) {
+    if (!amount || !sellingPrice || +sellingPrice <= 0 || +amount <= 0) {
       throw Object.assign(new Error('Validation Errors: Invalid/Incomplete Input'));
     }
     const result = await transactionController.createTransaction(req.body);
