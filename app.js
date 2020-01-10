@@ -7,7 +7,7 @@ const app = express();
 const mongoose = require('mongoose');
 
 const db = mongoose.connection;
-const port = 80;
+const port = 3000;
 const cors = require('cors');
 const routes = require('./routes/index');
 
@@ -26,6 +26,7 @@ db.once('open', () => {
 app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+
 
 app.use('/', routes);
 

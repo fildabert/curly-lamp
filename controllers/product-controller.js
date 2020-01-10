@@ -24,7 +24,7 @@ module.exports = {
 
   findAllProduct: () => new Promise(async (resolve, reject) => {
     try {
-      const result = await Product.find();
+      const result = await Product.find({ active: true });
       resolve(result);
     } catch (error) {
       reject(error);
