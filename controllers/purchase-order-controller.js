@@ -64,7 +64,7 @@ module.exports = {
 
   findAllOrders: () => new Promise(async (resolve, reject) => {
     try {
-      const orders = await PurchaseOrder.find({}).sort({ created_at: 'desc' }).populate('approvedBy').populate('productId');
+      const orders = await PurchaseOrder.find({ dueDate: { $gt: new Date() } }).sort({ created_at: 'desc' }).populate('approvedBy').populate('productId');
       resolve(orders);
     } catch (error) {
       reject(error);
