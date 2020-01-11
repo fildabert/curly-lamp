@@ -16,7 +16,7 @@ require('dotenv').config();
 const atlasURL = 'mongodb://fildabert2:fildabert2@hacktiv8aws-shard-00-00-87bq4.mongodb.net:27017,hacktiv8aws-shard-00-01-87bq4.mongodb.net:27017,hacktiv8aws-shard-00-02-87bq4.mongodb.net:27017/curly-lamp?ssl=true&replicaSet=hacktiv8AWS-shard-0&authSource=admin&retryWrites=true&w=majority';
 const mongodbLocal = 'mongodb://127.0.0.1:27017/curly-lamp';
 
-mongoose.connect(atlasURL, { useNewUrlParser: true, useCreateIndex: true });
+mongoose.connect(atlasURL, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true });
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', () => {
   console.log('Connected to the database');
