@@ -23,6 +23,7 @@ module.exports = {
   }),
 
   findAllProduct: () => new Promise(async (resolve, reject) => {
+    console.log('FINDALL');
     try {
       const result = await Product.find({ active: true });
       resolve(result);
