@@ -68,6 +68,15 @@ const patchOrder = async (req, res, next) => {
   }
 };
 
+const deleteOrder = async (req, res, next) => {
+  try {
+    const result = await purchaseOrderController.deleteOrder(req.params._id);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 router.get('/all', findAllOrders);
 router.get('/due', findOrdersDue);
 router.get('/search', searchOrder);
@@ -75,5 +84,6 @@ router.get('/:_id', findOneOrder);
 router.post('/', createOrder);
 router.put('/:_id', editOrder);
 router.patch('/:_id', patchOrder);
+router.delete('/:_id', deleteOrder);
 
 module.exports = router;
