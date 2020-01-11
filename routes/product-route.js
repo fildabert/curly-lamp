@@ -60,6 +60,16 @@ const searchProduct = async (req, res, next) => {
   }
 };
 
+const kontil = async (req, res, next) => {
+  try {
+    console.log('MASUK');
+    res.status(200).json('SUCCESS');
+  } catch (error) {
+    next(error)
+  }
+}
+
+router.get('/kontol', kontil);
 router.get('/all', findAllProduct);
 router.get('/search', searchProduct);
 router.get('/:_id', findOneProduct);
