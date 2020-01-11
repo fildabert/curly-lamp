@@ -64,7 +64,7 @@ module.exports = {
 
   findAllOrders: () => new Promise(async (resolve, reject) => {
     try {
-      const orders = await PurchaseOrder.find({ dueDate: { $gt: new Date() } }).sort({ created_at: 'desc' }).populate('approvedBy').populate('productId');
+      const orders = await PurchaseOrder.find({ status: 'ACTIVE', dueDate: { $gt: new Date() } }).sort({ created_at: 'desc' }).populate('approvedBy').populate('productId');
       resolve(orders);
     } catch (error) {
       reject(error);
@@ -144,6 +144,20 @@ module.exports = {
         throw Object.assign(new Error('No results found'), { code: 400 });
       }
       resolve(order);
+    } catch (error) {
+      reject(error);
+    }
+  }),
+
+  deleteOrder: (payload) => new Promise(async (resolve, reject) => {
+    try {
+      const order = await PurchaseOrder.findOne({ _id: payload });
+      if (!order) {
+        throw Object.assign(new Error('Purchase Order not found'), { code: 400 });
+      }
+      order.status = 'DELETED';
+      await order.save();
+      resolve({ success: true, data: order });
     } catch (error) {
       reject(error);
     }

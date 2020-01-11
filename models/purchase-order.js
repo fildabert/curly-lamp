@@ -44,7 +44,7 @@ const purchaseOrderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['ACTIVE', 'COMPLETED', 'CLOSED'],
+    enum: ['ACTIVE', 'COMPLETED', 'CLOSED', 'DELETED'],
     default: 'ACTIVE',
   },
 }, { timestamps: true });
