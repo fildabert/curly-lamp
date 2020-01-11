@@ -7,13 +7,13 @@ const app = express();
 const mongoose = require('mongoose');
 
 const db = mongoose.connection;
-const port = 80;
+const port = 3000;
 const cors = require('cors');
 const routes = require('./routes/index');
 
 require('dotenv').config();
 
-const atlasURL = 'mongodb://fildabert:fildabert@cluster0-shard-00-00-6jiy2.mongodb.net:27017,cluster0-shard-00-01-6jiy2.mongodb.net:27017,cluster0-shard-00-02-6jiy2.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin&retryWrites=true&w=majority';
+const atlasURL = 'mongodb://fildabert:fildabert@cluster0-shard-00-00-6jiy2.gcp.mongodb.net:27017,cluster0-shard-00-01-6jiy2.gcp.mongodb.net:27017,cluster0-shard-00-02-6jiy2.gcp.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin&retryWrites=true&w=majority';
 const mongodbLocal = 'mongodb://127.0.0.1:27017/curly-lamp';
 
 mongoose.connect(atlasURL, { useNewUrlParser: true, useCreateIndex: true });
