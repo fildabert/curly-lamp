@@ -103,9 +103,15 @@ module.exports = {
 
       delete elasticSearchPayload._id;
 
-      await axios({
+      axios({
         method: 'PUT',
         url: `https://search-curly-lamp-qwjbn5oanez2yfrq5al4oorw5y.ap-southeast-1.es.amazonaws.com/transactions/_doc/${transactionCreated._id}`,
+        data: elasticSearchPayload,
+      });
+
+      axios({
+        method: 'PUT',
+        url: `https://ni4m1c9j8p:oojdvhi83y@curly-lamp-9585578215.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transactionCreated._id}`,
         data: elasticSearchPayload,
       });
 
