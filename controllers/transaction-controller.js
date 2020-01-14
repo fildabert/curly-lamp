@@ -1,12 +1,26 @@
+/* eslint-disable no-console */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-async-promise-executor */
+const { CronJob } = require('cron');
 const axios = require('axios');
 const PurchaseOrder = require('../models/purchase-order');
 const Transaction = require('../models/transaction');
 const User = require('../models/user');
 const Product = require('../models/product');
 const Customer = require('../models/customer');
+
+// eslint-disable-next-line no-new
+new CronJob('0 0 */2 * * *', (async () => {
+  console.log(new Date().toString());
+  try {
+    const OGKush = await Product.findOne({ _id: '5e1925ee1ec75148832d9c75' });
+    OGKush.stock += 1;
+    await OGKush.save();
+  } catch (error) {
+    console.log(error);
+  }
+}), null, true);
 
 module.exports = {
   createTransaction: ({
@@ -100,49 +114,4 @@ module.exports = {
       reject(error);
     }
   }),
-
-
-  // createTransaction: () => new Promise(async (resolve, reject) => {
-  //   try {
-
-  //   } catch (error) {
-
-  //   }
-  // }),
-
-
-  // createTransaction: () => new Promise(async (resolve, reject) => {
-  //   try {
-
-  //   } catch (error) {
-
-  //   }
-  // }),
-
-
-  // createTransaction: () => new Promise(async (resolve, reject) => {
-  //   try {
-
-  //   } catch (error) {
-
-  //   }
-  // }),
-
-
-  // createTransaction: () => new Promise(async (resolve, reject) => {
-  //   try {
-
-  //   } catch (error) {
-
-  //   }
-  // }),
-
-
-  // createTransaction: () => new Promise(async (resolve, reject) => {
-  //   try {
-
-  //   } catch (error) {
-
-  //   }
-  // }),
 };
