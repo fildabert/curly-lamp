@@ -6,7 +6,6 @@ const productController = require('../controllers/product-controller');
 
 const createProduct = async (req, res, next) => {
   try {
-    console.log('CREATE PRODUCT')
     const result = await productController.createProduct(req.body);
     res.status(201).json(result);
   } catch (error) {
@@ -16,7 +15,6 @@ const createProduct = async (req, res, next) => {
 
 const findAllProduct = async (req, res, next) => {
   try {
-    console.log('FIND PRODUCT')
     const result = await productController.findAllProduct();
     res.status(200).json(result);
   } catch (error) {
@@ -60,16 +58,6 @@ const searchProduct = async (req, res, next) => {
   }
 };
 
-const kontil = async (req, res, next) => {
-  try {
-    console.log('MASUK');
-    res.status(200).json('SUCCESS');
-  } catch (error) {
-    next(error)
-  }
-}
-
-router.get('/kontol', kontil);
 router.get('/all', findAllProduct);
 router.get('/search', searchProduct);
 router.get('/:_id', findOneProduct);

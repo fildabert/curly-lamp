@@ -4,6 +4,7 @@ const Transaction = require('../models/transaction');
 const User = require('../models/user');
 const Product = require('../models/product');
 const Customer = require('../models/customer');
+const redisCache = require('../redis');
 
 
 module.exports = {
@@ -44,6 +45,7 @@ module.exports = {
       }
 
       await newOrder.save();
+      redisCache.del('purchaseOrder');
       resolve(newOrder);
     } catch (error) {
       reject(error);
@@ -62,10 +64,17 @@ module.exports = {
     }
   }),
 
-  findAllOrders: () => new Promise(async (resolve, reject) => {
+  findAllOrders: () => new Promise((resolve, reject) => {
     try {
-      const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], dueDate: { $gt: new Date() } }).sort({ created_at: 'desc' }).populate('approvedBy').populate('productId');
-      resolve(orders);
+      redisCache.get('purchaseOrder', async (err, cache) => {
+        if (cache) {
+          resolve(JSON.parse(cache));
+        } else {
+          const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], dueDate: { $gt: new Date() } }).sort({ created_at: 'desc' }).populate('approvedBy').populate('productId');
+          redisCache.setex('purchaseOrder', (60 * 60), JSON.stringify(orders));
+          resolve(orders);
+        }
+      });
     } catch (error) {
       reject(error);
     }
@@ -117,6 +126,7 @@ module.exports = {
       }
 
       const updatedOrder = await newOrder.save();
+      redisCache.del('purchaseOrder');
       resolve(updatedOrder);
     } catch (error) {
       reject(error);
@@ -131,6 +141,7 @@ module.exports = {
       }
       order.status = payload.status;
       const updatedOrder = await order.save();
+      redisCache.del('purchaseOrder');
       resolve(updatedOrder);
     } catch (error) {
       reject(error);
@@ -157,6 +168,7 @@ module.exports = {
       }
       order.status = 'DELETED';
       await order.save();
+      redisCache.del('purchaseOrder');
       resolve({ success: true, data: order });
     } catch (error) {
       reject(error);

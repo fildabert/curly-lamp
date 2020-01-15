@@ -2,13 +2,13 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-async-promise-executor */
-const { CronJob } = require('cron');
 const axios = require('axios');
 const PurchaseOrder = require('../models/purchase-order');
 const Transaction = require('../models/transaction');
 const User = require('../models/user');
 const Product = require('../models/product');
 const Customer = require('../models/customer');
+const redisCache = require('../redis');
 
 // eslint-disable-next-line no-new
 
@@ -80,6 +80,8 @@ module.exports = {
         purchaseOrder.status = 'COMPLETED';
       }
       await purchaseOrder.save();
+
+      redisCache.del('purchaseOrder');
 
       const elasticSearchPayload = {
         ...transactionCreated._doc,
