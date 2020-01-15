@@ -31,7 +31,7 @@ module.exports = {
           resolve(JSON.parse(cache));
         } else {
           const result = await Product.find({ active: true });
-          redisCache.setex('products', (60 * 15), JSON.stringify(result));
+          redisCache.setex('products', (60 * 60), JSON.stringify(result));
           resolve(result);
         }
       });
