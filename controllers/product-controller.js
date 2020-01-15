@@ -17,6 +17,7 @@ module.exports = {
         name, price, stock, description, category, productImage, unit,
       });
       await newProduct.save();
+      redisCache.del('products');
       resolve(newProduct);
     } catch (error) {
       reject(error);
@@ -87,6 +88,7 @@ module.exports = {
       newProduct.unit = unit || newProduct.unit;
 
       const updatedProduct = await newProduct.save();
+      redisCache.del('products');
       resolve(updatedProduct);
     } catch (error) {
       reject(error);
@@ -99,6 +101,7 @@ module.exports = {
       targetProduct.active = false;
 
       await targetProduct.save();
+      redisCache.del('products');
       resolve({ productId, success: true, message: 'Product is now inactive' });
     } catch (error) {
       reject(error);
