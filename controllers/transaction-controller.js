@@ -82,6 +82,7 @@ module.exports = {
       await purchaseOrder.save();
 
       redisCache.del('purchaseOrder');
+      redisCache.del('products');
 
       const elasticSearchPayload = {
         ...transactionCreated._doc,
