@@ -1,5 +1,6 @@
 /* eslint-disable no-async-promise-executor */
 const Product = require('../models/product');
+const redisCache = require('../redis');
 
 module.exports = {
   createProduct: ({
@@ -22,10 +23,19 @@ module.exports = {
     }
   }),
 
-  findAllProduct: () => new Promise(async (resolve, reject) => {
+  findAllProduct: () => new Promise((resolve, reject) => {
     try {
-      const result = await Product.find({ active: true });
-      resolve(result);
+      redisCache.get('products', async (err, cache) => {
+        if (cache) {
+          console.log('FROM CACHE')
+          resolve(JSON.parse(cache));
+        } else {
+          console.log('NOT FROM CACHE')
+          const result = await Product.find({ active: true });
+          redisCache.setex('products', (60 * 15), JSON.stringify(result));
+          resolve(result);
+        }
+      });
     } catch (error) {
       reject(error);
     }
