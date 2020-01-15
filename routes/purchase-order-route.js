@@ -7,6 +7,7 @@ const purchaseOrderController = require('../controllers/purchase-order-controlle
 
 const findAllOrders = async (req, res, next) => {
   try {
+    console.log('FINDALL');
     const result = await purchaseOrderController.findAllOrders();
     res.status(200).json(result);
   } catch (error) {
