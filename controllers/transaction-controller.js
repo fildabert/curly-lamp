@@ -11,16 +11,7 @@ const Product = require('../models/product');
 const Customer = require('../models/customer');
 
 // eslint-disable-next-line no-new
-new CronJob('0 0 */2 * * *', (async () => {
-  console.log(new Date().toString());
-  try {
-    const OGKush = await Product.findOne({ _id: '5e1925ee1ec75148832d9c75' });
-    OGKush.stock += 1;
-    await OGKush.save();
-  } catch (error) {
-    console.log(error);
-  }
-}), null, true);
+
 
 module.exports = {
   createTransaction: ({
