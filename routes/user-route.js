@@ -34,8 +34,17 @@ const login = async (req, res, next) => {
   }
 };
 
+const addNotification = async (req, res, next) => {
+  try {
+    const result = await userController.addNotification(req.body.notificationToken);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
 
 router.post('/register', createUser);
 router.post('/login', login);
+router.post('/notificationtoken', addNotification);
 
 module.exports = router;

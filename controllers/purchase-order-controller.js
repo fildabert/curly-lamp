@@ -3,7 +3,6 @@ const PurchaseOrder = require('../models/purchase-order');
 const Transaction = require('../models/transaction');
 const User = require('../models/user');
 const Product = require('../models/product');
-const Customer = require('../models/customer');
 const redisCache = require('../redis');
 
 
