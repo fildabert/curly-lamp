@@ -142,9 +142,6 @@ module.exports = {
         throw Object.assign(new Error('Purchase Order not found'), { code: 400 });
       }
 
-      checkProduct.stock -= (actualAmount - amount);
-      purchaseOrder.ordersCompleted += (actualAmount - amount);
-
       if (purchaseOrder.ordersCompleted > purchaseOrder.totalAmount) {
         throw Object.assign(new Error('Purchase Order may be completed or the amount you entered is too much'), { code: 400, data: purchaseOrder });
       }
@@ -156,12 +153,17 @@ module.exports = {
         throw Object.assign(new Error('Transaction not found'), { code: 400 });
       }
 
+      if (!transaction.actualAmount) {
+        checkProduct.stock -= (Number(actualAmount) - Number(amount));
+        transaction.revenue = Number(sellingPrice) * Number(actualAmount);
+        transaction.profit = (Number(sellingPrice) * Number(actualAmount)) - Number(buyingPrice);
+        purchaseOrder.ordersCompleted += (Number(actualAmount) - Number(amount));
+      }
+
       transaction.invoice = invoice;
       transaction.actualAmount = actualAmount;
       transaction.dateReceived = new Date();
       transaction.status = 'COMPLETED';
-      transaction.revenue = sellingPrice * actualAmount;
-      transaction.profit = (sellingPrice * actualAmount) - buyingPrice;
 
       await checkProduct.save();
       await purchaseOrder.save();
