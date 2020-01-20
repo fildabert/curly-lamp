@@ -158,6 +158,7 @@ module.exports = {
       customerId,
       totalAmount,
       ordersCompleted,
+      PONo
       // dueDate,
     } = payload;
 
@@ -174,6 +175,7 @@ module.exports = {
       newOrder.customerId = customerId || newOrder.customerId;
       newOrder.totalAmount = totalAmount || newOrder.totalAmount;
       newOrder.ordersCompleted = ordersCompleted || newOrder.ordersCompleted;
+      newOrder.PONo = PONo || newOrder.PONo;
       // newOrder.dueDate = dueDate || newOrder.dueDate;
 
       if (newOrder.totalAmount - newOrder.ordersCompleted > 0) {
