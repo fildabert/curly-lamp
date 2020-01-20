@@ -94,6 +94,9 @@ module.exports = {
       product.stock += totalAmount;
       await product.save();
       await newOrder.save();
+      redisCache.del('purchaseOrder');
+      redisCache.del('products');
+
       resolve(newOrder);
     } catch (error) {
       reject(error);
