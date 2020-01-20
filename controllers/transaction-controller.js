@@ -154,7 +154,12 @@ module.exports = {
       }
 
       if (!transaction.actualAmount) {
+        console.log(`${checkProduct.stock} - (${Number(actualAmount) - Number(amount)})`)
+        console.log(actualAmount, amount);
+        console.log(actualAmount - amount);
+        console.log(Number(actualAmount) - Number(amount));
         checkProduct.stock -= (Number(actualAmount) - Number(amount));
+        console.log(checkProduct.stock)
         transaction.revenue = Number(sellingPrice) * Number(actualAmount);
         transaction.profit = (Number(sellingPrice) * Number(actualAmount)) - Number(buyingPrice);
         purchaseOrder.ordersCompleted += (Number(actualAmount) - Number(amount));
