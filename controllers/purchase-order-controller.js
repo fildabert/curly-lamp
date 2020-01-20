@@ -70,9 +70,14 @@ module.exports = {
     // dueDate,
   }) => new Promise(async (resolve, reject) => {
     try {
+      const product = await Product.findOne({ _id: productId });
+      if (!product) {
+        throw Object.assign(new Error('Product Not Found'), { code: 400 });
+      }
+
       const newOrder = new PurchaseOrder({
         productId,
-        price,
+        price: product.price,
         customerName,
         customerPhone,
         customerAddress,
@@ -85,11 +90,6 @@ module.exports = {
         type: 'SUPPLIER',
         // dueDate,
       });
-
-      const product = await Product.findOne({ _id: productId });
-      if (!product) {
-        throw Object.assign(new Error('Product Not Found'), { code: 400 });
-      }
 
       product.stock += totalAmount;
       await product.save();
