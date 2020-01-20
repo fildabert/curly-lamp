@@ -158,7 +158,8 @@ module.exports = {
       customerId,
       totalAmount,
       ordersCompleted,
-      PONo
+      PONo,
+      price,
       // dueDate,
     } = payload;
 
@@ -169,6 +170,7 @@ module.exports = {
       }
 
       newOrder.productId = productId || newOrder.productId;
+      newOrder.price = price || newOrder.price;
       newOrder.customerName = customerName || newOrder.customerName;
       newOrder.customerPhone = customerPhone || newOrder.customerPhone;
       newOrder.customerAddress = customerAddress || newOrder.customerAddress;
