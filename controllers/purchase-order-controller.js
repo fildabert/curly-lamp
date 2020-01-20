@@ -20,7 +20,7 @@ module.exports = {
     ordersCompleted = 0,
     approvedBy,
     PONo,
-    dueDate,
+    // dueDate,
   }) => new Promise(async (resolve, reject) => {
     try {
       const newOrder = new PurchaseOrder({
@@ -36,6 +36,7 @@ module.exports = {
         approvedBy,
         PONo,
         type: 'BUYER',
+        // dueDate,
       });
 
       const product = await Product.findOne({ _id: productId });
@@ -66,7 +67,7 @@ module.exports = {
     ordersCompleted = 0,
     approvedBy,
     PONo,
-    dueDate,
+    // dueDate,
   }) => new Promise(async (resolve, reject) => {
     try {
       const newOrder = new PurchaseOrder({
@@ -82,6 +83,7 @@ module.exports = {
         approvedBy,
         PONo,
         type: 'SUPPLIER',
+        // dueDate,
       });
 
       const product = await Product.findOne({ _id: productId });
@@ -156,7 +158,7 @@ module.exports = {
       customerId,
       totalAmount,
       ordersCompleted,
-      dueDate,
+      // dueDate,
     } = payload;
 
     try {
@@ -172,7 +174,7 @@ module.exports = {
       newOrder.customerId = customerId || newOrder.customerId;
       newOrder.totalAmount = totalAmount || newOrder.totalAmount;
       newOrder.ordersCompleted = ordersCompleted || newOrder.ordersCompleted;
-      newOrder.dueDate = dueDate || newOrder.dueDate;
+      // newOrder.dueDate = dueDate || newOrder.dueDate;
 
       if (newOrder.totalAmount - newOrder.ordersCompleted > 0) {
         newOrder.status = 'ACTIVE';

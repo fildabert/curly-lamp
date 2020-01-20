@@ -14,6 +14,15 @@ const findAllOrders = async (req, res, next) => {
   }
 };
 
+const findAllOrdersSupplier = async (req, res, next) => {
+  try {
+    const result = await purchaseOrderController.findAllOrdersSupplier();
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const findOneOrder = async (req, res, next) => {
   try {
     const result = await purchaseOrderController.findOneOrder(req.params._id);
@@ -50,6 +59,15 @@ const createOrder = async (req, res, next) => {
   }
 };
 
+const createOrder = async (req, res, next) => {
+  try {
+    const result = await purchaseOrderController.createOrderSupplier(req.body);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const editOrder = async (req, res, next) => {
   try {
     const result = await purchaseOrderController.editOrder(req.params._id, req.body);
@@ -78,10 +96,12 @@ const deleteOrder = async (req, res, next) => {
 };
 
 router.get('/all', findAllOrders);
+router.get('/supplier', findAllOrdersSupplier);
 router.get('/due', findOrdersDue);
 router.get('/search', searchOrder);
 router.get('/:_id', findOneOrder);
 router.post('/', createOrder);
+router.post('/supplier', createOrderSupplier);
 router.put('/:_id', editOrder);
 router.patch('/:_id', patchOrder);
 router.delete('/:_id', deleteOrder);
