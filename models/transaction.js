@@ -9,6 +9,10 @@ const transactionSchema = new mongoose.Schema({
     type: ObjectId,
     ref: 'Product',
   },
+  orderId: {
+    type: ObjectId,
+    ref: 'PurchaseOrder',
+  },
   amount: {
     type: Number,
     required: [true, 'amount is empty'],
@@ -73,6 +77,10 @@ const transactionSchema = new mongoose.Schema({
   approvedBy: {
     type: ObjectId,
     ref: 'User',
+  },
+  active: {
+    type: Boolean,
+    default: true,
   },
 }, { timestamps: true });
 

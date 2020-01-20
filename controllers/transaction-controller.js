@@ -60,6 +60,7 @@ module.exports = {
 
       const newTransanction = new Transaction({
         productId,
+        orderId,
         amount,
         buyingPrice: checkProduct.price,
         sellingPrice,
@@ -196,6 +197,7 @@ module.exports = {
 
       const newTransanction = new Transaction({
         productId,
+        orderId,
         amount,
         buyingPrice: checkProduct.price,
         invoice,
@@ -248,6 +250,18 @@ module.exports = {
       // });
 
       resolve(newTransanction);
+    } catch (error) {
+      reject(error);
+    }
+  }),
+
+  findAllTransactions: () => new Promise(async (resolve, reject) => {
+    try {
+      const transaction = await Transaction.find({}).populate('orderId');
+      if (!transaction) {
+        throw Object.assign(new Error('Transaction not found'), { code: 400 });
+      }
+      resolve(transaction);
     } catch (error) {
       reject(error);
     }

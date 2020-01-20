@@ -40,6 +40,16 @@ const updateTransaction = async (req, res, next) => {
   }
 };
 
+const findAllTransactions = async (req, res, next) => {
+  try {
+    const result = await transactionController.findAllTransactions();
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+router.get('/all', findAllTransactions);
 router.post('/', createTransaction);
 router.post('/supplier', createTransactionSupplier);
 router.put('/:_id', updateTransaction);
