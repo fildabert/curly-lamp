@@ -59,7 +59,7 @@ const createOrder = async (req, res, next) => {
   }
 };
 
-const createOrder = async (req, res, next) => {
+const createOrderSupplier = async (req, res, next) => {
   try {
     const result = await purchaseOrderController.createOrderSupplier(req.body);
     res.status(200).json(result);
