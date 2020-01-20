@@ -157,6 +157,7 @@ module.exports = {
       }
 
       transaction.invoice = invoice;
+      transaction.actualAmount = actualAmount;
       transaction.dateReceived = new Date();
       transaction.status = 'COMPLETED';
       transaction.revenue = sellingPrice * actualAmount;
