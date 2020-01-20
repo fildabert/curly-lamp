@@ -1,4 +1,6 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-async-promise-executor */
+const ExcelJS = require('exceljs');
 const PurchaseOrder = require('../models/purchase-order');
 const Transaction = require('../models/transaction');
 const User = require('../models/user');
@@ -9,6 +11,7 @@ const redisCache = require('../redis');
 module.exports = {
   createOrder: ({
     productId,
+    price,
     customerName,
     customerPhone,
     customerAddress,
@@ -16,12 +19,13 @@ module.exports = {
     totalAmount,
     ordersCompleted = 0,
     approvedBy,
+    PONo,
     dueDate,
-    status,
   }) => new Promise(async (resolve, reject) => {
     try {
       const newOrder = new PurchaseOrder({
         productId,
+        price,
         customerName,
         customerPhone,
         customerAddress,
@@ -30,8 +34,8 @@ module.exports = {
         totalAmount,
         ordersCompleted,
         approvedBy,
-        dueDate,
-        status,
+        PONo,
+        type: 'BUYER',
       });
 
       const product = await Product.findOne({ _id: productId });
@@ -45,6 +49,49 @@ module.exports = {
 
       await newOrder.save();
       redisCache.del('purchaseOrder');
+      resolve(newOrder);
+    } catch (error) {
+      reject(error);
+    }
+  }),
+
+  createOrderSupplier: ({
+    productId,
+    price,
+    customerName,
+    customerPhone,
+    customerAddress,
+    customerId,
+    totalAmount,
+    ordersCompleted = 0,
+    approvedBy,
+    PONo,
+    dueDate,
+  }) => new Promise(async (resolve, reject) => {
+    try {
+      const newOrder = new PurchaseOrder({
+        productId,
+        price,
+        customerName,
+        customerPhone,
+        customerAddress,
+        customerId,
+        transactions: [],
+        totalAmount,
+        ordersCompleted,
+        approvedBy,
+        PONo,
+        type: 'SUPPLIER',
+      });
+
+      const product = await Product.findOne({ _id: productId });
+      if (!product) {
+        throw Object.assign(new Error('Product Not Found'), { code: 400 });
+      }
+
+      product.stock += totalAmount;
+      await product.save();
+      await newOrder.save();
       resolve(newOrder);
     } catch (error) {
       reject(error);
@@ -69,11 +116,20 @@ module.exports = {
         if (cache) {
           resolve(JSON.parse(cache));
         } else {
-          const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], dueDate: { $gt: new Date() } }).sort({ created_at: 'desc' }).populate('approvedBy').populate('productId');
+          const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'BUYER' }).sort({ created_at: 'desc' }).populate('approvedBy').populate('productId');
           redisCache.setex('purchaseOrder', (60 * 60), JSON.stringify(orders));
           resolve(orders);
         }
       });
+    } catch (error) {
+      reject(error);
+    }
+  }),
+
+  findAllOrdersSupplier: () => new Promise(async (resolve, reject) => {
+    try {
+      const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'SUPPLIER' }).sort({ created_at: 'desc' }).populate('approvedBy').populate('productId');
+      resolve(orders);
     } catch (error) {
       reject(error);
     }
@@ -100,7 +156,6 @@ module.exports = {
       customerId,
       totalAmount,
       ordersCompleted,
-      approvedBy,
       dueDate,
     } = payload;
 
@@ -117,7 +172,6 @@ module.exports = {
       newOrder.customerId = customerId || newOrder.customerId;
       newOrder.totalAmount = totalAmount || newOrder.totalAmount;
       newOrder.ordersCompleted = ordersCompleted || newOrder.ordersCompleted;
-      newOrder.approvedBy = approvedBy || newOrder.approvedBy;
       newOrder.dueDate = dueDate || newOrder.dueDate;
 
       if (newOrder.totalAmount - newOrder.ordersCompleted > 0) {
@@ -169,6 +223,44 @@ module.exports = {
       await order.save();
       redisCache.del('purchaseOrder');
       resolve({ success: true, data: order });
+    } catch (error) {
+      reject(error);
+    }
+  }),
+
+  print: (orderId) => new Promise(async (resolve, reject) => {
+    try {
+      const purchaseOrder = await (await PurchaseOrder.findOne({ _id: orderId })).populate('productId').populate('transactions').populate('approvedBy');
+      if (!purchaseOrder) {
+        throw Object.assign(new Error('Puchase Order not found'), { code: 400 });
+      }
+      const workbook = new ExcelJS.Workbook();
+      const book = await workbook.xlsx.readFile(`${process.cwd()}/invoice-template.xlsx`);
+      const worksheet = book.getWorksheet('Service Invoice');
+
+      let cell = worksheet.getCell('C10');
+      cell.value = purchaseOrder.customerName;
+
+      cell = worksheet.getCell('C11');
+      cell.value = purchaseOrder.customerAddress;
+
+      cell = worksheet.getCell('C15');
+      cell.value = purchaseOrder._id;
+
+      cell = worksheet.getCell('D15');
+      if (purchaseOrder.approvedBy) {
+        cell.value = purchaseOrder.approvedBy.username;
+      }
+
+      cell = worksheet.getCell('E15');
+      cell.value = purchaseOrder.productId.name;
+
+      cell = worksheet.getCell('G15');
+      cell.value = purchaseOrder.dueDate;
+
+
+      book.xlsx.writeFile(`${process.cwd()}/res.xlsx`);
+      resolve(book);
     } catch (error) {
       reject(error);
     }

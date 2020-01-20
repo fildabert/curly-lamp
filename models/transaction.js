@@ -13,9 +13,22 @@ const transactionSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'amount is empty'],
   },
+  actualAmount: {
+    type: Number,
+    default: null,
+  },
+  invoice: {
+    type: String,
+    default: null,
+  },
+  buyingPrice: {
+    type: Number,
+    default: null,
+  },
   sellingPrice: {
     type: Number,
-    required: [true, 'sellingPrice (per unit) is empty'],
+    default: null,
+    // required: [true, 'sellingPrice (per unit) is empty'],
   },
   revenue: {
     type: Number,
@@ -41,13 +54,21 @@ const transactionSchema = new mongoose.Schema({
   },
   dateDelivered: {
     type: Date,
-    required: [true, 'dueDate is empty'],
+    // required: [true, 'dueDate is empty'],
   },
   status: {
     type: String,
   },
   dateReceived: {
     type: Date,
+  },
+  dueDate: {
+    type: Date,
+    // required: [true, 'dueDate is empty'],
+  },
+  type: {
+    type: String,
+    enum: ['BUYER', 'SUPPLIER'],
   },
   approvedBy: {
     type: ObjectId,

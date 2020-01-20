@@ -9,6 +9,14 @@ const purchaseOrderSchema = new mongoose.Schema({
     type: ObjectId,
     ref: 'Product',
   },
+  price: {
+    type: Number,
+    required: [true, 'price is empty'],
+  },
+  PONo: {
+    type: String,
+    default: null,
+  },
   customerName: {
     type: String,
     required: [true, 'customerName is empty'],
@@ -40,12 +48,16 @@ const purchaseOrderSchema = new mongoose.Schema({
   },
   dueDate: {
     type: Date,
-    required: [true, 'dueDate is empty'],
+    // required: [true, 'dueDate is empty'],
   },
   status: {
     type: String,
     enum: ['ACTIVE', 'COMPLETED', 'CLOSED', 'DELETED'],
     default: 'ACTIVE',
+  },
+  type: {
+    type: String,
+    enum: ['BUYER', 'SUPPLIER'],
   },
 }, { timestamps: true });
 

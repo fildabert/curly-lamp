@@ -8,7 +8,7 @@ const Notification = require('../models/notification');
 const { signToken } = require('../helpers/jwt');
 
 // eslint-disable-next-line no-new
-new CronJob('0 */2 * * *', (async () => {
+new CronJob('0 */6 * * *', (async () => {
   try {
     const notifications = await Notification.find({});
     const notifArr = [];
