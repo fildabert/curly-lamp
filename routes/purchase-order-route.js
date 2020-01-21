@@ -98,11 +98,12 @@ const deleteOrder = async (req, res, next) => {
 
 const printOrder = async (req, res, next) => {
   try {
-    // req.headers['content-type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-    await purchaseOrderController.print(req.params._id, res);
-    // res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    // res.setHeader('Content-Disposition', 'attachment; filename=' + 'Report.xlsx');
-
+    const payload = {
+      orderId: req.params._id,
+      startDate: new Date(req.query.startDate),
+      endDate: new Date(req.query.endDate),
+    };
+    await purchaseOrderController.print(payload, res);
     // res.end();
   } catch (error) {
     next(error);

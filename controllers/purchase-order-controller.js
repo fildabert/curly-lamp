@@ -237,11 +237,18 @@ module.exports = {
     }
   }),
 
-  print: (orderId, res) => new Promise(async (resolve, reject) => {
+  print: (payload, res) => new Promise(async (resolve, reject) => {
     try {
-      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId }).populate('productId').populate('transactions').populate('approvedBy');
+      const { orderId, startDate, endDate } = payload;
+      startDate.setHours(0, 0, 0, 0);
+      endDate.setHours(23, 59, 59, 999);
+      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId }).populate('productId').populate('transactions', null, { dateReceived: { $gte: startDate, $lte: endDate } }).populate('approvedBy');
       if (!purchaseOrder) {
         throw Object.assign(new Error('Puchase Order not found'), { code: 400 });
+      }
+
+      if (purchaseOrder.transactions.length === 0) {
+        throw Object.assign(new Error(`No invoice found between ${startDate} to ${endDate}`));
       }
       const workbook = new ExcelJS.Workbook();
       const book = await workbook.xlsx.readFile(`${process.cwd()}/Invoice&PO-template.xlsx`);
