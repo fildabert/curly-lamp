@@ -67,7 +67,7 @@ module.exports = {
     ordersCompleted = 0,
     approvedBy,
     PONo,
-    // dueDate,
+    dueDate,
   }) => new Promise(async (resolve, reject) => {
     try {
       const product = await Product.findOne({ _id: productId });
@@ -88,7 +88,7 @@ module.exports = {
         approvedBy,
         PONo,
         type: 'SUPPLIER',
-        // dueDate,
+        dueDate,
       });
 
       product.stock += totalAmount;
