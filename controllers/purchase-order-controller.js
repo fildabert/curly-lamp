@@ -237,39 +237,64 @@ module.exports = {
     }
   }),
 
-  print: (orderId) => new Promise(async (resolve, reject) => {
+  print: (orderId, res) => new Promise(async (resolve, reject) => {
     try {
-      const purchaseOrder = await (await PurchaseOrder.findOne({ _id: orderId })).populate('productId').populate('transactions').populate('approvedBy');
+      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId }).populate('productId').populate('transactions').populate('approvedBy');
       if (!purchaseOrder) {
         throw Object.assign(new Error('Puchase Order not found'), { code: 400 });
       }
       const workbook = new ExcelJS.Workbook();
-      const book = await workbook.xlsx.readFile(`${process.cwd()}/invoice-template.xlsx`);
-      const worksheet = book.getWorksheet('Service Invoice');
+      const book = await workbook.xlsx.readFile(`${process.cwd()}/Invoice&PO-template.xlsx`);
+      const POworksheet = book.getWorksheet('PO');
 
-      let cell = worksheet.getCell('C10');
-      cell.value = purchaseOrder.customerName;
+      let sumQuantity = 0;
+      let colNo = 8;
+      for (let i = 0; i < purchaseOrder.transactions.length; i += 1) {
+        const DONumber = POworksheet.getCell(`B${colNo}`);
+        DONumber.value = purchaseOrder.transactions[i].invoice;
 
-      cell = worksheet.getCell('C11');
-      cell.value = purchaseOrder.customerAddress;
+        const carNo = POworksheet.getCell(`C${colNo}`);
+        carNo.value = purchaseOrder.transactions[i].carNo;
 
-      cell = worksheet.getCell('C15');
-      cell.value = purchaseOrder._id;
+        const poDate = POworksheet.getCell(`D${colNo}`);
+        poDate.value = purchaseOrder.transactions[i].dateReceived;
 
-      cell = worksheet.getCell('D15');
-      if (purchaseOrder.approvedBy) {
-        cell.value = purchaseOrder.approvedBy.username;
+        const quantity = POworksheet.getCell(`E${colNo}`);
+        quantity.value = +purchaseOrder.transactions[i].actualAmount;
+        sumQuantity += +purchaseOrder.transactions[i].actualAmount;
+
+        const price = POworksheet.getCell(`F${colNo}`);
+        price.value = +purchaseOrder.transactions[i].sellingPrice;
+
+        const amountSum = POworksheet.getCell(`G${colNo}`);
+        amountSum.value = +purchaseOrder.transactions[i].sellingPrice * +purchaseOrder.transactions[i].actualAmount;
+        colNo += 1;
       }
 
-      cell = worksheet.getCell('E15');
-      cell.value = purchaseOrder.productId.name;
+      const invoiceWorksheet = book.getWorksheet('Invoice');
 
-      cell = worksheet.getCell('G15');
-      cell.value = purchaseOrder.dueDate;
+      const to = invoiceWorksheet.getCell('B7');
+      to.value = purchaseOrder.customerName;
+
+      const productName = invoiceWorksheet.getCell('A13');
+      productName.value = purchaseOrder.productId.name;
+
+      const totalQuantity = invoiceWorksheet.getCell('B13');
+      totalQuantity.value = sumQuantity;
+
+      const invoicePrice = invoiceWorksheet.getCell('C13');
+      invoicePrice.value = purchaseOrder.price;
 
 
-      book.xlsx.writeFile(`${process.cwd()}/res.xlsx`);
-      resolve(book);
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', 'attachment; filename=' + `Invoice[${purchaseOrder.PONo}]/${purchaseOrder.productId.name}.xlsx`);
+
+      await book.xlsx.write(res);
+      res.end();
+      // const resultSave = await book.xlsx.writeFile(`${process.cwd()}/Invoice${purchaseOrder.PONo}.xlsx`);
+      // console.log(resultSave);
+      resolve(true);
+      // resolve(`${process.cwd()}/Invoice${purchaseOrder.PONo}.xlsx`);
     } catch (error) {
       reject(error);
     }

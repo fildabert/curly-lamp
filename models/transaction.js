@@ -21,6 +21,10 @@ const transactionSchema = new mongoose.Schema({
     type: Number,
     default: null,
   },
+  carNo: {
+    type: String,
+    default: null,
+  },
   invoice: {
     type: String,
     default: null,

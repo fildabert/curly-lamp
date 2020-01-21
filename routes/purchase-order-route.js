@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 const express = require('express');
+const fs = require('fs');
 
 const router = express.Router();
 const purchaseOrderController = require('../controllers/purchase-order-controller');
@@ -95,11 +96,25 @@ const deleteOrder = async (req, res, next) => {
   }
 };
 
+const printOrder = async (req, res, next) => {
+  try {
+    // req.headers['content-type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    await purchaseOrderController.print(req.params._id, res);
+    // res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    // res.setHeader('Content-Disposition', 'attachment; filename=' + 'Report.xlsx');
+
+    // res.end();
+  } catch (error) {
+    next(error);
+  }
+};
+
 router.get('/all', findAllOrders);
 router.get('/supplier', findAllOrdersSupplier);
 router.get('/due', findOrdersDue);
 router.get('/search', searchOrder);
 router.get('/:_id', findOneOrder);
+router.get('/print/:_id', printOrder);
 router.post('/', createOrder);
 router.post('/supplier', createOrderSupplier);
 router.put('/:_id', editOrder);
