@@ -187,7 +187,7 @@ module.exports = {
     customerPhone,
     customerAddress,
     approvedBy,
-    // dueDate,
+    dueDate,
   }) => new Promise(async (resolve, reject) => {
     try {
       const checkProduct = await Product.findOne({ _id: productId });
@@ -216,7 +216,7 @@ module.exports = {
         type: 'SUPPLIER',
         status: 'COMPLETED',
         dateReceived: new Date(),
-        // dueDate,
+        dueDate,
       });
 
       const transactionCreated = await newTransanction.save();

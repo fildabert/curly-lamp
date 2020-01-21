@@ -74,7 +74,7 @@ module.exports = {
       if (!product) {
         throw Object.assign(new Error('Product Not Found'), { code: 400 });
       }
-
+      console.log(dueDate, "<<");
       const newOrder = new PurchaseOrder({
         productId,
         price: product.price,
