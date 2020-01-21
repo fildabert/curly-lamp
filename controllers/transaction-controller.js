@@ -206,7 +206,7 @@ module.exports = {
         amount,
         buyingPrice: checkProduct.price,
         invoice,
-        actualAmount: amount
+        actualAmount: amount,
         // revenue,
         // profit,
         customerName,
