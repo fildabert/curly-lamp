@@ -206,6 +206,7 @@ module.exports = {
         amount,
         buyingPrice: checkProduct.price,
         invoice,
+        actualAmount: amount
         // revenue,
         // profit,
         customerName,
@@ -214,6 +215,7 @@ module.exports = {
         approvedBy,
         type: 'SUPPLIER',
         status: 'COMPLETED',
+        dateReceived: new Date(),
         // dueDate,
       });
 
@@ -262,7 +264,7 @@ module.exports = {
 
   findAllTransactions: () => new Promise(async (resolve, reject) => {
     try {
-      const transaction = await Transaction.find({ active: true }).populate('orderId').populate('productId');
+      const transaction = await Transaction.find({ active: true }).sort({ created_at: 'desc' }).populate('orderId').populate('productId');
       if (!transaction) {
         throw Object.assign(new Error('Transaction not found'), { code: 400 });
       }

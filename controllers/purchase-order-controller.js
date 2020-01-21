@@ -242,7 +242,7 @@ module.exports = {
       const { orderId, startDate, endDate } = payload;
       startDate.setHours(0, 0, 0, 0);
       endDate.setHours(23, 59, 59, 999);
-      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId }).populate('productId').populate('transactions', null, { dateReceived: { $gte: startDate, $lte: endDate } }).populate('approvedBy');
+      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId, status: 'COMPLETED' }).populate('productId').populate('transactions', null, { dateReceived: { $gte: startDate, $lte: endDate } }).populate('approvedBy');
       if (!purchaseOrder) {
         throw Object.assign(new Error('Puchase Order not found'), { code: 400 });
       }
