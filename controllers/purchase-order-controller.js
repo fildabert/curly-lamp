@@ -248,7 +248,7 @@ module.exports = {
       }
 
       if (purchaseOrder.transactions.length === 0) {
-        throw Object.assign(new Error(`No invoice found between ${startDate} to ${endDate}`));
+        throw Object.assign(new Error(`No invoice found between ${startDate} to ${endDate}`), { code: 400 });
       }
       const workbook = new ExcelJS.Workbook();
       const book = await workbook.xlsx.readFile(`${process.cwd()}/Invoice&PO-template.xlsx`);
