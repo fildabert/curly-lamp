@@ -3,6 +3,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-async-promise-executor */
 const axios = require('axios');
+const cloudinary = require('cloudinary').v2;
 const PurchaseOrder = require('../models/purchase-order');
 const Transaction = require('../models/transaction');
 const User = require('../models/user');
@@ -292,6 +293,22 @@ module.exports = {
       resolve(transaction);
     } catch (error) {
       reject(error);
+    }
+  }),
+
+  upload: () => new Promise(async (resolve, reject) => {
+    try {
+      cloudinary.uploader.upload(`${process.cwd()}/temp.xlsx`,
+        { resource_type: 'raw', public_id: `Invoice[${purchaseOrder.PONo}] - ${purchaseOrder.productId.name}.xlsx` },
+        (err, result) => {
+          if (err) {
+            console.log(err);
+          } else {
+            const imageUrl = result.secure_url;
+          }
+        });
+    } catch (error) {
+
     }
   }),
 };
