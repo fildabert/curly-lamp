@@ -90,7 +90,7 @@ module.exports = {
         dueDate,
       });
 
-      product.stock += totalAmount;
+      product.stock += Number(totalAmount);
       await product.save();
       await newOrder.save();
       redisCache.del('purchaseOrder');

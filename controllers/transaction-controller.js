@@ -161,7 +161,7 @@ module.exports = {
         transaction.profit = (Number(sellingPrice) * Number(actualAmount)) - Number(buyingPrice);
         purchaseOrder.ordersCompleted += (Number(actualAmount) - Number(amount));
       }
-
+      transaction.sellingPrice = sellingPrice;
       transaction.invoice = invoice;
       transaction.actualAmount = actualAmount;
       if (!transaction.dateReceived) {
