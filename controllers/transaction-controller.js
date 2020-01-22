@@ -282,4 +282,16 @@ module.exports = {
       reject(error);
     }
   }),
+
+  findOneTransaction: (trxId) => new Promise(async (resolve, reject) => {
+    try {
+      const transaction = await Transaction.findOne({ _id: trxId }).populate('orderId').populate('productId');
+      if (!transaction) {
+        throw Object.assign(new Error('Transaction not found'), { code: 400 });
+      }
+      resolve(transaction);
+    } catch (error) {
+      reject(error);
+    }
+  }),
 };
