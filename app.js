@@ -9,6 +9,7 @@ const mongoose = require('mongoose');
 
 const db = mongoose.connection;
 const port = process.env.PORT || 3000;
+process.env.CLOUDINARY_URL = 'cloudinary://296483198438352:HMwEKEVfTZDSiNCejEhce2a6_qg@hmau1ff17';
 const cors = require('cors');
 const routes = require('./routes/index');
 

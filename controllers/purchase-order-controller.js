@@ -1,12 +1,12 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-async-promise-executor */
 const ExcelJS = require('exceljs');
+const cloudinary = require('cloudinary').v2;
 const PurchaseOrder = require('../models/purchase-order');
 const Transaction = require('../models/transaction');
 const User = require('../models/user');
 const Product = require('../models/product');
 const redisCache = require('../redis');
-
 
 module.exports = {
   createOrder: ({
@@ -74,7 +74,6 @@ module.exports = {
       if (!product) {
         throw Object.assign(new Error('Product Not Found'), { code: 400 });
       }
-      console.log(dueDate, "<<");
       const newOrder = new PurchaseOrder({
         productId,
         price: product.price,
@@ -294,8 +293,19 @@ module.exports = {
 
 
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-      res.setHeader('Content-Disposition', 'attachment; filename=' + `Invoice[${purchaseOrder.PONo}]/${purchaseOrder.productId.name}.xlsx`);
+      res.setHeader('Content-Disposition', 'attachment; filename=' + `Invoice[${purchaseOrder.PONo}] - ${purchaseOrder.productId.name}.xlsx`);
 
+      // await book.xlsx.writeFile(`${process.cwd()}/temp.xlsx`);
+
+      // cloudinary.uploader.upload(`${process.cwd()}/temp.xlsx`,
+      //   { resource_type: 'raw', public_id: `Invoice[${purchaseOrder.PONo}] - ${purchaseOrder.productId.name}.xlsx` },
+      //   (err, result) => {
+      //     if (err) {
+      //       console.log(err);
+      //     } else {
+      //       const imageUrl = result.secure_url;
+      //     }
+      //   });
       await book.xlsx.write(res);
       res.end();
       // const resultSave = await book.xlsx.writeFile(`${process.cwd()}/Invoice${purchaseOrder.PONo}.xlsx`);

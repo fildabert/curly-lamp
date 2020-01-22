@@ -164,7 +164,9 @@ module.exports = {
 
       transaction.invoice = invoice;
       transaction.actualAmount = actualAmount;
-      transaction.dateReceived = new Date();
+      if (!transaction.dateReceived) {
+        transaction.dateReceived = new Date();
+      }
       transaction.status = 'COMPLETED';
 
       await checkProduct.save();
@@ -187,6 +189,7 @@ module.exports = {
     customerPhone,
     customerAddress,
     approvedBy,
+    dateDelivered,
     dueDate,
   }) => new Promise(async (resolve, reject) => {
     try {
@@ -215,6 +218,7 @@ module.exports = {
         approvedBy,
         type: 'SUPPLIER',
         status: 'COMPLETED',
+        dateDelivered,
         dateReceived: new Date(),
         dueDate,
       });
