@@ -82,7 +82,7 @@ module.exports = {
       const transactionCreated = await newTransanction.save();
 
       purchaseOrder.transactions.push(transactionCreated);
-      purchaseOrder.ordersCompleted += amount;
+      purchaseOrder.ordersCompleted += Number(amount);
       if (purchaseOrder.ordersCompleted === purchaseOrder.totalAmount) {
         purchaseOrder.status = 'COMPLETED';
       }
@@ -226,7 +226,7 @@ module.exports = {
       const transactionCreated = await newTransanction.save();
 
       purchaseOrder.transactions.push(transactionCreated);
-      purchaseOrder.ordersCompleted += amount;
+      purchaseOrder.ordersCompleted += +amount;
       if (purchaseOrder.ordersCompleted === purchaseOrder.totalAmount) {
         purchaseOrder.status = 'COMPLETED';
       }
