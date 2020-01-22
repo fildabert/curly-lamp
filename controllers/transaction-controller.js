@@ -160,6 +160,11 @@ module.exports = {
         transaction.revenue = Number(sellingPrice) * Number(actualAmount);
         transaction.profit = (Number(sellingPrice) * Number(actualAmount)) - Number(buyingPrice);
         purchaseOrder.ordersCompleted += (Number(actualAmount) - Number(amount));
+      } else {
+        checkProduct.stock -= (Number(actualAmount) - Number(transaction.actualAmount));
+        transaction.revenue = Number(sellingPrice) * Number(actualAmount);
+        transaction.profit = (Number(sellingPrice) * Number(actualAmount)) - Number(buyingPrice);
+        purchaseOrder.ordersCompleted += (Number(actualAmount) - Number(transaction.actualAmount));
       }
       transaction.sellingPrice = sellingPrice;
       transaction.carNo = carNo;
