@@ -20,7 +20,7 @@ module.exports = {
     sellingPrice,
     revenue,
     profit,
-    carNo,
+    invoice,
     customerName,
     customerPhone,
     customerAddress,
@@ -65,7 +65,7 @@ module.exports = {
         amount,
         buyingPrice: checkProduct.price,
         sellingPrice,
-        carNo,
+        invoice,
         // revenue,
         // profit,
         customerName,
@@ -126,7 +126,7 @@ module.exports = {
     transactionId,
     orderId,
     productId,
-    invoice,
+    carNo,
     amount,
     actualAmount,
     buyingPrice,
@@ -162,7 +162,7 @@ module.exports = {
         purchaseOrder.ordersCompleted += (Number(actualAmount) - Number(amount));
       }
       transaction.sellingPrice = sellingPrice;
-      transaction.invoice = invoice;
+      transaction.carNo = carNo;
       transaction.actualAmount = actualAmount;
       if (!transaction.dateReceived) {
         transaction.dateReceived = new Date();
