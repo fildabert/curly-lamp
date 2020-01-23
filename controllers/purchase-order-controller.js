@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-async-promise-executor */
 const ExcelJS = require('exceljs');
@@ -241,7 +242,7 @@ module.exports = {
       const { orderId, startDate, endDate } = payload;
       startDate.setHours(0, 0, 0, 0);
       endDate.setHours(23, 59, 59, 999);
-      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId }).populate('productId').populate('transactions', null, { dateReceived: { $gte: startDate, $lte: endDate }, status: 'COMPLETED' }).populate('approvedBy');
+      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId }).populate('productId').populate('transactions', null, { dateDelivered: { $gte: startDate, $lte: endDate }, status: 'COMPLETED' }).populate('approvedBy');
       if (!purchaseOrder) {
         throw Object.assign(new Error('Puchase Order not found'), { code: 400 });
       }
@@ -263,7 +264,7 @@ module.exports = {
         carNo.value = purchaseOrder.transactions[i].carNo;
 
         const poDate = POworksheet.getCell(`D${colNo}`);
-        poDate.value = purchaseOrder.transactions[i].dateReceived;
+        poDate.value = purchaseOrder.transactions[i].dateDelivered;
 
         const quantity = POworksheet.getCell(`E${colNo}`);
         quantity.value = +purchaseOrder.transactions[i].actualAmount;
@@ -308,10 +309,7 @@ module.exports = {
       //   });
       await book.xlsx.write(res);
       res.end();
-      // const resultSave = await book.xlsx.writeFile(`${process.cwd()}/Invoice${purchaseOrder.PONo}.xlsx`);
-      // console.log(resultSave);
       resolve(true);
-      // resolve(`${process.cwd()}/Invoice${purchaseOrder.PONo}.xlsx`);
     } catch (error) {
       reject(error);
     }

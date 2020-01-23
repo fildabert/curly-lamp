@@ -1,6 +1,5 @@
 /* eslint-disable no-underscore-dangle */
 const express = require('express');
-const fs = require('fs');
 
 const router = express.Router();
 const purchaseOrderController = require('../controllers/purchase-order-controller');
