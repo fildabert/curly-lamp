@@ -30,7 +30,7 @@ module.exports = {
         if (cache) {
           resolve(JSON.parse(cache));
         } else {
-          const result = await Product.find({ active: true });
+          const result = await Product.find({ active: true }).sort({ createdAt: 'desc' });
           redisCache.setex('products', (60 * 60), JSON.stringify(result));
           resolve(result);
         }
