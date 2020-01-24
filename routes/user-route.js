@@ -4,6 +4,7 @@ const router = express.Router();
 const userController = require('../controllers/user-controller');
 
 
+
 const createUser = async (req, res, next) => {
   const {
     username,
@@ -43,8 +44,18 @@ const addNotification = async (req, res, next) => {
   }
 };
 
+const googleLogin = async (req, res, next) => {
+  try {
+    const result = await userController.googleLogin(req.body.idToken);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 router.post('/register', createUser);
 router.post('/login', login);
+router.post('/googlelogin', googleLogin);
 router.post('/notificationtoken', addNotification);
 
 module.exports = router;

@@ -22,6 +22,9 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  picture: {
+    type: String,
+  },
 }, { timestamps: true });
 
 userSchema.pre('save', function (next) {

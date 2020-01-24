@@ -3,9 +3,14 @@
 const bcrypt = require('bcryptjs');
 const { CronJob } = require('cron');
 const axios = require('axios');
+const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/user');
 const Notification = require('../models/notification');
 const { signToken } = require('../helpers/jwt');
+
+const CLIENT_ID = '329419294434-eurdatplfe2uglb5q3t1qfps7s3mns36.apps.googleusercontent.com';
+const client = new OAuth2Client(CLIENT_ID);
+
 
 // eslint-disable-next-line no-new
 new CronJob('0 */6 * * *', (async () => {
@@ -85,6 +90,47 @@ module.exports = {
       resolve({ created: 0 });
     } catch (error) {
       reject(error);
+    }
+  }),
+  googleLogin: (idToken) => new Promise(async (resolve, reject) => {
+    try {
+      const ticket = await client.verifyIdToken({
+        idToken,
+        audience: CLIENT_ID,
+      });
+      const payload = ticket.getPayload();
+
+      const user = await User.findOne({ email: payload.email });
+
+      if (user) {
+        const jwtPayload = {
+          _id: user._id,
+          username: user.username,
+          email: user.email,
+          admin: user.admin,
+        };
+        const jwtToken = signToken(jwtPayload);
+        return resolve(jwtToken);
+      }
+      const newUser = new User({
+        username: payload.name,
+        email: payload.email,
+        password: payload.jti,
+        admin: false,
+      });
+
+      const userCreated = await newUser.save();
+
+      const jwtPayload = {
+        _id: userCreated._id,
+        username: userCreated.username,
+        email: userCreated.email,
+        admin: userCreated.admin,
+      };
+      const jwtToken = signToken(jwtPayload);
+      return resolve(jwtToken);
+    } catch (error) {
+      return reject(error);
     }
   }),
 };
