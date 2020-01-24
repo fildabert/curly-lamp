@@ -1,3 +1,4 @@
+/* eslint-disable newline-per-chained-call */
 /* eslint-disable max-len */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-async-promise-executor */
@@ -121,7 +122,7 @@ module.exports = {
         if (cache) {
           resolve(JSON.parse(cache));
         } else {
-          const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'BUYER' }).sort({ created_at: 'desc' }).populate('approvedBy').populate('productId');
+          const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'BUYER' }).sort({ created_at: 'desc' }).populate('transactions').populate('approvedBy').populate('productId');
           redisCache.setex('purchaseOrder', (60 * 60), JSON.stringify(orders));
           resolve(orders);
         }

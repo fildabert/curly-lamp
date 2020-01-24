@@ -38,7 +38,7 @@ const createTransactionSupplier = async (req, res, next) => {
 
 const updateTransaction = async (req, res, next) => {
   try {
-    if (!req.body.actualAmount || !req.body.invoice) {
+    if (!req.body.actualAmount || !req.body.actualAmount == 0) {
       throw Object.assign(new Error('actualAmount and invoice is required'), { code: 400, data: req.body });
     }
     const result = await transactionController.updateTransaction({ transactionId: req.params._id, ...req.body });
