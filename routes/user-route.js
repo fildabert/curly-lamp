@@ -47,9 +47,9 @@ const addNotification = async (req, res, next) => {
 const googleLogin = async (req, res, next) => {
   try {
     const result = await userController.googleLogin(req.body.idToken);
-    res.status(200).json(result);
+    return res.status(200).json(result);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 

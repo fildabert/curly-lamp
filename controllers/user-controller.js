@@ -8,7 +8,7 @@ const User = require('../models/user');
 const Notification = require('../models/notification');
 const { signToken } = require('../helpers/jwt');
 
-const CLIENT_ID = '329419294434-eurdatplfe2uglb5q3t1qfps7s3mns36.apps.googleusercontent.com';
+const CLIENT_ID = '202223336560-46k4lh950qbhudoi797tfhnqmdmkgpjl.apps.googleusercontent.com';
 const client = new OAuth2Client(CLIENT_ID);
 
 
@@ -99,9 +99,7 @@ module.exports = {
         audience: CLIENT_ID,
       });
       const payload = ticket.getPayload();
-
       const user = await User.findOne({ email: payload.email });
-
       if (user) {
         const jwtPayload = {
           _id: user._id,
