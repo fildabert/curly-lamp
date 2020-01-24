@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable no-param-reassign */
 /* eslint-disable max-len */
 /* eslint-disable no-underscore-dangle */
@@ -49,11 +50,9 @@ const createTransaction = async (req, res, next) => {
     }
     if (Number(repeat) > 0) {
       await repeatValidation(req.body);
-      const promises = [];
       for (let i = 0; i < repeat; i += 1) {
         await transactionController.createTransaction(req.body);
       }
-      // const created = await Promise.all(promises);
       return res.status(200).json({ success: true });
     }
     const result = await transactionController.createTransaction(req.body);

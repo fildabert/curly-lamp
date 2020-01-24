@@ -122,7 +122,7 @@ module.exports = {
         if (cache) {
           resolve(JSON.parse(cache));
         } else {
-          const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'BUYER' }).sort({ created_at: 'desc' }).populate('transactions').populate('approvedBy').populate('productId');
+          const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'BUYER' }).sort({ createdAt: 'desc' }).populate('transactions').populate('approvedBy').populate('productId');
           redisCache.setex('purchaseOrder', (60 * 60), JSON.stringify(orders));
           resolve(orders);
         }
@@ -134,7 +134,7 @@ module.exports = {
 
   findAllOrdersSupplier: () => new Promise(async (resolve, reject) => {
     try {
-      const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'SUPPLIER' }).sort({ created_at: 'desc' }).populate('approvedBy').populate('productId');
+      const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'SUPPLIER' }).sort({ createdAt: 'desc' }).populate('approvedBy').populate('productId');
       resolve(orders);
     } catch (error) {
       reject(error);
