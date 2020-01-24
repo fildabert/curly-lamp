@@ -6,20 +6,60 @@ const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 
 const Transaction = require('../models/transaction');
+const PurchaseOrder = require('../models/purchase-order');
+const Product = require('../models/product');
 
 const router = express.Router();
 const transactionController = require('../controllers/transaction-controller');
 
+const repeatValidation = async (data) => {
+  const {
+    productId,
+    orderId,
+    amount,
+    repeat,
+  } = data;
+  const checkProduct = await Product.findOne({ _id: productId });
+  if (!checkProduct) {
+    throw Object.assign(new Error('Product Not Found'), { code: 400 });
+  }
+
+  if (checkProduct.stock - (amount * repeat) <= 0) {
+    throw Object.assign(new Error(`${checkProduct.name} is out of stock: Stock: ${checkProduct.stock} - the amount you entered: ${amount * repeat}`), { code: 400 });
+  }
+
+  const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId });
+  if (!purchaseOrder) {
+    throw Object.assign(new Error('Purchase Order not found'), { code: 400 });
+  }
+
+  if (purchaseOrder.ordersCompleted + (amount * repeat) > purchaseOrder.totalAmount) {
+    throw Object.assign(
+      new Error(`You can only repeat this order for a maximum of ${Math.floor((purchaseOrder.totalAmount - purchaseOrder.ordersCompleted) / amount)} times`),
+      { code: 400, data: purchaseOrder },
+    );
+  }
+};
+
 const createTransaction = async (req, res, next) => {
   try {
-    const { amount } = req.body;
+    const { amount, repeat } = req.body;
     if (!amount || +amount <= 0) {
       throw Object.assign(new Error('Validation Errors: Invalid/Incomplete Input'), { code: 400, data: req.body });
     }
+    if (Number(repeat) > 0) {
+      await repeatValidation(req.body);
+      const promises = [];
+      for (let i = 0; i < repeat; i += 1) {
+        promises.push(transactionController.createTransaction(req.body));
+      }
+      const created = await Promise.all(promises);
+      return res.status(200).json(created);
+    }
     const result = await transactionController.createTransaction(req.body);
-    res.status(200).json(result);
+    return res.status(200).json(result);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
