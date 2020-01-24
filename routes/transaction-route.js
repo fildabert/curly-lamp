@@ -51,10 +51,10 @@ const createTransaction = async (req, res, next) => {
       await repeatValidation(req.body);
       const promises = [];
       for (let i = 0; i < repeat; i += 1) {
-        promises.push(transactionController.createTransaction(req.body));
+        await transactionController.createTransaction(req.body);
       }
-      const created = await Promise.all(promises);
-      return res.status(200).json(created);
+      // const created = await Promise.all(promises);
+      return res.status(200).json({ success: true });
     }
     const result = await transactionController.createTransaction(req.body);
     return res.status(200).json(result);
