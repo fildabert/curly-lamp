@@ -128,10 +128,12 @@ module.exports = {
     orderId,
     productId,
     carNo,
+    invoice,
     amount,
     actualAmount,
     buyingPrice,
     sellingPrice,
+    dateDelivered,
     dueDate,
   }) => new Promise(async (resolve, reject) => {
     try {
@@ -170,7 +172,9 @@ module.exports = {
       transaction.sellingPrice = sellingPrice;
       transaction.carNo = carNo;
       transaction.actualAmount = actualAmount;
+      transaction.dateDelivered = dateDelivered
       transaction.dueDate = dueDate;
+      transaction.invoice = invoice;
       if (!transaction.dateReceived) {
         transaction.dateReceived = new Date();
       }
@@ -292,6 +296,26 @@ module.exports = {
         throw Object.assign(new Error('Transaction not found'), { code: 400 });
       }
       resolve(transaction);
+    } catch (error) {
+      reject(error);
+    }
+  }),
+
+  deleteTransaction: ({ trxId, orderId }) => new Promise(async (resolve, reject) => {
+    try {
+      const transaction = await Transaction.findOne({ _id: trxId });
+      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId });
+      if (!transaction || !purchaseOrder) {
+        throw Object.assign(new Error('Not found'), { code: 400 });
+      }
+      transaction.active = false;
+      const trxIndex = purchaseOrder.transactions.indexOf(trxId);
+      if (trxIndex !== -1) {
+        purchaseOrder.transactions.splice(trxIndex, 1);
+      }
+      await transaction.save();
+      await purchaseOrder.save();
+      resolve({ success: true });
     } catch (error) {
       reject(error);
     }
