@@ -173,7 +173,7 @@ module.exports = {
       transaction.carNo = carNo || transaction.carNo;
       transaction.actualAmount = actualAmount || transaction.actualAmount;
       transaction.dateDelivered = dateDelivered || transaction.dateDelivered;
-      transaction.dueDate = dueDate || transaction.dueDate || null;
+      // transaction.dueDate = dueDate || transaction.dueDate || null;
       transaction.invoice = invoice || transaction.invoice;
       if (!transaction.dateReceived) {
         transaction.dateReceived = new Date();
