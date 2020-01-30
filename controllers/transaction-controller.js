@@ -172,7 +172,7 @@ module.exports = {
       transaction.sellingPrice = sellingPrice;
       transaction.carNo = carNo;
       transaction.actualAmount = actualAmount;
-      transaction.dateDelivered = dateDelivered
+      transaction.dateDelivered = dateDelivered;
       transaction.dueDate = dueDate;
       transaction.invoice = invoice;
       if (!transaction.dateReceived) {
