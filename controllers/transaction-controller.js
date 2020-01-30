@@ -169,16 +169,19 @@ module.exports = {
         transaction.profit = (Number(sellingPrice) * Number(actualAmount)) - Number(buyingPrice);
         purchaseOrder.ordersCompleted += (Number(actualAmount) - Number(transaction.actualAmount));
       }
-      transaction.sellingPrice = sellingPrice;
-      transaction.carNo = carNo;
-      transaction.actualAmount = actualAmount;
-      transaction.dateDelivered = dateDelivered;
-      transaction.dueDate = dueDate;
-      transaction.invoice = invoice;
+      transaction.sellingPrice = sellingPrice || transaction.sellingPrice;
+      transaction.carNo = carNo || transaction.carNo;
+      transaction.actualAmount = actualAmount || transaction.actualAmount;
+      transaction.dateDelivered = dateDelivered || transaction.dateDelivered;
+      transaction.dueDate = dueDate || transaction.dueDate || null;
+      transaction.invoice = invoice || transaction.invoice;
       if (!transaction.dateReceived) {
         transaction.dateReceived = new Date();
       }
-      transaction.status = 'COMPLETED';
+
+      if (transaction.invoice) {
+        transaction.status = 'COMPLETED';
+      }
 
       await checkProduct.save();
       await purchaseOrder.save();
