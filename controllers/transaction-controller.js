@@ -179,7 +179,7 @@ module.exports = {
         transaction.dateReceived = new Date();
       }
 
-      if (transaction.invoice) {
+      if (transaction.invoice && transaction.actualAmount) {
         transaction.status = 'COMPLETED';
       }
 
