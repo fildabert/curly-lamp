@@ -141,7 +141,7 @@ module.exports = {
 
   findAllOrdersSupplier: () => new Promise(async (resolve, reject) => {
     try {
-      const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'SUPPLIER' }).sort({ createdAt: 'desc' }).populate('approvedBy').populate('productId');
+      const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'SUPPLIER' }).sort({ createdAt: 'desc' }).populate('transactions').populate('approvedBy').populate('productId');
       resolve(orders);
     } catch (error) {
       reject(error);
