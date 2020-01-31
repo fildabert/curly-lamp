@@ -45,7 +45,7 @@ module.exports = {
         throw Object.assign(new Error('Purchase Order not found'), { code: 400 });
       }
 
-      const purchaseOrderSupplier = await PurchaseOrder.findOne({ productId, status: 'ACTIVE' });
+      const purchaseOrderSupplier = await PurchaseOrder.findOne({ productId, status: 'ACTIVE', type: 'SUPPLIER' });
       if (!purchaseOrderSupplier) {
         throw Object.assign(new Error(`There is no ongoing Purchase Order (SUPPLIER) for product ${checkProduct.name}`));
       }
@@ -161,9 +161,14 @@ module.exports = {
         throw Object.assign(new Error('Purchase Order not found'), { code: 400 });
       }
 
-      if (purchaseOrder.ordersCompleted > purchaseOrder.totalAmount) {
-        throw Object.assign(new Error('Purchase Order may be completed or the amount you entered is too much'), { code: 400, data: purchaseOrder });
+      const purchaseOrderSupplier = await PurchaseOrder.findOne({ productId, status: 'ACTIVE', type: 'SUPPLIER' });
+      if (!purchaseOrderSupplier) {
+        throw Object.assign(new Error('Purchase Order (SUPPLIER) not found'), { code: 400 });
       }
+
+      // if (purchaseOrder.ordersCompleted > purchaseOrder.totalAmount) {
+      //   throw Object.assign(new Error('Purchase Order may be completed or the amount you entered is too much'), { code: 400, data: purchaseOrder });
+      // }
 
 
       const transaction = await Transaction.findOne({ _id: transactionId });
@@ -178,11 +183,13 @@ module.exports = {
           transaction.revenue = Number(sellingPrice) * Number(actualAmount);
           transaction.profit = (Number(sellingPrice) * Number(actualAmount)) - Number(buyingPrice);
           purchaseOrder.ordersCompleted += (Number(actualAmount) - Number(amount));
+          purchaseOrderSupplier.ordersCompleted += (Number(actualAmount) - Number(amount));
         } else {
           checkProduct.stock -= (Number(actualAmount) - Number(transaction.actualAmount));
           transaction.revenue = Number(sellingPrice) * Number(actualAmount);
           transaction.profit = (Number(sellingPrice) * Number(actualAmount)) - Number(buyingPrice);
           purchaseOrder.ordersCompleted += (Number(actualAmount) - Number(transaction.actualAmount));
+          purchaseOrderSupplier.ordersCompleted += (Number(actualAmount) - Number(transaction.actualAmount));
         }
       }
       transaction.sellingPrice = sellingPrice || transaction.sellingPrice;

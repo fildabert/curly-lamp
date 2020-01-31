@@ -77,7 +77,7 @@ module.exports = {
         throw Object.assign(new Error('Product Not Found'), { code: 400 });
       }
 
-      const purchaseOrderSupplier = await PurchaseOrder.findOne({ productId, status: 'ACTIVE' });
+      const purchaseOrderSupplier = await PurchaseOrder.findOne({ productId, status: 'ACTIVE', type: 'SUPPLIER' });
 
       if (purchaseOrderSupplier) {
         throw Object.assign(new Error(`There is already an ongoing PO(SUPPLIER) for product ${product.name}`));
