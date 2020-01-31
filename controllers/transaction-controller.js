@@ -208,6 +208,7 @@ module.exports = {
 
       await checkProduct.save();
       await purchaseOrder.save();
+      await purchaseOrderSupplier.save();
       const updatedTransaction = await transaction.save();
       redisCache.del('purchaseOrder');
       redisCache.del('products');
