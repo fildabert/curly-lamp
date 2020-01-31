@@ -47,7 +47,7 @@ module.exports = {
 
       const purchaseOrderSupplier = await PurchaseOrder.findOne({ productId, status: 'ACTIVE', type: 'SUPPLIER' });
       if (!purchaseOrderSupplier) {
-        throw Object.assign(new Error(`There is no ongoing Purchase Order (SUPPLIER) for product ${checkProduct.name}`));
+        throw Object.assign(new Error(`There is no ongoing Purchase Order (SUPPLIER) for product ${checkProduct.name}`), { code: 400 });
       }
 
       if (purchaseOrder.ordersCompleted + amount > purchaseOrder.totalAmount) {
