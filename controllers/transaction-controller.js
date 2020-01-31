@@ -45,8 +45,17 @@ module.exports = {
         throw Object.assign(new Error('Purchase Order not found'), { code: 400 });
       }
 
+      const purchaseOrderSupplier = await PurchaseOrder.findOne({ productId, status: 'ACTIVE' });
+      if (!purchaseOrderSupplier) {
+        throw Object.assign(new Error(`There is no ongoing Purchase Order (SUPPLIER) for product ${checkProduct.name}`));
+      }
+
       if (purchaseOrder.ordersCompleted + amount > purchaseOrder.totalAmount) {
         throw Object.assign(new Error('Purchase Order may be completed or the amount you entered is too much'), { code: 400, data: purchaseOrder });
+      }
+
+      if (purchaseOrderSupplier.ordersCompleted + amount > purchaseOrderSupplier.totalAmount) {
+        throw Object.assign(new Error(`Total quota exceeded, please update Purchase Order (SUPPLIER) for product ${checkProduct.name}`), { code: 400, data: purchaseOrder });
       }
 
       checkProduct.stock -= amount;
@@ -83,11 +92,16 @@ module.exports = {
       const transactionCreated = await newTransanction.save();
 
       purchaseOrder.transactions.push(transactionCreated);
+      purchaseOrderSupplier.transactions.push(transactionCreated);
       purchaseOrder.ordersCompleted += Number(amount);
+      purchaseOrderSupplier.ordersCompleted += Number(amount);
+
       if (purchaseOrder.ordersCompleted === purchaseOrder.totalAmount) {
         purchaseOrder.status = 'COMPLETED';
       }
+
       await purchaseOrder.save();
+      await purchaseOrderSupplier.save();
 
       redisCache.del('purchaseOrder');
       redisCache.del('products');

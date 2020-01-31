@@ -76,6 +76,13 @@ module.exports = {
       if (!product) {
         throw Object.assign(new Error('Product Not Found'), { code: 400 });
       }
+
+      const purchaseOrderSupplier = await PurchaseOrder.findOne({ productId, status: 'ACTIVE' });
+
+      if (purchaseOrderSupplier) {
+        throw Object.assign(new Error(`There is already an ongoing PO(SUPPLIER) for product ${product.name}`));
+      }
+
       const newOrder = new PurchaseOrder({
         productId,
         price: product.price,
@@ -196,13 +203,18 @@ module.exports = {
     }
   }),
 
-  patchOrder: (orderId, payload) => new Promise(async (resolve, reject) => {
+  patchOrder: (orderId) => new Promise(async (resolve, reject) => {
     try {
       const order = await PurchaseOrder.findOne({ _id: orderId });
       if (!order) {
         throw Object.assign(new Error('Order not found'), { code: 400 });
       }
-      order.status = payload.status;
+      if (order.status === 'COMPLETED') {
+        order.status = 'ACTIVE';
+      } else {
+        order.status = 'COMPLETED';
+      }
+
       const updatedOrder = await order.save();
       redisCache.del('purchaseOrder');
       resolve(updatedOrder);
