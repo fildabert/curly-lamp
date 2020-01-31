@@ -125,6 +125,7 @@ router.get('/all', findAllOrders);
 router.get('/supplier', findAllOrdersSupplier);
 router.get('/due', findOrdersDue);
 router.get('/search', searchOrder);
+router.put('/increase-quota', editOrderSupplier);
 router.get('/:_id', findOneOrder);
 router.get('/print/:_id', printOrder);
 router.post('/', createOrder);
@@ -133,6 +134,5 @@ router.put('/:_id', editOrder);
 router.patch('/:_id', patchOrder);
 router.delete('/:_id', deleteOrder);
 
-router.put('/increase-quota', editOrderSupplier);
 
 module.exports = router;
