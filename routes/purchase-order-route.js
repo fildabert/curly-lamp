@@ -109,6 +109,18 @@ const printOrder = async (req, res, next) => {
   }
 };
 
+const editOrderSupplier = async (req, res, next) => {
+  try {
+    if (!req.body.amount) {
+      throw Object.assign(new Error('Amount cannot be empty'), { code: 400 });
+    }
+    const result = await purchaseOrderController.editOrderSupplier(req.body);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 router.get('/all', findAllOrders);
 router.get('/supplier', findAllOrdersSupplier);
 router.get('/due', findOrdersDue);
@@ -120,5 +132,7 @@ router.post('/supplier', createOrderSupplier);
 router.put('/:_id', editOrder);
 router.patch('/:_id', patchOrder);
 router.delete('/:_id', deleteOrder);
+
+router.put('/increase-quota', editOrderSupplier);
 
 module.exports = router;

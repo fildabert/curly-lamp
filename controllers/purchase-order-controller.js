@@ -203,6 +203,30 @@ module.exports = {
     }
   }),
 
+  editOrderSupplier: ({ _id, amount }) => new Promise(async (resolve, reject) => {
+    try {
+      const purchaseOrder = await PurchaseOrder.findOne({ _id });
+      const product = await Product.findOne({ _id: purchaseOrder.productId });
+      if (!purchaseOrder) {
+        throw Object.assign(new Error('PO Not found'), { code: 400 });
+      }
+
+      if (!product) {
+        throw Object.assign(new Error('Product not found'), { code: 400 });
+      }
+
+      purchaseOrder.totalAmount += Number(amount);
+      product.stock += Number(amount);
+
+      await purchaseOrder.save();
+      await product.save();
+
+      resolve({ success: true });
+    } catch (error) {
+      reject(error);
+    }
+  }),
+
   patchOrder: (orderId) => new Promise(async (resolve, reject) => {
     try {
       const order = await PurchaseOrder.findOne({ _id: orderId });
