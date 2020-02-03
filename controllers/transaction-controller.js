@@ -331,17 +331,24 @@ module.exports = {
   deleteTransaction: ({ trxId, orderId }) => new Promise(async (resolve, reject) => {
     try {
       const transaction = await Transaction.findOne({ _id: trxId });
-      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId });
+      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId, type: 'BUYER' });
       if (!transaction || !purchaseOrder) {
         throw Object.assign(new Error('Not found'), { code: 400 });
       }
+      const purchaseOrderSupplier = await PurchaseOrder.findOne({ productId: purchaseOrder.productId, status: 'ACTIVE', type: 'SUPPLIER' });
+
       transaction.active = false;
       const trxIndex = purchaseOrder.transactions.indexOf(trxId);
       if (trxIndex !== -1) {
         purchaseOrder.transactions.splice(trxIndex, 1);
       }
+      const trxIndex2 = purchaseOrderSupplier.transactions.indexOf(trxId);
+      if (trxIndex2 !== -1) {
+        purchaseOrder.transactions.splice(trxIndex2, 1);
+      }
       await transaction.save();
       await purchaseOrder.save();
+      await purchaseOrderSupplier.save();
       resolve({ success: true });
     } catch (error) {
       reject(error);
