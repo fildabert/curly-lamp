@@ -220,7 +220,8 @@ module.exports = {
 
       await purchaseOrder.save();
       await product.save();
-
+      redisCache.del('purchaseOrder');
+      redisCache.del('products');
       resolve({ success: true });
     } catch (error) {
       reject(error);

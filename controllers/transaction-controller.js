@@ -336,7 +336,6 @@ module.exports = {
         throw Object.assign(new Error('Not found'), { code: 400 });
       }
       const purchaseOrderSupplier = await PurchaseOrder.findOne({ productId: purchaseOrder.productId, status: 'ACTIVE', type: 'SUPPLIER' });
-      console.log(purchaseOrderSupplier.transactions, "<<< PO SUPPLIER");
       transaction.active = false;
       const trxIndex = purchaseOrder.transactions.indexOf(trxId);
       if (trxIndex !== -1) {
