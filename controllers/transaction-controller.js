@@ -344,7 +344,7 @@ module.exports = {
       }
       const trxIndex2 = purchaseOrderSupplier.transactions.indexOf(trxId);
       if (trxIndex2 !== -1) {
-        purchaseOrder.transactions.splice(trxIndex2, 1);
+        purchaseOrderSupplier.transactions.splice(trxIndex2, 1);
       }
       await transaction.save();
       await purchaseOrder.save();
