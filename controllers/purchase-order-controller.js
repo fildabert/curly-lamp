@@ -294,7 +294,7 @@ module.exports = {
 
       const title = POworksheet.getCell('A5');
       title.value = `${purchaseOrder.customerName}
-      PO Number: ${purchaseOrder.PONo}`;
+      PO Number: ${purchaseOrder.PONo} (${startDate.toString() - endDate.toString()})`;
 
       let sumQuantity = 0;
       let colNo = 8;
