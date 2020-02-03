@@ -291,14 +291,18 @@ module.exports = {
       const book = await workbook.xlsx.readFile(`${process.cwd()}/Invoice&PO-template.xlsx`);
       const POworksheet = book.getWorksheet('PO');
 
+      const title = POworksheet.getCell('A5');
+      title.value = `${purchaseOrder.customerName}
+      PO Number: ${purchaseOrder.PONo}`;
+
       let sumQuantity = 0;
       let colNo = 8;
       for (let i = 0; i < purchaseOrder.transactions.length; i += 1) {
-        const DONumber = POworksheet.getCell(`B${colNo}`);
-        DONumber.value = purchaseOrder.transactions[i].invoice;
+        const itemName = POworksheet.getCell(`B${colNo}`);
+        itemName.value = purchaseOrder.productId.name;
 
-        const carNo = POworksheet.getCell(`C${colNo}`);
-        carNo.value = purchaseOrder.transactions[i].carNo;
+        const description = POworksheet.getCell(`C${colNo}`);
+        description.value = purchaseOrder.transactions[i].invoice;
 
         const poDate = POworksheet.getCell(`D${colNo}`);
         poDate.value = purchaseOrder.transactions[i].dateDelivered;
