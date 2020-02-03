@@ -349,6 +349,8 @@ module.exports = {
       await transaction.save();
       await purchaseOrder.save();
       await purchaseOrderSupplier.save();
+      redisCache.del('purchaseOrder');
+      redisCache.del('products');
       resolve({ success: true });
     } catch (error) {
       reject(error);
