@@ -322,7 +322,7 @@ module.exports = {
 
   findAllTransactions: () => new Promise(async (resolve, reject) => {
     try {
-      const transaction = await Transaction.find({ active: true }).sort({ createdAt: 'desc' }).populate('orderId').populate('productId');
+      const transaction = await Transaction.find({ active: true }).sort({ dateDelivered: 'desc' }).populate('orderId').populate('productId');
       if (!transaction) {
         throw Object.assign(new Error('Transaction not found'), { code: 400 });
       }
