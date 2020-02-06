@@ -108,13 +108,12 @@ module.exports = {
 
       const elasticSearchPayload = {
         ...transactionCreated._doc,
-        orderId,
+        purchaseOrder: purchaseOrder.PONo,
         productName: checkProduct.name,
         productCategory: checkProduct.category,
         productPrice: checkProduct.price,
-        // revenue,
-        // profit,
-        purchaseOrderDueDate: purchaseOrder.dueDate,
+        revenue: 0,
+        profit: 0,
       };
 
       delete elasticSearchPayload._id;
@@ -125,11 +124,11 @@ module.exports = {
       //   data: elasticSearchPayload,
       // });
 
-      // axios({
-      //   method: 'PUT',
-      //   url: `https://ni4m1c9j8p:oojdvhi83y@curly-lamp-9585578215.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transactionCreated._id}`,
-      //   data: elasticSearchPayload,
-      // });
+      axios({
+        method: 'PUT',
+        url: `https://ni4m1c9j8p:oojdvhi83y@curly-lamp-9585578215.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transactionCreated._id}`,
+        data: elasticSearchPayload,
+      });
 
       resolve(newTransanction);
     } catch (error) {
@@ -196,6 +195,7 @@ module.exports = {
       transaction.carNo = carNo || transaction.carNo;
       transaction.actualAmount = actualAmount || transaction.actualAmount;
       transaction.dateDelivered = dateDelivered || transaction.dateDelivered;
+      transaction.createdAt = dateDelivered || transaction.createdAt;
       // transaction.dueDate = dueDate || transaction.dueDate || null;
       transaction.invoice = invoice || transaction.invoice;
       if (!transaction.dateReceived) {
@@ -205,6 +205,22 @@ module.exports = {
       if (transaction.invoice && transaction.actualAmount) {
         transaction.status = 'COMPLETED';
       }
+
+      const elasticSearchPayload = {
+        ...transaction._doc,
+        purchaseOrder: purchaseOrder.PONo,
+        productName: checkProduct.name,
+        productCategory: checkProduct.category,
+        productPrice: checkProduct.price,
+      };
+
+      delete elasticSearchPayload._id;
+
+      axios({
+        method: 'PUT',
+        url: `https://ni4m1c9j8p:oojdvhi83y@curly-lamp-9585578215.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transaction._id}`,
+        data: elasticSearchPayload,
+      });
 
       await checkProduct.save();
       await purchaseOrder.save();

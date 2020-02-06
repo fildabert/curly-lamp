@@ -50,11 +50,9 @@ const transactionSchema = new mongoose.Schema({
   },
   customerPhone: {
     type: String,
-    required: [true, 'customerPhone is empty'],
   },
   customerAddress: {
     type: String,
-    required: [true, 'customerAddress is empty'],
   },
   customerId: {
     type: ObjectId,
