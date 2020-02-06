@@ -135,7 +135,17 @@ const deleteTransaction = async(req, res, next) => {
   }
 };
 
+const elasticSearch = async (req, res, next) => {
+  try {
+    const result = await transactionController.elasticSearch();
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
 router.get('/all', findAllTransactions);
+router.get('/elastic', elasticSearch);
 router.get('/:_id', findOneTransaction);
 router.post('/', createTransaction);
 router.post('/supplier', createTransactionSupplier);

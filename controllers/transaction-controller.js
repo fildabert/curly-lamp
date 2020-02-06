@@ -2,6 +2,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-async-promise-executor */
+const fs = require('fs');
 const axios = require('axios');
 const cloudinary = require('cloudinary').v2;
 const PurchaseOrder = require('../models/purchase-order');
@@ -180,13 +181,13 @@ module.exports = {
         if (!transaction.actualAmount) {
           checkProduct.stock -= (Number(actualAmount) - Number(amount));
           transaction.revenue = Number(sellingPrice) * Number(actualAmount);
-          transaction.profit = (Number(sellingPrice) * Number(actualAmount)) - Number(buyingPrice);
+          transaction.profit = (Number(sellingPrice) - Number(buyingPrice)) * Number(actualAmount);
           purchaseOrder.ordersCompleted += (Number(actualAmount) - Number(amount));
           purchaseOrderSupplier.ordersCompleted += (Number(actualAmount) - Number(amount));
         } else {
           checkProduct.stock -= (Number(actualAmount) - Number(transaction.actualAmount));
           transaction.revenue = Number(sellingPrice) * Number(actualAmount);
-          transaction.profit = (Number(sellingPrice) * Number(actualAmount)) - Number(buyingPrice);
+          transaction.profit = (Number(sellingPrice) - Number(buyingPrice)) * Number(actualAmount);
           purchaseOrder.ordersCompleted += (Number(actualAmount) - Number(transaction.actualAmount));
           purchaseOrderSupplier.ordersCompleted += (Number(actualAmount) - Number(transaction.actualAmount));
         }
@@ -297,7 +298,7 @@ module.exports = {
         productPrice: checkProduct.price,
         // revenue,
         // profit,
-        purchaseOrderDueDate: purchaseOrder.dueDate,
+        // purchaseOrderDueDate: purchaseOrder.dueDate,
       };
 
       delete elasticSearchPayload._id;
@@ -367,6 +368,44 @@ module.exports = {
       redisCache.del('purchaseOrder');
       redisCache.del('products');
       resolve({ success: true });
+    } catch (error) {
+      reject(error);
+    }
+  }),
+
+  elasticSearch: () => new Promise(async (resolve, reject) => {
+    try {
+      const transactions = await Transaction.find({ active: true }).sort({ dateDelivered: 'desc' }).populate('orderId', 'PONo').populate('productId');
+
+      const result = [];
+      let str = '';
+
+      transactions.forEach(async (transaction) => {
+        const elasticSearchPayload = {
+          ...transaction._doc,
+          purchaseOrder: transaction.orderId.PONo,
+          productName: transaction.productId.name,
+          productCategory: transaction.productId.category,
+          productPrice: transaction.productId.price,
+          revenue: transaction.revenue || 0,
+          profit: transaction.profit || 0,
+          createdAt: transaction.dateDelivered || transaction.createdAt,
+        };
+        elasticSearchPayload.productId = elasticSearchPayload.productId._id;
+        elasticSearchPayload.orderId = elasticSearchPayload.orderId._id;
+        delete elasticSearchPayload._id;
+        // await axios({
+        //   method: 'PUT',
+        //   url: `https://ni4m1c9j8p:oojdvhi83y@curly-lamp-9585578215.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transaction._id}`,
+        //   data: elasticSearchPayload,
+        // });
+        str += `{ "index" : { "_index" : "transactions", "_id" : "${transaction._id}" } }
+        ${JSON.stringify(elasticSearchPayload)}
+        `;
+        result.push(elasticSearchPayload);
+      });
+      fs.writeFileSync('./temp/result.json', str);
+      resolve(result);
     } catch (error) {
       reject(error);
     }
