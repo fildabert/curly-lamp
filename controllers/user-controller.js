@@ -79,7 +79,7 @@ module.exports = {
       reject(error);
     }
   }),
-  addNotification: (notificationToken) => new Promise(async (resolve, reject) => {
+  addNotification: ({ notificationToken, userInfo }) => new Promise(async (resolve, reject) => {
     try {
       const notification = await Notification.findOne({ token: notificationToken });
       if (!notification) {
@@ -87,6 +87,8 @@ module.exports = {
         await newNotif.save();
         resolve({ created: 1 });
       }
+      notification.user = userInfo;
+      await notification.save();
       resolve({ created: 0 });
     } catch (error) {
       reject(error);

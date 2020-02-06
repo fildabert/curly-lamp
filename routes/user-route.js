@@ -37,7 +37,7 @@ const login = async (req, res, next) => {
 
 const addNotification = async (req, res, next) => {
   try {
-    const result = await userController.addNotification(req.body.notificationToken);
+    const result = await userController.addNotification(req.query);
     res.status(200).json(result);
   } catch (error) {
     next(error);
@@ -56,6 +56,6 @@ const googleLogin = async (req, res, next) => {
 router.post('/register', createUser);
 router.post('/login', login);
 router.post('/googlelogin', googleLogin);
-router.post('/notificationtoken', addNotification);
+router.get('/notificationtoken', addNotification);
 
 module.exports = router;
