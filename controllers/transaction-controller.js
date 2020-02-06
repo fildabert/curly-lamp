@@ -362,6 +362,10 @@ module.exports = {
       if (trxIndex2 !== -1) {
         purchaseOrderSupplier.transactions.splice(trxIndex2, 1);
       }
+      axios({
+        method: 'DELETE',
+        url: `https://ni4m1c9j8p:oojdvhi83y@curly-lamp-9585578215.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transaction._id}`,
+      });
       await transaction.save();
       await purchaseOrder.save();
       await purchaseOrderSupplier.save();
