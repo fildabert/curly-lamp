@@ -23,6 +23,15 @@ const findAllOrdersSupplier = async (req, res, next) => {
   }
 };
 
+const findAllOrdersSupplierActive = async (req, res, next) => {
+  try {
+    const result = await purchaseOrderController.findAllOrdersSupplierActive();
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const findOneOrder = async (req, res, next) => {
   try {
     const result = await purchaseOrderController.findOneOrder(req.params._id);
@@ -123,6 +132,7 @@ const editOrderSupplier = async (req, res, next) => {
 
 router.get('/all', findAllOrders);
 router.get('/supplier', findAllOrdersSupplier);
+router.get('/supplier/active', findAllOrdersSupplierActive);
 router.get('/due', findOrdersDue);
 router.get('/search', searchOrder);
 router.put('/increase-quota', editOrderSupplier);

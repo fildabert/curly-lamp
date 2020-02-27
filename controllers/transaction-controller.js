@@ -17,6 +17,7 @@ const redisCache = require('../redis');
 module.exports = {
   createTransaction: ({
     orderId,
+    orderIdSupplier,
     productId,
     amount,
     sellingPrice,
@@ -46,7 +47,13 @@ module.exports = {
         throw Object.assign(new Error('Purchase Order not found'), { code: 400 });
       }
 
-      const purchaseOrderSupplier = await PurchaseOrder.findOne({ productId, status: 'ACTIVE', type: 'SUPPLIER' });
+      let purchaseOrderSupplier;
+      if (orderIdSupplier) {
+        purchaseOrderSupplier = await PurchaseOrder.findOne({ _id: orderIdSupplier });
+      } else {
+        purchaseOrderSupplier = await PurchaseOrder.findOne({ productId, status: 'ACTIVE', type: 'SUPPLIER' });
+      }
+
       if (!purchaseOrderSupplier) {
         throw Object.assign(new Error(`There is no ongoing Purchase Order (SUPPLIER) for product ${checkProduct.name}`), { code: 400 });
       }
@@ -73,6 +80,7 @@ module.exports = {
       const newTransanction = new Transaction({
         productId,
         orderId,
+        orderIdSupplier: purchaseOrderSupplier._id,
         amount,
         buyingPrice: checkProduct.price,
         sellingPrice,
@@ -151,6 +159,11 @@ module.exports = {
     dueDate,
   }) => new Promise(async (resolve, reject) => {
     try {
+      const transaction = await Transaction.findOne({ _id: transactionId });
+      if (!transaction) {
+        throw Object.assign(new Error('Transaction not found'), { code: 400 });
+      }
+
       const checkProduct = await Product.findOne({ _id: productId });
       if (!checkProduct) {
         throw Object.assign(new Error('Product Not Found'), { code: 400 });
@@ -161,21 +174,23 @@ module.exports = {
         throw Object.assign(new Error('Purchase Order not found'), { code: 400 });
       }
 
-      const purchaseOrderSupplier = await PurchaseOrder.findOne({ productId, status: 'ACTIVE', type: 'SUPPLIER' });
-      if (!purchaseOrderSupplier) {
-        throw Object.assign(new Error('Purchase Order (SUPPLIER) not found'), { code: 400 });
+      let purchaseOrderSupplier;
+      if (!transaction.orderIdSupplier) {
+        purchaseOrderSupplier = await PurchaseOrder.findOne({ productId, status: 'ACTIVE', type: 'SUPPLIER' });
+        if (!purchaseOrderSupplier) {
+          throw Object.assign(new Error('Purchase Order (SUPPLIER) not found'), { code: 400 });
+        }
+        transaction.orderIdSupplier = purchaseOrderSupplier._id;
+      } else {
+        purchaseOrderSupplier = await PurchaseOrder.findOne({ _id: transaction.orderIdSupplier });
+        if (!purchaseOrderSupplier) {
+          throw Object.assign(new Error('Purchase Order (SUPPLIER) not found'), { code: 400 });
+        }
       }
 
       // if (purchaseOrder.ordersCompleted > purchaseOrder.totalAmount) {
       //   throw Object.assign(new Error('Purchase Order may be completed or the amount you entered is too much'), { code: 400, data: purchaseOrder });
       // }
-
-
-      const transaction = await Transaction.findOne({ _id: transactionId });
-
-      if (!transaction) {
-        throw Object.assign(new Error('Transaction not found'), { code: 400 });
-      }
 
       if (actualAmount) {
         if (!transaction.actualAmount) {

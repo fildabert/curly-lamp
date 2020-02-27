@@ -46,9 +46,9 @@ module.exports = {
         throw Object.assign(new Error('Product Not Found'), { code: 400 });
       }
 
-      if (product.stock - totalAmount < 0) {
-        throw Object.assign(new Error(`Product stock not enough, stock for ${product.name}: ${product.stock}`), { code: 400 });
-      }
+      // if (product.stock - totalAmount < 0) {
+      //   throw Object.assign(new Error(`Product stock not enough, stock for ${product.name}: ${product.stock}`), { code: 400 });
+      // }
 
       await newOrder.save();
       redisCache.del('purchaseOrder');
@@ -79,8 +79,8 @@ module.exports = {
 
       const purchaseOrderSupplier = await PurchaseOrder.findOne({ productId, status: 'ACTIVE', type: 'SUPPLIER' });
 
-      if (purchaseOrderSupplier) {
-        throw Object.assign(new Error(`There is already an ongoing PO(SUPPLIER) for product ${product.name}`));
+      if (purchaseOrderSupplier && product.name !== 'Multiple') {
+        throw Object.assign(new Error(`There is already an ongoing PO(SUPPLIER) for product ${product.name}`), { code: 400 });
       }
 
       const newOrder = new PurchaseOrder({
@@ -142,6 +142,15 @@ module.exports = {
   findAllOrdersSupplier: () => new Promise(async (resolve, reject) => {
     try {
       const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'SUPPLIER' }).sort({ createdAt: 'desc' }).populate('transactions').populate('approvedBy').populate('productId');
+      resolve(orders);
+    } catch (error) {
+      reject(error);
+    }
+  }),
+
+  findAllOrdersSupplierActive: () => new Promise(async (resolve, reject) => {
+    try {
+      const orders = await PurchaseOrder.find({ type: 'SUPPLIER', status: 'ACTIVE' }).sort({ createdAt: 'desc' }).populate('transactions').populate('approvedBy').populate('productId');
       resolve(orders);
     } catch (error) {
       reject(error);

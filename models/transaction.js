@@ -13,6 +13,10 @@ const transactionSchema = new mongoose.Schema({
     type: ObjectId,
     ref: 'PurchaseOrder',
   },
+  orderIdSupplier: {
+    type: ObjectId,
+    ref: 'PurchaseOrder',
+  },
   amount: {
     type: Number,
     required: [true, 'amount is empty'],
