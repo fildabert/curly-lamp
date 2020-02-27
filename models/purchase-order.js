@@ -60,16 +60,17 @@ const purchaseOrderSchema = new mongoose.Schema({
   },
 }, { timestamps: true });
 
-const PurchaseOrder = mongoose.model('PurchaseOrder', purchaseOrderSchema);
-purchaseOrderSchema.pre('validate', true, async function (next) {
-  const PO = await PurchaseOrder.findOne({ _id: this._id }).populate('transactions');
-  let ordersCompleted = 0;
-  console.log(PO, "HOOK");
-  PO.transactions.forEach((transaction) => {
-    ordersCompleted += transaction.actualAmount || transaction.amount;
-  });
-  PO.ordersCompleted = ordersCompleted;
-  await PO.save();
+// const PurchaseOrder = mongoose.model('PurchaseOrder', purchaseOrderSchema);
+purchaseOrderSchema.pre('save', function (next) {
+  console.log('KONTOL')
+  // const PO = await PurchaseOrder.findOne({ _id: this._id }).populate('transactions');
+  // let ordersCompleted = 0;
+  // console.log(PO, "HOOK");
+  // PO.transactions.forEach((transaction) => {
+  //   ordersCompleted += transaction.actualAmount || transaction.amount;
+  // });
+  // PO.ordersCompleted = ordersCompleted;
+  // await PO.save();
   next();
 });
 
