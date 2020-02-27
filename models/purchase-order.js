@@ -61,7 +61,6 @@ const purchaseOrderSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 const PurchaseOrder = mongoose.model('PurchaseOrder', purchaseOrderSchema);
-
 purchaseOrderSchema.pre('validate', true, async function (next) {
   const PO = await PurchaseOrder.findOne({ _id: this._id }).populate('transactions');
   let ordersCompleted = 0;
@@ -75,4 +74,5 @@ purchaseOrderSchema.pre('validate', true, async function (next) {
 });
 
 
-module.exports = PurchaseOrder;
+// eslint-disable-next-line no-multi-assign
+module.exports = mongoose.model('PurchaseOrder', purchaseOrderSchema);
