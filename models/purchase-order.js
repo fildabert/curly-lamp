@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-useless-escape */
 /* eslint-disable func-names */
 const mongoose = require('mongoose');
@@ -58,5 +59,20 @@ const purchaseOrderSchema = new mongoose.Schema({
     enum: ['BUYER', 'SUPPLIER'],
   },
 }, { timestamps: true });
+
+const PurchaseOrder = mongoose.model('PurchaseOrder');
+
+purchaseOrderSchema.pre('save', async function (doc, next) {
+  if (!this.isNew) {
+    const PO = await PurchaseOrder.findOne({ _id: this._id }).populate('transactions');
+    let ordersCompleted = 0;
+    PO.transactions.forEach((transaction) => {
+      ordersCompleted += transaction.actualAmount || transaction.amount;
+    });
+    PO.ordersCompleted = ordersCompleted;
+    await PO.save();
+  }
+  next();
+});
 
 module.exports = mongoose.model('PurchaseOrder', purchaseOrderSchema);
