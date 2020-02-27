@@ -62,7 +62,7 @@ const purchaseOrderSchema = new mongoose.Schema({
 
 const PurchaseOrder = mongoose.model('PurchaseOrder', purchaseOrderSchema);
 
-purchaseOrderSchema.pre('save', async function (doc, next) {
+purchaseOrderSchema.pre('validate', true, async function (next) {
   const PO = await PurchaseOrder.findOne({ _id: this._id }).populate('transactions');
   let ordersCompleted = 0;
   console.log(PO, "HOOK");
