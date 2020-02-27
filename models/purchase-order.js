@@ -62,7 +62,8 @@ const purchaseOrderSchema = new mongoose.Schema({
 
 // const PurchaseOrder = mongoose.model('PurchaseOrder', purchaseOrderSchema);
 purchaseOrderSchema.pre('save', function (next) {
-  console.log('KONTOL')
+  console.log('KONTOL');
+  asd();
   // const PO = await PurchaseOrder.findOne({ _id: this._id }).populate('transactions');
   // let ordersCompleted = 0;
   // console.log(PO, "HOOK");
@@ -76,4 +77,8 @@ purchaseOrderSchema.pre('save', function (next) {
 
 
 // eslint-disable-next-line no-multi-assign
-module.exports = mongoose.model('PurchaseOrder', purchaseOrderSchema);
+const PurchaseOrder = module.exports = mongoose.model('PurchaseOrder', purchaseOrderSchema);
+
+function asd() {
+  console.log(PurchaseOrder);
+}
