@@ -66,6 +66,7 @@ purchaseOrderSchema.pre('save', async function (doc, next) {
   if (!this.isNew) {
     const PO = await PurchaseOrder.findOne({ _id: this._id }).populate('transactions');
     let ordersCompleted = 0;
+    console.log(PO, "HOOK");
     PO.transactions.forEach((transaction) => {
       ordersCompleted += transaction.actualAmount || transaction.amount;
     });
