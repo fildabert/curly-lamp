@@ -63,7 +63,7 @@ const purchaseOrderSchema = new mongoose.Schema({
 // const PurchaseOrder = mongoose.model('PurchaseOrder', purchaseOrderSchema);
 purchaseOrderSchema.pre('save', true, function (next) {
   console.log('KONTOL');
-  asd(this._id);
+  // asd(this._id);
   next();
 });
 
