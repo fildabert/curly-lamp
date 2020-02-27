@@ -25,9 +25,9 @@ const repeatValidation = async (data) => {
     throw Object.assign(new Error('Product Not Found'), { code: 400 });
   }
 
-  if (checkProduct.stock - (amount * repeat) <= 0) {
-    throw Object.assign(new Error(`${checkProduct.name} is out of stock: Stock: ${checkProduct.stock} - the amount you entered: ${amount * repeat}`), { code: 400 });
-  }
+  // if (checkProduct.stock - (amount * repeat) <= 0) {
+  //   throw Object.assign(new Error(`${checkProduct.name} is out of stock: Stock: ${checkProduct.stock} - the amount you entered: ${amount * repeat}`), { code: 400 });
+  // }
 
   const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId });
   if (!purchaseOrder) {

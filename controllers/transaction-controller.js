@@ -17,6 +17,7 @@ const redisCache = require('../redis');
 module.exports = {
   createTransaction: ({
     orderId,
+    orderIdMultiple,
     orderIdSupplier,
     productId,
     amount,
@@ -107,6 +108,12 @@ module.exports = {
 
       if (purchaseOrder.ordersCompleted === purchaseOrder.totalAmount) {
         purchaseOrder.status = 'COMPLETED';
+      }
+
+      if (orderIdMultiple) {
+        const POMultiple = await PurchaseOrder.findOne({ _id: orderIdMultiple });
+        POMultiple.transactions.push(transactionCreated);
+        POMultiple.save();
       }
 
       await purchaseOrder.save();
