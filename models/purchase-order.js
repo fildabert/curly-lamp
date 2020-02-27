@@ -60,10 +60,11 @@ const purchaseOrderSchema = new mongoose.Schema({
   },
 }, { timestamps: true });
 
+const PurchaseOrder = mongoose.model('PurchaseOrder', purchaseOrderSchema);
 
 purchaseOrderSchema.pre('save', async function (doc, next) {
   if (!this.isNew) {
-    const PO = await purchaseOrderSchema.findOne({ _id: this._id }).populate('transactions');
+    const PO = await PurchaseOrder.findOne({ _id: this._id }).populate('transactions');
     let ordersCompleted = 0;
     PO.transactions.forEach((transaction) => {
       ordersCompleted += transaction.actualAmount || transaction.amount;
@@ -74,4 +75,5 @@ purchaseOrderSchema.pre('save', async function (doc, next) {
   next();
 });
 
-module.exports = mongoose.model('PurchaseOrder', purchaseOrderSchema);
+
+module.exports = PurchaseOrder;
