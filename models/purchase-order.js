@@ -61,7 +61,7 @@ const purchaseOrderSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // const PurchaseOrder = mongoose.model('PurchaseOrder', purchaseOrderSchema);
-purchaseOrderSchema.pre('save', true, async function () {
+purchaseOrderSchema.pre('save', async function () {
   console.log('KONTOL');
   const ordersCompleted = await asd(this._id);
   this.ordersCompleted = ordersCompleted;
