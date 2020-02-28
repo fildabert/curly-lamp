@@ -61,10 +61,10 @@ const purchaseOrderSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // const PurchaseOrder = mongoose.model('PurchaseOrder', purchaseOrderSchema);
-purchaseOrderSchema.pre('save', true, function (next) {
+purchaseOrderSchema.pre('save', true, async function () {
   console.log('KONTOL');
-  // asd(this._id);
-  next();
+  const ordersCompleted = await asd(this._id);
+  this.ordersCompleted = ordersCompleted;
 });
 
 
@@ -79,5 +79,5 @@ async function asd(orderId) {
     ordersCompleted += transaction.actualAmount || transaction.amount;
   });
   PO.ordersCompleted = ordersCompleted;
-  await PO.save();
+  return ordersCompleted;
 }
