@@ -358,12 +358,7 @@ module.exports = {
       if (!transaction || !purchaseOrder) {
         throw Object.assign(new Error('Not found'), { code: 400 });
       }
-      let purchaseOrderSupplier;
-      if (purchaseOrder.productId.name === 'MULTIPLE') {
-        purchaseOrderSupplier = await PurchaseOrder.findOne({ productId: transaction.productId, status: 'ACTIVE', type: 'SUPPLIER' });
-      } else {
-        purchaseOrderSupplier = await PurchaseOrder.findOne({ productId: purchaseOrder.productId, status: 'ACTIVE', type: 'SUPPLIER' });
-      }
+      const purchaseOrderSupplier = await PurchaseOrder.findOne({ productId: transaction.productId, status: 'ACTIVE', type: 'SUPPLIER' });
 
       if (!purchaseOrderSupplier) {
         throw Object.assign(new Error('Purchase Order (Supplier) not found'), { code: 400 });
