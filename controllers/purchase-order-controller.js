@@ -184,7 +184,7 @@ module.exports = {
     } = payload;
 
     try {
-      const newOrder = await PurchaseOrder.findOne({ _id: orderId });
+      const newOrder = await PurchaseOrder.findOne({ _id: orderId }).populate('transactions');
       if (!newOrder) {
         throw Object.assign(new Error('Order Not Found'), { code: 400 });
       }
@@ -196,9 +196,15 @@ module.exports = {
       newOrder.customerAddress = customerAddress || newOrder.customerAddress;
       newOrder.customerId = customerId || newOrder.customerId;
       newOrder.totalAmount = totalAmount || newOrder.totalAmount;
-      newOrder.ordersCompleted = ordersCompleted || newOrder.ordersCompleted;
+      // newOrder.ordersCompleted = ordersCompleted || newOrder.ordersCompleted;
       newOrder.PONo = PONo || newOrder.PONo;
       // newOrder.dueDate = dueDate || newOrder.dueDate;
+
+      let orderSum = 0;
+      newOrder.transactions.forEach((transaction) => {
+        orderSum += transaction.actualAmount || transaction.amount;
+      });
+      newOrder.ordersCompleted = orderSum;
 
       if (newOrder.totalAmount - newOrder.ordersCompleted > 0) {
         newOrder.status = 'ACTIVE';

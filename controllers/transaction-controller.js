@@ -114,7 +114,6 @@ module.exports = {
         const POMultiple = await PurchaseOrder.findOne({ _id: orderIdMultiple._id });
         POMultiple.transactions.push(transactionCreated);
         await POMultiple.save();
-        console.log(POMultiple);
       }
 
       await purchaseOrder.save();
