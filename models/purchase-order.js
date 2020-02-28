@@ -63,7 +63,7 @@ const purchaseOrderSchema = new mongoose.Schema({
 // const PurchaseOrder = mongoose.model('PurchaseOrder', purchaseOrderSchema);
 purchaseOrderSchema.pre('save', async function () {
   console.log('KONTOL');
-  const ordersCompleted = await asd(this._id);
+  const ordersCompleted = await asd(this.transactions);
   this.ordersCompleted = ordersCompleted;
   console.log(ordersCompleted);
   console.log(this.ordersCompleted, "HOOK");
@@ -74,8 +74,8 @@ const Transaction = require('./transaction');
 // eslint-disable-next-line no-multi-assign
 const PurchaseOrder = module.exports = mongoose.model('PurchaseOrder', purchaseOrderSchema);
 
-async function asd(orderId) {
-  const transactions = await Transaction.find({ orderId });
+async function asd(orderIdArr) {
+  const transactions = await Transaction.find({ _id: { $in: orderIdArr } });
   let ordersCompleted = 0;
   transactions.forEach((transaction) => {
     ordersCompleted += transaction.actualAmount || transaction.amount;
