@@ -70,15 +70,15 @@ purchaseOrderSchema.pre('save', async function () {
 });
 
 
+const Transaction = require('./transaction');
 // eslint-disable-next-line no-multi-assign
 const PurchaseOrder = module.exports = mongoose.model('PurchaseOrder', purchaseOrderSchema);
 
 async function asd(orderId) {
-  const PO = await PurchaseOrder.findOne({ _id: orderId }).populate('transactions');
+  const transactions = await Transaction.find({ orderId });
   let ordersCompleted = 0;
-  PO.transactions.forEach((transaction) => {
+  transactions.forEach((transaction) => {
     ordersCompleted += transaction.actualAmount || transaction.amount;
   });
-  PO.ordersCompleted = ordersCompleted;
   return ordersCompleted;
 }
