@@ -354,11 +354,21 @@ module.exports = {
   deleteTransaction: ({ trxId, orderId }) => new Promise(async (resolve, reject) => {
     try {
       const transaction = await Transaction.findOne({ _id: trxId });
-      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId, type: 'BUYER' });
+      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId, type: 'BUYER' }).populate('productId');
       if (!transaction || !purchaseOrder) {
         throw Object.assign(new Error('Not found'), { code: 400 });
       }
-      const purchaseOrderSupplier = await PurchaseOrder.findOne({ productId: purchaseOrder.productId, status: 'ACTIVE', type: 'SUPPLIER' });
+      let purchaseOrderSupplier;
+      if (purchaseOrder.productId.name === 'MULTIPLE') {
+        purchaseOrderSupplier = await PurchaseOrder.findOne({ productId: transaction.productId, status: 'ACTIVE', type: 'SUPPLIER' });
+      } else {
+        purchaseOrderSupplier = await PurchaseOrder.findOne({ productId: purchaseOrder.productId, status: 'ACTIVE', type: 'SUPPLIER' });
+      }
+
+      if (!purchaseOrderSupplier) {
+        throw Object.assign(new Error('Purchase Order (Supplier) not found'), { code: 400 });
+      }
+
       transaction.active = false;
       const trxIndex = purchaseOrder.transactions.indexOf(trxId);
       if (trxIndex !== -1) {
