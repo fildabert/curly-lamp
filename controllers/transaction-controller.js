@@ -354,27 +354,27 @@ module.exports = {
   deleteTransaction: ({ trxId, orderId }) => new Promise(async (resolve, reject) => {
     try {
       const transaction = await Transaction.findOne({ _id: trxId });
-      // const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId, type: 'BUYER' });
-      // if (!transaction || !purchaseOrder) {
-      //   throw Object.assign(new Error('Not found'), { code: 400 });
-      // }
-      // const purchaseOrderSupplier = await PurchaseOrder.findOne({ productId: purchaseOrder.productId, status: 'ACTIVE', type: 'SUPPLIER' });
+      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId, type: 'BUYER' });
+      if (!transaction || !purchaseOrder) {
+        throw Object.assign(new Error('Not found'), { code: 400 });
+      }
+      const purchaseOrderSupplier = await PurchaseOrder.findOne({ productId: purchaseOrder.productId, status: 'ACTIVE', type: 'SUPPLIER' });
       transaction.active = false;
-      // const trxIndex = purchaseOrder.transactions.indexOf(trxId);
-      // if (trxIndex !== -1) {
-      //   purchaseOrder.transactions.splice(trxIndex, 1);
-      // }
-      // const trxIndex2 = purchaseOrderSupplier.transactions.indexOf(trxId);
-      // if (trxIndex2 !== -1) {
-      //   purchaseOrderSupplier.transactions.splice(trxIndex2, 1);
-      // }
+      const trxIndex = purchaseOrder.transactions.indexOf(trxId);
+      if (trxIndex !== -1) {
+        purchaseOrder.transactions.splice(trxIndex, 1);
+      }
+      const trxIndex2 = purchaseOrderSupplier.transactions.indexOf(trxId);
+      if (trxIndex2 !== -1) {
+        purchaseOrderSupplier.transactions.splice(trxIndex2, 1);
+      }
       axios({
         method: 'DELETE',
         url: `https://ni4m1c9j8p:oojdvhi83y@curly-lamp-9585578215.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transaction._id}`,
       });
-      await transaction.save();
-      // await purchaseOrder.save();
-      // await purchaseOrderSupplier.save();
+      await transaction.remove();
+      await purchaseOrder.save();
+      await purchaseOrderSupplier.save();
       redisCache.del('purchaseOrder');
       redisCache.del('products');
       resolve({ success: true });

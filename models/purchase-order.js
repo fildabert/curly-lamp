@@ -65,7 +65,9 @@ async function asd(orderIdArr) {
   const transactions = await Transaction.find({ _id: { $in: orderIdArr } }).lean();
   let ordersCompleted = 0;
   transactions.forEach((transaction) => {
-    ordersCompleted += transaction.actualAmount || transaction.amount;
+    if (transaction) {
+      ordersCompleted += transaction.actualAmount || transaction.amount;
+    }
   });
   return ordersCompleted;
 }
