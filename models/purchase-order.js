@@ -65,6 +65,8 @@ purchaseOrderSchema.pre('save', async function () {
   console.log('KONTOL');
   const ordersCompleted = await asd(this._id);
   this.ordersCompleted = ordersCompleted;
+  console.log(ordersCompleted);
+  console.log(this.ordersCompleted, "HOOK");
 });
 
 
@@ -74,7 +76,6 @@ const PurchaseOrder = module.exports = mongoose.model('PurchaseOrder', purchaseO
 async function asd(orderId) {
   const PO = await PurchaseOrder.findOne({ _id: orderId }).populate('transactions');
   let ordersCompleted = 0;
-  console.log(PO, "HOOK");
   PO.transactions.forEach((transaction) => {
     ordersCompleted += transaction.actualAmount || transaction.amount;
   });

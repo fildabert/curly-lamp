@@ -200,11 +200,11 @@ module.exports = {
       newOrder.PONo = PONo || newOrder.PONo;
       // newOrder.dueDate = dueDate || newOrder.dueDate;
 
-      let orderSum = 0;
-      newOrder.transactions.forEach((transaction) => {
-        orderSum += transaction.actualAmount || transaction.amount;
-      });
-      newOrder.ordersCompleted = orderSum;
+      // let orderSum = 0;
+      // newOrder.transactions.forEach((transaction) => {
+      //   orderSum += transaction.actualAmount || transaction.amount;
+      // });
+      // newOrder.ordersCompleted = orderSum;
 
       if (newOrder.totalAmount - newOrder.ordersCompleted > 0) {
         newOrder.status = 'ACTIVE';
