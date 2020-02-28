@@ -249,14 +249,21 @@ module.exports = {
       if (!order) {
         throw Object.assign(new Error('Order not found'), { code: 400 });
       }
+      const product = await Product.findOne({ _id: order.productId });
+      if (!product) {
+        throw Object.assign(new Error('Product not found'), { code: 400 });
+      }
+
       if (order.status === 'COMPLETED') {
         order.status = 'ACTIVE';
       } else {
         order.status = 'COMPLETED';
       }
-
+      product.stock = 0;
       const updatedOrder = await order.save();
+      await product.save();
       redisCache.del('purchaseOrder');
+      redisCache.del('products');
       resolve(updatedOrder);
     } catch (error) {
       reject(error);
