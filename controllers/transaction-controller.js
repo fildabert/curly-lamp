@@ -100,11 +100,11 @@ module.exports = {
         purchaseOrder.status = 'COMPLETED';
       }
 
-      if (orderIdMultiple) {
-        const POMultiple = await PurchaseOrder.findOne({ _id: orderIdMultiple._id });
-        POMultiple.transactions.push(transactionCreated);
-        await POMultiple.save();
-      }
+      // if (orderIdMultiple) {
+      //   const POMultiple = await PurchaseOrder.findOne({ _id: orderIdMultiple._id });
+      //   POMultiple.transactions.push(transactionCreated);
+      //   await POMultiple.save();
+      // }
 
       await purchaseOrder.save();
       await purchaseOrderSupplier.save();
