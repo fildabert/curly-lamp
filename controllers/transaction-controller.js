@@ -70,14 +70,6 @@ module.exports = {
       checkProduct.stock -= amount;
       await checkProduct.save();
 
-      // if (!revenue) {
-      //   revenue = sellingPrice * amount;
-      // }
-
-      // if (!profit) {
-      //   profit = revenue - (amount * checkProduct.price);
-      // }
-
       const newTransanction = new Transaction({
         productId,
         orderId,
@@ -86,8 +78,6 @@ module.exports = {
         buyingPrice: checkProduct.price,
         sellingPrice,
         invoice,
-        // revenue,
-        // profit,
         customerName,
         customerPhone,
         customerAddress,
@@ -133,12 +123,6 @@ module.exports = {
       };
 
       delete elasticSearchPayload._id;
-
-      // axios({
-      //   method: 'PUT',
-      //   url: `https://search-curly-lamp-qwjbn5oanez2yfrq5al4oorw5y.ap-southeast-1.es.amazonaws.com/transactions/_doc/${transactionCreated._id}`,
-      //   data: elasticSearchPayload,
-      // });
 
       axios({
         method: 'PUT',
