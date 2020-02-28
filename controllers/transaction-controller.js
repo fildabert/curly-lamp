@@ -358,7 +358,7 @@ module.exports = {
       if (!transaction || !purchaseOrder) {
         throw Object.assign(new Error('Not found'), { code: 400 });
       }
-      const purchaseOrderSupplier = await PurchaseOrder.findOne({ productId: transaction.productId, status: 'ACTIVE', type: 'SUPPLIER' });
+      const purchaseOrderSupplier = await PurchaseOrder.findOne({ productId: transaction.productId, type: 'SUPPLIER' });
 
       if (!purchaseOrderSupplier) {
         throw Object.assign(new Error('Purchase Order (Supplier) not found'), { code: 400 });
