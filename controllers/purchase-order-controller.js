@@ -1,9 +1,9 @@
+/* eslint-disable no-useless-concat */
 /* eslint-disable newline-per-chained-call */
 /* eslint-disable max-len */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-async-promise-executor */
 const ExcelJS = require('exceljs');
-const cloudinary = require('cloudinary').v2;
 const PurchaseOrder = require('../models/purchase-order');
 const Transaction = require('../models/transaction');
 const User = require('../models/user');
@@ -200,12 +200,6 @@ module.exports = {
       newOrder.PONo = PONo || newOrder.PONo;
       // newOrder.dueDate = dueDate || newOrder.dueDate;
 
-      // let orderSum = 0;
-      // newOrder.transactions.forEach((transaction) => {
-      //   orderSum += transaction.actualAmount || transaction.amount;
-      // });
-      // newOrder.ordersCompleted = orderSum;
-
       if (newOrder.totalAmount - newOrder.ordersCompleted > 0) {
         newOrder.status = 'ACTIVE';
       }
@@ -302,7 +296,7 @@ module.exports = {
       const { orderId, startDate, endDate } = payload;
       startDate.setHours(0, 0, 0, 0);
       endDate.setHours(23, 59, 59, 999);
-      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId }).populate('productId').populate('transactions', null, { dateDelivered: { $gte: startDate, $lte: endDate }, status: 'COMPLETED' }).populate('approvedBy');
+      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId }).populate('transactions', null, { dateDelivered: { $gte: startDate, $lte: endDate }, status: 'COMPLETED' }, { populate: 'productId' }).populate('approvedBy');
       if (!purchaseOrder) {
         throw Object.assign(new Error('Puchase Order not found'), { code: 400 });
       }
@@ -320,9 +314,25 @@ module.exports = {
 
       let sumQuantity = 0;
       let colNo = 8;
+      let colAdd = 18;
       for (let i = 0; i < purchaseOrder.transactions.length; i += 1) {
+        // if (i > 10) {
+        //   POworksheet.spliceRows(colAdd, 0, [i,
+        //     purchaseOrder.transactions[i].productId.name,
+        //     purchaseOrder.transactions[i].invoice,
+        //     purchaseOrder.transactions[i].dateDelivered,
+        //     Number(purchaseOrder.transactions[i].actualAmount),
+        //     Number(purchaseOrder.transactions[i].sellingPrice),
+        //     Number(purchaseOrder.transactions[i].sellingPrice) * Number(purchaseOrder.transactions[i].actualAmount),
+        //   ]);
+        //   POworksheet.spliceRows(colAdd, 1, [0, 1, 2, 3, 4, 5, 6]);
+        //   POworksheet.getRow(colAdd).eachCell((cell) => {
+        //     cell.style = POworksheet.getCell('B8').style;
+        //   });
+        //   colAdd += 1;
+        // }
         const itemName = POworksheet.getCell(`B${colNo}`);
-        itemName.value = purchaseOrder.productId.name;
+        itemName.value = purchaseOrder.transactions[i].productId.name;
 
         const description = POworksheet.getCell(`C${colNo}`);
         description.value = purchaseOrder.transactions[i].invoice;
@@ -341,7 +351,6 @@ module.exports = {
         amountSum.value = +purchaseOrder.transactions[i].sellingPrice * +purchaseOrder.transactions[i].actualAmount;
         colNo += 1;
       }
-
       const invoiceWorksheet = book.getWorksheet('Invoice');
 
       const to = invoiceWorksheet.getCell('B7');

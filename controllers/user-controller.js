@@ -21,7 +21,7 @@ new CronJob('0 */6 * * *', (async () => {
       notifArr.push(notif.token);
     });
     if (notifArr.length > 0) {
-      const { data } = axios({
+      axios({
         method: 'POST',
         url: 'https://fcm.googleapis.com/fcm/send',
         headers: {

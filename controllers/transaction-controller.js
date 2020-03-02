@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable no-var */
 /* eslint-disable no-plusplus */
 /* eslint-disable vars-on-top */
@@ -7,7 +8,6 @@
 /* eslint-disable no-async-promise-executor */
 const fs = require('fs');
 const axios = require('axios');
-const cloudinary = require('cloudinary').v2;
 const PurchaseOrder = require('../models/purchase-order');
 const Transaction = require('../models/transaction');
 const User = require('../models/user');
@@ -25,8 +25,6 @@ module.exports = {
     productId,
     amount,
     sellingPrice,
-    revenue,
-    profit,
     invoice,
     customerName,
     customerPhone,
@@ -403,18 +401,9 @@ module.exports = {
         productName: checkProduct.name,
         productCategory: checkProduct.category,
         productPrice: checkProduct.price,
-        // revenue,
-        // profit,
-        // purchaseOrderDueDate: purchaseOrder.dueDate,
       };
 
       delete elasticSearchPayload._id;
-
-      // axios({
-      //   method: 'PUT',
-      //   url: `https://search-curly-lamp-qwjbn5oanez2yfrq5al4oorw5y.ap-southeast-1.es.amazonaws.com/transactions/_doc/${transactionCreated._id}`,
-      //   data: elasticSearchPayload,
-      // });
 
       // axios({
       //   method: 'PUT',
@@ -526,20 +515,4 @@ module.exports = {
       reject(error);
     }
   }),
-
-  // upload: () => new Promise(async (resolve, reject) => {
-  //   try {
-  //     cloudinary.uploader.upload(`${process.cwd()}/temp.xlsx`,
-  //       { resource_type: 'raw', public_id: `Invoice[${purchaseOrder.PONo}] - ${purchaseOrder.productId.name}.xlsx` },
-  //       (err, result) => {
-  //         if (err) {
-  //           console.log(err);
-  //         } else {
-  //           const imageUrl = result.secure_url;
-  //         }
-  //       });
-  //   } catch (error) {
-  //     reject(error)
-  //   }
-  // }),
 };

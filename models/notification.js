@@ -1,6 +1,7 @@
 /* eslint-disable no-useless-escape */
 /* eslint-disable func-names */
 const mongoose = require('mongoose');
+
 const { ObjectId } = mongoose.Schema.Types;
 
 const notificationSchema = new mongoose.Schema({

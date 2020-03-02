@@ -144,7 +144,7 @@ const upload = async (req, res, next) => {
   res.status(200).json('file upload');
 };
 
-const deleteTransaction = async(req, res, next) => {
+const deleteTransaction = async (req, res, next) => {
   try {
     const result = await transactionController.deleteTransaction(req.body);
     res.status(200).json(result);
@@ -160,7 +160,7 @@ const elasticSearch = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-}
+};
 
 router.get('/all', findAllTransactions);
 router.get('/elastic', elasticSearch);
