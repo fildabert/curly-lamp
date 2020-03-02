@@ -246,13 +246,10 @@ module.exports = {
 
   bulkCreate: ({
     orderId,
-    orderIdMultiple,
     orderIdSupplier,
     productId,
     amount,
     sellingPrice,
-    revenue,
-    profit,
     invoice,
     customerName,
     customerPhone,
@@ -279,7 +276,7 @@ module.exports = {
 
       const transactionz = [];
 
-      const newTransanction = new Transaction({
+      const newTransanction = {
         productId,
         orderId,
         orderIdSupplier: purchaseOrderSupplier._id,
@@ -296,17 +293,15 @@ module.exports = {
         type: 'BUYER',
         status: 'PENDING',
         dueDate,
-      });
-
+      };
       for (var a = 0; a < repeat; a++) {
         transactionz.push(newTransanction);
       }
-
       const transactionCreated = await Transaction.insertMany(transactionz);
 
-      for (var b = 0; b < repeat; b++) {
-        purchaseOrder.transactions.push(transactionCreated[0]);
-        purchaseOrderSupplier.transactions.push(transactionCreated[0]);
+      for (var b = 0; b < transactionCreated.length; b++) {
+        purchaseOrder.transactions.push(transactionCreated[b]);
+        purchaseOrderSupplier.transactions.push(transactionCreated[b]);
       }
 
       await purchaseOrder.save();
@@ -316,7 +311,7 @@ module.exports = {
       redisCache.del('products');
 
       const elasticSearchPayload = {
-        ...transactionCreated._doc,
+        ...transactionCreated[0]._doc,
         purchaseOrder: purchaseOrder.PONo,
         productName: checkProduct.name,
         productCategory: checkProduct.category,
@@ -327,16 +322,23 @@ module.exports = {
 
       delete elasticSearchPayload._id;
 
-      for (var c = 0; c < repeat; c++) {
-        axios({
-          method: 'PUT',
-          url: `https://ni4m1c9j8p:oojdvhi83y@curly-lamp-9585578215.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transactionCreated._id}`,
-          data: elasticSearchPayload,
-        });
-      }
-
+      // let str = '';
+      // for (var c = 0; c < repeat; c++) {
+      //   str += `{ "index" : { "_index" : "transactions", "_id" : "${transactionCreated[c]._id}" } }
+      //   ${JSON.stringify(elasticSearchPayload)}
+      //   `;
+      // }
+      // fs.writeFileSync('./json/bulk.json', str, 'utf8');
+      // const jsonn = fs.readFileSync('./json/bulk.json', 'utf8');
+      // console.log(jsonn);
+      // await axios({
+      //   method: 'PUT',
+      //   url: 'https://ni4m1c9j8p:oojdvhi83y@curly-lamp-9585578215.ap-southeast-2.bonsaisearch.net/transactions/_bulk?pretty',
+      //   data: jsonn,
+      // });
       resolve(newTransanction);
     } catch (error) {
+      console.log(error);
       reject(error);
     }
   }),
