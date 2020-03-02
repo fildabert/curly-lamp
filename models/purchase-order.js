@@ -77,6 +77,9 @@ async function asd(orderIdArr) {
 purchaseOrderSchema.pre('save', async function () {
   const ordersCompleted = await asd(this.transactions);
   this.ordersCompleted = ordersCompleted;
+  if (this.ordersCompleted >= this.totalAmount) {
+    this.status = 'COMPLETED';
+  }
 });
 
 

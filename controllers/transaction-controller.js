@@ -1,3 +1,6 @@
+/* eslint-disable no-var */
+/* eslint-disable no-plusplus */
+/* eslint-disable vars-on-top */
 /* eslint-disable no-console */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-underscore-dangle */
@@ -241,6 +244,102 @@ module.exports = {
     }
   }),
 
+  bulkCreate: ({
+    orderId,
+    orderIdMultiple,
+    orderIdSupplier,
+    productId,
+    amount,
+    sellingPrice,
+    revenue,
+    profit,
+    invoice,
+    customerName,
+    customerPhone,
+    customerAddress,
+    customerId,
+    dateDelivered,
+    approvedBy,
+    dueDate,
+    repeat,
+  }) => new Promise(async (resolve, reject) => {
+    try {
+      const checkProduct = await Product.findOne({ _id: productId });
+      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId });
+
+      let purchaseOrderSupplier;
+      if (orderIdSupplier) {
+        purchaseOrderSupplier = await PurchaseOrder.findOne({ _id: orderIdSupplier });
+      } else {
+        purchaseOrderSupplier = await PurchaseOrder.findOne({ productId, status: 'ACTIVE', type: 'SUPPLIER' });
+      }
+
+      checkProduct.stock -= amount;
+      await checkProduct.save();
+
+      const transactionz = [];
+
+      const newTransanction = new Transaction({
+        productId,
+        orderId,
+        orderIdSupplier: purchaseOrderSupplier._id,
+        amount,
+        buyingPrice: checkProduct.price,
+        sellingPrice,
+        invoice,
+        customerName,
+        customerPhone,
+        customerAddress,
+        customerId,
+        dateDelivered,
+        approvedBy,
+        type: 'BUYER',
+        status: 'PENDING',
+        dueDate,
+      });
+
+      for (var a = 0; a < repeat; a++) {
+        transactionz.push(newTransanction);
+      }
+
+      const transactionCreated = await Transaction.insertMany(transactionz);
+
+      for (var b = 0; b < repeat; b++) {
+        purchaseOrder.transactions.push(transactionCreated[0]);
+        purchaseOrderSupplier.transactions.push(transactionCreated[0]);
+      }
+
+      await purchaseOrder.save();
+      await purchaseOrderSupplier.save();
+
+      redisCache.del('purchaseOrder');
+      redisCache.del('products');
+
+      const elasticSearchPayload = {
+        ...transactionCreated._doc,
+        purchaseOrder: purchaseOrder.PONo,
+        productName: checkProduct.name,
+        productCategory: checkProduct.category,
+        productPrice: checkProduct.price,
+        revenue: 0,
+        profit: 0,
+      };
+
+      delete elasticSearchPayload._id;
+
+      for (var c = 0; c < repeat; c++) {
+        axios({
+          method: 'PUT',
+          url: `https://ni4m1c9j8p:oojdvhi83y@curly-lamp-9585578215.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transactionCreated._id}`,
+          data: elasticSearchPayload,
+        });
+      }
+
+      resolve(newTransanction);
+    } catch (error) {
+      reject(error);
+    }
+  }),
   createTransactionSupplier: ({
     orderId,
     productId,

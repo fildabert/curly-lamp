@@ -18,6 +18,7 @@ const repeatValidation = async (data) => {
     productId,
     orderId,
     amount,
+    orderIdSupplier,
     repeat,
   } = data;
   const checkProduct = await Product.findOne({ _id: productId });
@@ -40,6 +41,25 @@ const repeatValidation = async (data) => {
       { code: 400, data: purchaseOrder },
     );
   }
+
+  let purchaseOrderSupplier;
+  if (orderIdSupplier) {
+    purchaseOrderSupplier = await PurchaseOrder.findOne({ _id: orderIdSupplier });
+  } else {
+    purchaseOrderSupplier = await PurchaseOrder.findOne({ productId, status: 'ACTIVE', type: 'SUPPLIER' });
+  }
+
+  if (!purchaseOrderSupplier) {
+    throw Object.assign(new Error(`There is no ongoing Purchase Order (SUPPLIER) for product ${checkProduct.name}`), { code: 400 });
+  }
+
+  if (purchaseOrder.ordersCompleted + (amount * repeat) > purchaseOrder.totalAmount) {
+    throw Object.assign(new Error('Purchase Order may be completed or the amount you entered is too much'), { code: 400, data: purchaseOrder });
+  }
+
+  if (purchaseOrderSupplier.ordersCompleted + (amount * repeat) > purchaseOrderSupplier.totalAmount) {
+    throw Object.assign(new Error(`Total quota exceeded, please update Purchase Order (SUPPLIER) for product ${checkProduct.name}`), { code: 400, data: purchaseOrder });
+  }
 };
 
 const createTransaction = async (req, res, next) => {
@@ -50,9 +70,7 @@ const createTransaction = async (req, res, next) => {
     }
     if (Number(repeat) > 0) {
       await repeatValidation(req.body);
-      for (let i = 0; i < repeat; i += 1) {
-        await transactionController.createTransaction(req.body);
-      }
+      await transactionController.bulkCreate(req.body);
       return res.status(200).json({ success: true });
     }
     const result = await transactionController.createTransaction(req.body);
