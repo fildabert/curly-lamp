@@ -232,10 +232,10 @@ module.exports = {
         data: elasticSearchPayload,
       });
 
+      const updatedTransaction = await transaction.save();
       await checkProduct.save();
       await purchaseOrder.save();
       await purchaseOrderSupplier.save();
-      const updatedTransaction = await transaction.save();
       redisCache.del('purchaseOrder');
       redisCache.del('products');
       resolve(updatedTransaction);
