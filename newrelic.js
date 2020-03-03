@@ -9,11 +9,11 @@ exports.config = {
   /**
    * Array of application names.
    */
-  app_name: ['curly-lamp'],
+  app_name: ['boost-svc-utils-LOCAL'],
   /**
    * Your New Relic license key.
    */
-  license_key: '1bc173bd47d26190bc0f023ae20aa2a91814NRAL',
+  license_key: 'a49e402704816eabc6be959d89b8b887d1bfd04c',
   logging: {
     /**
      * Level at which to log. 'trace' is most useful to New Relic when diagnosing
