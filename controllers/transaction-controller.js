@@ -467,6 +467,10 @@ module.exports = {
       if (!purchaseOrderSupplier) {
         throw Object.assign(new Error('Purchase Order (Supplier) not found'), { code: 400 });
       }
+      axios({
+        method: 'DELETE',
+        url: `https://ni4m1c9j8p:oojdvhi83y@curly-lamp-9585578215.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transaction._id}`,
+      });
 
       transaction.active = false;
       const trxIndex = purchaseOrder.transactions.indexOf(trxId);
@@ -477,10 +481,6 @@ module.exports = {
       if (trxIndex2 !== -1) {
         purchaseOrderSupplier.transactions.splice(trxIndex2, 1);
       }
-      axios({
-        method: 'DELETE',
-        url: `https://ni4m1c9j8p:oojdvhi83y@curly-lamp-9585578215.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transaction._id}`,
-      });
       await transaction.remove();
       await purchaseOrder.save();
       await purchaseOrderSupplier.save();
