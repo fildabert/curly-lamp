@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 /* eslint-disable no-console */
 /* eslint-disable no-unused-vars */
-
+require('newrelic');
 const express = require('express');
 
 const app = express();

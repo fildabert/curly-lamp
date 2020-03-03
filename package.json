@@ -31,6 +31,7 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.8.5",
     "multer": "^1.4.2",
+    "newrelic": "^6.4.2",
     "officegen": "^0.6.3",
     "redis": "^2.8.0"
   },
