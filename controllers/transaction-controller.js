@@ -444,11 +444,11 @@ module.exports = {
   deleteTransaction: ({ trxId, orderId }) => new Promise(async (resolve, reject) => {
     try {
       const transaction = await Transaction.findOne({ _id: trxId });
-      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId, type: 'BUYER' }).populate('productId');
+      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId, type: 'BUYER' });
       if (!transaction || !purchaseOrder) {
         throw Object.assign(new Error('Not found'), { code: 400 });
       }
-      const purchaseOrderSupplier = await PurchaseOrder.findOne({ productId: transaction.productId, type: 'SUPPLIER' });
+      const purchaseOrderSupplier = await PurchaseOrder.findOne({ _id: transaction.orderIdSupplier });
 
       if (!purchaseOrderSupplier) {
         throw Object.assign(new Error('Purchase Order (Supplier) not found'), { code: 400 });
@@ -461,6 +461,7 @@ module.exports = {
       }
       const trxIndex2 = purchaseOrderSupplier.transactions.indexOf(trxId);
       if (trxIndex2 !== -1) {
+        console.log('WOI KONTOL');
         purchaseOrderSupplier.transactions.splice(trxIndex2, 1);
       }
       axios({
@@ -471,6 +472,7 @@ module.exports = {
       await purchaseOrder.save();
       await purchaseOrderSupplier.save();
       redisCache.del('purchaseOrder');
+      redisCache.del('purchaseOrderSupplier');
       redisCache.del('products');
       resolve({ success: true });
     } catch (error) {
