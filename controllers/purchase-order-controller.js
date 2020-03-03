@@ -102,7 +102,7 @@ module.exports = {
       product.stock += Number(totalAmount);
       await product.save();
       await newOrder.save();
-      redisCache.del('purchaseOrder');
+      redisCache.del('purchaseOrderSupplier');
       redisCache.del('products');
 
       resolve(newOrder);
@@ -139,10 +139,17 @@ module.exports = {
     }
   }),
 
-  findAllOrdersSupplier: () => new Promise(async (resolve, reject) => {
+  findAllOrdersSupplier: () => new Promise((resolve, reject) => {
     try {
-      const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'SUPPLIER' }).sort({ createdAt: 'desc' }).populate('transactions').populate('approvedBy').populate('productId');
-      resolve(orders);
+      redisCache.get('purchaseOrderSupplier', async (err, cache) => {
+        if (cache) {
+          resolve(JSON.parse(cache));
+        } else {
+          const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'SUPPLIER' }).sort({ createdAt: 'desc' }).populate('transactions').populate('approvedBy').populate('productId');
+          redisCache.setex('purchaseOrderSupplier', (60 * 60), JSON.stringify(orders));
+          resolve(orders);
+        }
+      });
     } catch (error) {
       reject(error);
     }
@@ -206,6 +213,7 @@ module.exports = {
 
       const updatedOrder = await newOrder.save();
       redisCache.del('purchaseOrder');
+      redisCache.del('purchaseOrderSupplier');
       resolve(updatedOrder);
     } catch (error) {
       reject(error);
@@ -230,6 +238,7 @@ module.exports = {
       await purchaseOrder.save();
       await product.save();
       redisCache.del('purchaseOrder');
+      redisCache.del('purchaseOrderSupplier');
       redisCache.del('products');
       resolve({ success: true });
     } catch (error) {
@@ -257,6 +266,7 @@ module.exports = {
       const updatedOrder = await order.save();
       await product.save();
       redisCache.del('purchaseOrder');
+      redisCache.del('purchaseOrderSupplier');
       redisCache.del('products');
       resolve(updatedOrder);
     } catch (error) {
@@ -285,6 +295,7 @@ module.exports = {
       order.status = 'DELETED';
       await order.save();
       redisCache.del('purchaseOrder');
+      redisCache.del('purchaseOrderSupplier');
       resolve({ success: true, data: order });
     } catch (error) {
       reject(error);

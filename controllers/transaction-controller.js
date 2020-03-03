@@ -111,7 +111,9 @@ module.exports = {
       await purchaseOrderSupplier.save();
 
       redisCache.del('purchaseOrder');
+      redisCache.del('purchaseOrderSupplier');
       redisCache.del('products');
+      redisCache.del('transactions');
 
       const elasticSearchPayload = {
         ...transactionCreated._doc,
@@ -235,7 +237,10 @@ module.exports = {
       await purchaseOrder.save();
       await purchaseOrderSupplier.save();
       redisCache.del('purchaseOrder');
+      redisCache.del('purchaseOrderSupplier');
       redisCache.del('products');
+      redisCache.del('transactions');
+
       resolve(updatedTransaction);
     } catch (error) {
       reject(error);
@@ -306,7 +311,9 @@ module.exports = {
       await purchaseOrderSupplier.save();
 
       redisCache.del('purchaseOrder');
+      redisCache.del('purchaseOrderSupplier');
       redisCache.del('products');
+      redisCache.del('transactions');
 
       const elasticSearchPayload = {
         ...transactionCreated[0]._doc,
@@ -417,13 +424,20 @@ module.exports = {
     }
   }),
 
-  findAllTransactions: () => new Promise(async (resolve, reject) => {
+  findAllTransactions: () => new Promise((resolve, reject) => {
     try {
-      const transaction = await Transaction.find({ active: true }).sort({ dateDelivered: 'desc' }).populate('orderId').populate('productId');
-      if (!transaction) {
-        throw Object.assign(new Error('Transaction not found'), { code: 400 });
-      }
-      resolve(transaction);
+      redisCache.get('transactions', async (err, cache) => {
+        if (cache) {
+          resolve(JSON.parse(cache));
+        } else {
+          const transaction = await Transaction.find({ active: true }).sort({ dateDelivered: 'desc' }).populate('orderId').populate('productId');
+          if (!transaction) {
+            throw Object.assign(new Error('Transaction not found'), { code: 400 });
+          }
+          redisCache.setex('transactions', (60 * 60), JSON.stringify(transaction));
+          resolve(transaction);
+        }
+      });
     } catch (error) {
       reject(error);
     }
@@ -461,7 +475,6 @@ module.exports = {
       }
       const trxIndex2 = purchaseOrderSupplier.transactions.indexOf(trxId);
       if (trxIndex2 !== -1) {
-        console.log('WOI KONTOL');
         purchaseOrderSupplier.transactions.splice(trxIndex2, 1);
       }
       axios({
@@ -474,6 +487,7 @@ module.exports = {
       redisCache.del('purchaseOrder');
       redisCache.del('purchaseOrderSupplier');
       redisCache.del('products');
+      redisCache.del('transactions');
       resolve({ success: true });
     } catch (error) {
       reject(error);
