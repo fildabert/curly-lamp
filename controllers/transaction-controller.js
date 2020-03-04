@@ -119,7 +119,7 @@ module.exports = {
       updatedPO.productId = checkProduct;
       if (!redisHelper.update('purchaseOrder', updatedPO, 'createdAt')) redisCache.del('purchaseOrder');
       if (!redisHelper.update('purchaseOrderSupplier', updatedPOSupplier, 'createdAt')) redisCache.del('purchaseOrderSupplier');
-      if (!redisHelper.update('transactions', transactionCreated, 'dateDelivered')) redisCache.del('transactions');
+      // if (!redisHelper.update('transactions', transactionCreated, 'dateDelivered')) redisCache.del('transactions');
 
       redisCache.del('products');
 
