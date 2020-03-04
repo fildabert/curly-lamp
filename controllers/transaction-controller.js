@@ -13,6 +13,7 @@ const Transaction = require('../models/transaction');
 const User = require('../models/user');
 const Product = require('../models/product');
 const redisCache = require('../redis');
+const redisHelper = require('../helpers/redis.js');
 
 // eslint-disable-next-line no-new
 
@@ -107,13 +108,17 @@ module.exports = {
       //   await POMultiple.save();
       // }
 
-      await purchaseOrder.save();
-      await purchaseOrderSupplier.save();
+      const updatedPO = await purchaseOrder.save();
+      const updatedPOSupplier = await purchaseOrderSupplier.save();
+      await updatedPO.populate('transactions').execPopulate();
+      await updatedPOSupplier.populate('productId', 'name').execPopulate();
+      await updatedPOSupplier.populate('transactions').execPopulate();
+      updatedPO.productId = checkProduct;
+      if (!redisHelper.update('purchaseOrder', updatedPO, 'createdAt')) redisCache.del('purchaseOrder');
+      if (!redisHelper.update('purchaseOrderSupplier', updatedPOSupplier, 'createdAt')) redisCache.del('purchaseOrderSupplier');
+      if (!redisHelper.update('transactions', transactionCreated, 'dateDelivered')) redisCache.del('transactions');
 
-      redisCache.del('purchaseOrder');
-      redisCache.del('purchaseOrderSupplier');
       redisCache.del('products');
-      redisCache.del('transactions');
 
       const elasticSearchPayload = {
         ...transactionCreated._doc,
