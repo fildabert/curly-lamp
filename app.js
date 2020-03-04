@@ -55,6 +55,8 @@ app.use((err, req, res, next) => {
   }
 });
 
+app.listen(port, () => console.log(`Worker ${process.pid} is listening on port ${port}!`));
+
 
 // if (cluster.isMaster) {
 //   for (let i = 0; i < numCPUs; i++) {

@@ -36,6 +36,7 @@ module.exports = {
     dueDate,
   }) => new Promise(async (resolve, reject) => {
     try {
+      console.log("ASDASDASD");
       const checkProduct = await Product.findOne({ _id: productId });
       if (!checkProduct) {
         throw Object.assign(new Error('Product Not Found'), { code: 400 });
