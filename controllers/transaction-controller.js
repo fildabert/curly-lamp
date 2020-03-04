@@ -44,9 +44,9 @@ module.exports = {
         throw Object.assign(new Error('Product Not Found'), { code: 400 });
       }
 
-      if (checkProduct.stock - amount <= 0) {
-        throw Object.assign(new Error('Product is out of stock'), { code: 400 });
-      }
+      // if (checkProduct.stock - amount <= 0) {
+      //   throw Object.assign(new Error('Product is out of stock'), { code: 400 });
+      // }
 
       const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId });
       if (!purchaseOrder) {
