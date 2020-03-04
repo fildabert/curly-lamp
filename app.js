@@ -69,3 +69,5 @@ if (cluster.isMaster) {
 
   app.listen(port, () => console.log(`Worker ${process.pid} is listening on port ${port}!`));
 }
+
+module.exports = app;
