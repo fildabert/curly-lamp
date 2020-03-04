@@ -1578,3 +1578,29 @@
 {"v":0,"level":30,"name":"newrelic","hostname":"Filberts-Macbook-Pro.local","pid":87799,"time":"2020-03-04T10:09:30.769Z","msg":"Agent state changed from stopped to starting."}
 {"v":0,"level":30,"name":"newrelic","hostname":"Filberts-Macbook-Pro.local","pid":87799,"time":"2020-03-04T10:09:30.947Z","msg":"Starting New Relic for Node.js connection process."}
 {"v":0,"level":30,"name":"newrelic","hostname":"Filberts-Macbook-Pro.local","pid":87799,"time":"2020-03-04T10:09:30.947Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Filberts-MBP-a132","pid":89814,"time":"2020-03-04T11:31:26.500Z","msg":"Using New Relic for Node.js. Agent version: 6.4.2; Node version: v13.8.0."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Filberts-MBP-a132","pid":89814,"time":"2020-03-04T11:31:26.703Z","msg":"Agent state changed from stopped to starting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Filberts-MBP-a132","pid":89814,"time":"2020-03-04T11:31:26.757Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Filberts-MBP-a132","pid":89814,"time":"2020-03-04T11:31:26.757Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Filberts-MBP-a132","pid":89817,"time":"2020-03-04T11:31:27.086Z","msg":"Using New Relic for Node.js. Agent version: 6.4.2; Node version: v13.8.0."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Filberts-MBP-a132","pid":89817,"time":"2020-03-04T11:31:27.380Z","msg":"Agent state changed from stopped to starting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Filberts-MBP-a132","pid":89817,"time":"2020-03-04T11:31:27.411Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Filberts-MBP-a132","pid":89817,"time":"2020-03-04T11:31:27.412Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Filberts-MBP-a132","pid":89816,"time":"2020-03-04T11:31:27.121Z","msg":"Using New Relic for Node.js. Agent version: 6.4.2; Node version: v13.8.0."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Filberts-MBP-a132","pid":89816,"time":"2020-03-04T11:31:27.372Z","msg":"Agent state changed from stopped to starting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Filberts-MBP-a132","pid":89816,"time":"2020-03-04T11:31:27.406Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Filberts-MBP-a132","pid":89816,"time":"2020-03-04T11:31:27.407Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Filberts-MBP-a132","pid":89818,"time":"2020-03-04T11:31:27.176Z","msg":"Using New Relic for Node.js. Agent version: 6.4.2; Node version: v13.8.0."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Filberts-MBP-a132","pid":89818,"time":"2020-03-04T11:31:27.473Z","msg":"Agent state changed from stopped to starting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Filberts-MBP-a132","pid":89818,"time":"2020-03-04T11:31:27.509Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Filberts-MBP-a132","pid":89818,"time":"2020-03-04T11:31:27.509Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Filberts-MBP-a132","pid":89819,"time":"2020-03-04T11:31:27.273Z","msg":"Using New Relic for Node.js. Agent version: 6.4.2; Node version: v13.8.0."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Filberts-MBP-a132","pid":89819,"time":"2020-03-04T11:31:27.545Z","msg":"Agent state changed from stopped to starting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Filberts-MBP-a132","pid":89819,"time":"2020-03-04T11:31:27.584Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Filberts-MBP-a132","pid":89819,"time":"2020-03-04T11:31:27.584Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Filberts-MBP-a132","pid":89814,"time":"2020-03-04T11:31:31.509Z","msg":"Agent state changed from connecting to connected."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Filberts-MBP-a132","pid":89814,"time":"2020-03-04T11:31:31.509Z","msg":"Connected to collector-006.newrelic.com:443 with agent run ID BVcsZMCzfIQWACYJOxwqraJeX5HsAAgBAAAnIQEAAV7WAgQcKErTAwAFNi40LjIAEUZpbGJlcnRzLU1CUC1hMTMyABtib29zdC1zdmMtdm91Y2hlci1tZ3QtTE9DQUw.","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Filberts-MBP-a132","pid":89814,"time":"2020-03-04T11:31:31.509Z","msg":"Reporting to: https://rpm.newrelic.com/accounts/2492731/applications/472402643","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Filberts-MBP-a132","pid":89814,"time":"2020-03-04T11:31:31.510Z","msg":"Valid event_harvest_config received. Updating harvest cycles. {\"report_period_ms\":5000,\"harvest_limits\":{\"error_event_data\":8,\"custom_event_data\":83,\"analytic_event_data\":833}}"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Filberts-MBP-a132","pid":89814,"time":"2020-03-04T11:31:31.512Z","msg":"Agent state changed from connected to started."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Filberts-MBP-a132","pid":89814,"time":"2020-03-04T11:31:32.517Z","msg":"Starting initial 1000ms harvest."}
