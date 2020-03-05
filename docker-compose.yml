@@ -17,7 +17,7 @@ app:
     - PORT=3000
     - REDIS_URL=redis://cache
   command:
-    sh -c 'node app.js'
+    sh -c 'node httpsServer.js'
 
 letsencrypt:
   image: linuxserver/letsencrypt
