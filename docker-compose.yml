@@ -31,5 +31,5 @@ letsencrypt:
     - EMAIL=filberttt@hotmail.com
     - URL=curly-lamp-server.fildabert.com
     - VALIDATION=http
-    - PUID=0
-    - PGID=0
+    - PUID=1000
+    - PGID=1000
