@@ -17,4 +17,4 @@ app:
     - PORT=3000
     - REDIS_URL=redis://cache
   command:
-    sh -c 'node httpsServer.js'
+    sh -c 'node app.js'
