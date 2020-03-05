@@ -12,9 +12,9 @@ app:
   volumes:
     - ./:/usr/src/app
   ports:
-    - 443:443
+    - 3030:3000
   environment:
-    - PORT=443
+    - PORT=3000
     - REDIS_URL=redis://cache
   command:
     sh -c 'node httpsServer.js'
