@@ -272,6 +272,9 @@ module.exports = {
     repeat,
   }) => new Promise(async (resolve, reject) => {
     try {
+      if (!dateDelivered) {
+        throw Object.assign(new Error('Date Delivered is required'), { code: 400 });
+      }
       const checkProduct = await Product.findOne({ _id: productId });
       const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId });
 
