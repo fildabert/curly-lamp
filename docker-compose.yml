@@ -18,3 +18,18 @@ app:
     - REDIS_URL=redis://cache
   command:
     sh -c 'node app.js'
+
+letsencrypt:
+  image: linuxserver/letsencrypt
+  container_name: letsencrypt
+  ports:
+    - 80:80
+    - 443:443
+  volumes:
+    - ./config/letsencrypt:/config
+  environment:
+    - EMAIL=filberttt@hotmail.com
+    - URL=curly-lamp-server.fildabert.com
+    - VALIDATION=http
+    - PUID=0
+    - PGID=0
