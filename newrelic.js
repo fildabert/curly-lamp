@@ -9,7 +9,7 @@ exports.config = {
   /**
    * Array of application names.
    */
-  app_name: ['boost-svc-voucher-mgt-LOCAL'],
+  app_name: ['boost-svc-voucher-management-LOCAL'],
   /**
    * Your New Relic license key.
    */
