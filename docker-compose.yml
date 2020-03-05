@@ -1,0 +1,20 @@
+# docker-compose.yml
+redis:
+  image: redis
+  container_name: cache
+  expose:
+    - 6379
+
+app:
+  build: ./
+  links:
+    - redis
+  volumes:
+    - ./:/usr/src/app
+  ports:
+    - 443:443
+  environment:
+    - PORT=443
+    - REDIS_URL=redis://cache
+  command:
+    sh -c 'node httpsServer.js'
