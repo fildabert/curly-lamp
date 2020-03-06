@@ -18,6 +18,7 @@ app:
     - REDIS_URL=redis://cache
   command:
     sh -c 'node app.js'
+  restart: unless-stopped
 
 letsencrypt:
   image: linuxserver/letsencrypt
