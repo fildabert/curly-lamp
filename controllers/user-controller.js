@@ -13,7 +13,7 @@ const client = new OAuth2Client(CLIENT_ID);
 
 
 // eslint-disable-next-line no-new
-new CronJob('0 */6 * * *', (async () => {
+new CronJob('0 */24 * * *', (async () => {
   try {
     const notifications = await Notification.find({});
     const notifArr = [];
