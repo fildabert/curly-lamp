@@ -13,35 +13,35 @@ const client = new OAuth2Client(CLIENT_ID);
 
 
 // eslint-disable-next-line no-new
-new CronJob('0 */24 * * *', (async () => {
-  try {
-    const notifications = await Notification.find({});
-    const notifArr = [];
-    notifications.forEach((notif) => {
-      notifArr.push(notif.token);
-    });
-    if (notifArr.length > 0) {
-      axios({
-        method: 'POST',
-        url: 'https://fcm.googleapis.com/fcm/send',
-        headers: {
-          'content-type': 'application/json',
-          authorization: 'Key=AAAA9F7jSX4:APA91bH_l-ixlMX-EaPD27A7PbrswP67Xzy3XwmlDmtelQMDDQRCmvl1QfV2KbBhDAB_mgU2TyLovmPcRSJzv_O0o8yCp10n5rjnCy2Q-N780Ofu0n9FGxkJgX089yFCsNyk7QFWw4yr',
-        },
-        data: {
-          notification: {
-            title: 'hello',
-            body: 'my name a uvuvwevwevwe onyetenyevwe ugwemubwem osas',
-            icon: 'https://cdn-image.hipwee.com/wp-content/uploads/2016/12/hipwee-00138315.jpg',
-          },
-          registration_ids: notifArr,
-        },
-      });
-    }
-  } catch (error) {
-    console.log(error);
-  }
-}), null, true);
+// new CronJob('0 */24 * * *', (async () => {
+//   try {
+//     const notifications = await Notification.find({});
+//     const notifArr = [];
+//     notifications.forEach((notif) => {
+//       notifArr.push(notif.token);
+//     });
+//     if (notifArr.length > 0) {
+//       axios({
+//         method: 'POST',
+//         url: 'https://fcm.googleapis.com/fcm/send',
+//         headers: {
+//           'content-type': 'application/json',
+//           authorization: 'Key=AAAA9F7jSX4:APA91bH_l-ixlMX-EaPD27A7PbrswP67Xzy3XwmlDmtelQMDDQRCmvl1QfV2KbBhDAB_mgU2TyLovmPcRSJzv_O0o8yCp10n5rjnCy2Q-N780Ofu0n9FGxkJgX089yFCsNyk7QFWw4yr',
+//         },
+//         data: {
+//           notification: {
+//             title: 'hello',
+//             body: 'my name a uvuvwevwevwe onyetenyevwe ugwemubwem osas',
+//             icon: 'https://cdn-image.hipwee.com/wp-content/uploads/2016/12/hipwee-00138315.jpg',
+//           },
+//           registration_ids: notifArr,
+//         },
+//       });
+//     }
+//   } catch (error) {
+//     console.log(error);
+//   }
+// }), null, true);
 
 module.exports = {
   createUser: ({
