@@ -129,7 +129,7 @@ module.exports = {
         if (cache) {
           resolve(JSON.parse(cache));
         } else {
-          const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'BUYER' }).sort({ createdAt: 'desc' }).populate('transactions').populate('productId');
+          const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'BUYER' }).sort({ createdAt: 'desc' }).populate({ path: 'transactions', populate: { path: 'productId', select: 'name -_id' } }).populate('productId');
           redisCache.setex('purchaseOrder', (60 * 60), JSON.stringify(orders));
           resolve(orders);
         }

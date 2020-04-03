@@ -40,7 +40,7 @@ module.exports = {
         throw Object.assign(new Error('Date Delivered is required'), { code: 400 });
       }
       const checkProduct = await Product.findOne({ _id: productId });
-      if (!checkProduct) {
+      if (!checkProduct || checkProduct.name === 'Multiple') {
         throw Object.assign(new Error('Product Not Found'), { code: 400 });
       }
 
