@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 const express = require('express');
+const auth = require('../helpers/auth');
 
 const router = express.Router();
 const productController = require('../controllers/product-controller');
@@ -61,8 +62,8 @@ const searchProduct = async (req, res, next) => {
 router.get('/all', findAllProduct);
 router.get('/search', searchProduct);
 router.get('/:_id', findOneProduct);
-router.post('/', createProduct);
-router.put('/:_id', editProduct);
-router.delete('/:_id', deleteProduct);
+router.post('/', auth, createProduct);
+router.put('/:_id', auth, editProduct);
+router.delete('/:_id', auth, deleteProduct);
 
 module.exports = router;
