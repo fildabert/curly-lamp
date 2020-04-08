@@ -10,6 +10,8 @@ const Transaction = require('../models/transaction');
 const PurchaseOrder = require('../models/purchase-order');
 const Product = require('../models/product');
 
+const auth = require('../helpers/auth');
+
 const router = express.Router();
 const transactionController = require('../controllers/transaction-controller');
 
@@ -169,6 +171,6 @@ router.post('/', createTransaction);
 router.post('/supplier', createTransactionSupplier);
 router.put('/:_id', updateTransaction);
 router.post('/upload/:_id', multer().single('file'), upload);
-router.post('/delete', deleteTransaction);
+router.post('/delete', auth, deleteTransaction);
 
 module.exports = router;
