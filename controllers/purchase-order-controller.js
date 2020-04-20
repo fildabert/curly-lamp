@@ -5,6 +5,7 @@
 /* eslint-disable no-async-promise-executor */
 const ExcelJS = require('exceljs');
 const PurchaseOrder = require('../models/purchase-order');
+const Customer = require('../models/customer');
 const Transaction = require('../models/transaction');
 const User = require('../models/user');
 const Product = require('../models/product');
@@ -14,9 +15,6 @@ module.exports = {
   createOrder: ({
     productId,
     price,
-    customerName,
-    customerPhone,
-    customerAddress,
     customerId,
     totalAmount,
     ordersCompleted = 0,
@@ -25,12 +23,23 @@ module.exports = {
     // dueDate,
   }) => new Promise(async (resolve, reject) => {
     try {
+      const product = await Product.findOne({ _id: productId });
+      if (!product) {
+        throw Object.assign(new Error('Product Not Found'), { code: 400 });
+      }
+
+      const customer = await Customer.findOne({ _id: customerId });
+      if (!customer) {
+        throw Object.assign(new Error('Product Not Found'), { code: 400 });
+      }
+    
+
       const newOrder = new PurchaseOrder({
         productId,
         price,
-        customerName,
-        customerPhone,
-        customerAddress,
+        customerName: customer.name,
+        customerPhone: customer.phone,
+        customerAddress: customer.address,
         customerId,
         transactions: [],
         totalAmount,
@@ -40,11 +49,6 @@ module.exports = {
         type: 'BUYER',
         // dueDate,
       });
-
-      const product = await Product.findOne({ _id: productId });
-      if (!product) {
-        throw Object.assign(new Error('Product Not Found'), { code: 400 });
-      }
 
       // if (product.stock - totalAmount < 0) {
       //   throw Object.assign(new Error(`Product stock not enough, stock for ${product.name}: ${product.stock}`), { code: 400 });

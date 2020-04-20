@@ -9,6 +9,7 @@
 const fs = require('fs');
 const axios = require('axios');
 const PurchaseOrder = require('../models/purchase-order');
+const Customer = require('../models/customer');
 const Transaction = require('../models/transaction');
 const User = require('../models/user');
 const Product = require('../models/product');
@@ -53,6 +54,11 @@ module.exports = {
         throw Object.assign(new Error('Purchase Order not found'), { code: 400 });
       }
 
+      const customer = await Customer.findOne({ _id: customerId });
+      if (!customer) {
+        throw Object.assign(new Error('Customer not found'), { code: 400 });
+      }
+
       let purchaseOrderSupplier;
       if (orderIdSupplier) {
         purchaseOrderSupplier = await PurchaseOrder.findOne({ _id: orderIdSupplier });
@@ -83,9 +89,9 @@ module.exports = {
         buyingPrice: checkProduct.price,
         sellingPrice,
         invoice,
-        customerName,
-        customerPhone,
-        customerAddress,
+        customerName: customer.name,
+        customerPhone: customer.phone,
+        customerAddress: customer.address,
         customerId,
         dateDelivered,
         approvedBy,
@@ -264,9 +270,6 @@ module.exports = {
     amount,
     sellingPrice,
     invoice,
-    customerName,
-    customerPhone,
-    customerAddress,
     customerId,
     dateDelivered,
     approvedBy,
@@ -279,6 +282,11 @@ module.exports = {
       }
       const checkProduct = await Product.findOne({ _id: productId });
       const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId });
+      const customer = await Customer.findOne({ _id: customerId });
+
+      if (!customer) {
+        throw Object.assign(new Error('customer not found'), { code: 400 });
+      }
 
       let purchaseOrderSupplier;
       if (orderIdSupplier) {
@@ -300,9 +308,9 @@ module.exports = {
         buyingPrice: checkProduct.price,
         sellingPrice,
         invoice,
-        customerName,
-        customerPhone,
-        customerAddress,
+        customerName: customer.name,
+        customerPhone: customer.phone,
+        customerAddress: customer.address,
         customerId,
         dateDelivered,
         approvedBy,
