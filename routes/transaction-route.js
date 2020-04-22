@@ -138,12 +138,11 @@ const upload = async (req, res, next) => {
         transaction.save();
       })
       .then(() => {
-        res.end();
-        // res.status(200).json(result.secure_url);
+        res.status(200).json(result.secure_url);
+        // res.end();
       })
       .catch(next);
   }).end(req.file.buffer);
-  res.status(200).json('file upload');
 };
 
 const deleteTransaction = async (req, res, next) => {
