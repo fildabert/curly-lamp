@@ -480,10 +480,15 @@ module.exports = {
     try {
       const transaction = await Transaction.findOne({ _id: trxId });
       const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId, type: 'BUYER' });
+      const purchaseOrderSupplier = await PurchaseOrder.findOne({ _id: transaction.orderIdSupplier });
+
+      if(transaction && !purchaseOrder && !purchaseOrderSupplier) {
+        await transaction.remove();
+        resolve({ success: true });
+      }
       if (!transaction || !purchaseOrder) {
         throw Object.assign(new Error('Not found'), { code: 400 });
       }
-      const purchaseOrderSupplier = await PurchaseOrder.findOne({ _id: transaction.orderIdSupplier });
 
       if (!purchaseOrderSupplier) {
         throw Object.assign(new Error('Purchase Order (Supplier) not found'), { code: 400 });
