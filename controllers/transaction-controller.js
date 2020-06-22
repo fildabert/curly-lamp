@@ -478,10 +478,11 @@ module.exports = {
 
   deleteTransaction: ({ trxId, orderId }) => new Promise(async (resolve, reject) => {
     try {
+      console.log('DELETE TRANS');
       const transaction = await Transaction.findOne({ _id: trxId });
       const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId, type: 'BUYER' });
       const purchaseOrderSupplier = await PurchaseOrder.findOne({ _id: transaction.orderIdSupplier });
-
+      
       if(transaction && !purchaseOrder && !purchaseOrderSupplier) {
         await transaction.remove();
         axios({
