@@ -484,7 +484,11 @@ module.exports = {
 
       if(transaction && !purchaseOrder && !purchaseOrderSupplier) {
         await transaction.remove();
-        resolve({ success: true });
+        axios({
+          method: 'DELETE',
+          url: `https://ni4m1c9j8p:oojdvhi83y@curly-lamp-9585578215.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transaction._id}`,
+        });
+        return resolve({ success: true });
       }
       if (!transaction || !purchaseOrder) {
         throw Object.assign(new Error('Not found'), { code: 400 });
