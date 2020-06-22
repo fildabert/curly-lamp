@@ -489,6 +489,10 @@ module.exports = {
           method: 'DELETE',
           url: `https://ni4m1c9j8p:oojdvhi83y@curly-lamp-9585578215.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transaction._id}`,
         });
+        redisCache.del('purchaseOrder');
+        redisCache.del('purchaseOrderSupplier');
+        redisCache.del('products');
+        redisCache.del('transactions');
         return resolve({ success: true });
       }
       if (!transaction || !purchaseOrder) {
