@@ -483,7 +483,7 @@ module.exports = {
       const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId, type: 'BUYER' });
       const purchaseOrderSupplier = await PurchaseOrder.findOne({ _id: transaction.orderIdSupplier });
       
-      if(transaction && !purchaseOrder && !purchaseOrderSupplier) {
+      if(transaction && !purchaseOrder || transaction && !purchaseOrderSupplier) {
         await transaction.remove();
         axios({
           method: 'DELETE',
