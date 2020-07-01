@@ -217,6 +217,7 @@ module.exports = {
           purchaseOrderSupplier.ordersCompleted += (Number(actualAmount) - Number(transaction.actualAmount));
         }
       }
+      transaction.buyingPrice = buyingPrice || transaction.buyingPrice;
       transaction.sellingPrice = sellingPrice || transaction.sellingPrice;
       transaction.carNo = carNo || transaction.carNo;
       transaction.actualAmount = actualAmount || transaction.actualAmount;
