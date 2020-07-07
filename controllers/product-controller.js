@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 /* eslint-disable no-async-promise-executor */
 const Product = require('../models/product');
 const redisCache = require('../redis');

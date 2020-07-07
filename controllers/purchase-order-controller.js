@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 /* eslint-disable no-useless-concat */
 /* eslint-disable newline-per-chained-call */
 /* eslint-disable max-len */
@@ -30,9 +31,8 @@ module.exports = {
 
       const customer = await Customer.findOne({ _id: customerId });
       if (!customer) {
-        throw Object.assign(new Error('Product Not Found'), { code: 400 });
+        throw Object.assign(new Error('Customer Not Found'), { code: 400 });
       }
-    
 
       const newOrder = new PurchaseOrder({
         productId,
@@ -65,9 +65,6 @@ module.exports = {
   createOrderSupplier: ({
     productId,
     price,
-    customerName,
-    customerPhone,
-    customerAddress,
     customerId,
     totalAmount,
     ordersCompleted = 0,
@@ -81,6 +78,11 @@ module.exports = {
         throw Object.assign(new Error('Product Not Found'), { code: 400 });
       }
 
+      const customer = await Customer.findOne({ _id: customerId });
+      if (!customer) {
+        throw Object.assign(new Error('Customer Not Found'), { code: 400 });
+      }
+
       const purchaseOrderSupplier = await PurchaseOrder.findOne({ productId, status: 'ACTIVE', type: 'SUPPLIER' });
 
       if (purchaseOrderSupplier && product.name !== 'Multiple') {
@@ -90,9 +92,9 @@ module.exports = {
       const newOrder = new PurchaseOrder({
         productId,
         price: product.price,
-        customerName,
-        customerPhone,
-        customerAddress,
+        customerName: customer.name,
+        customerPhone: customer.phone,
+        customerAddress: customer.address,
         customerId,
         transactions: [],
         totalAmount,
@@ -329,7 +331,7 @@ module.exports = {
 
       let sumQuantity = 0;
       let colNo = 8;
-      let colAdd = 18;
+      const colAdd = 18;
       for (let i = 0; i < purchaseOrder.transactions.length; i += 1) {
         // if (i > 10) {
         //   POworksheet.spliceRows(colAdd, 0, [i,
@@ -379,7 +381,6 @@ module.exports = {
 
       const invoicePrice = invoiceWorksheet.getCell('C13');
       invoicePrice.value = purchaseOrder.price;
-
 
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
       res.setHeader('Content-Disposition', 'attachment; filename=' + `Invoice[${purchaseOrder.PONo}] - ${purchaseOrder.productId.name}.xlsx`);

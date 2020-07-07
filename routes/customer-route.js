@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 /* eslint-disable no-underscore-dangle */
 const express = require('express');
 const auth = require('../helpers/auth');
@@ -5,9 +6,28 @@ const auth = require('../helpers/auth');
 const router = express.Router();
 const customerController = require('../controllers/customer-controller');
 
+const findAllBuyer = async (req, res, next) => {
+  try {
+    const result = await customerController.findAllBuyer();
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 const findAllCustomer = async (req, res, next) => {
   try {
     const result = await customerController.findAllCustomer();
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const findAllSupplier = async (req, res, next) => {
+  try {
+    const result = await customerController.findAllSuppliers();
     res.status(200).json(result);
   } catch (error) {
     next(error);
@@ -55,7 +75,9 @@ const refresh = async (req, res, next) => {
   }
 };
 
-router.get('/all', findAllCustomer);
+router.get('/all', findAllBuyer);
+router.get('/all/all', findAllCustomer);
+router.get('/all/supplier', findAllSupplier);
 router.post('/', createCustomer);
 router.put('/:_id', editCustomer);
 router.delete('/:_id', deleteCustomer);

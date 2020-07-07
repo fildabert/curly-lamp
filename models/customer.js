@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 /* eslint-disable no-useless-escape */
 /* eslint-disable func-names */
 const mongoose = require('mongoose');
@@ -12,6 +13,13 @@ const customerSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
+  },
+  balance: {
+    type: Number,
+  },
+  type: {
+    type: String,
+    enum: ['BUYER', 'SUPPLIER'],
   },
 }, { timestamps: true });
 
