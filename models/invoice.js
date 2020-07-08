@@ -21,9 +21,21 @@ const invoiceSchema = new mongoose.Schema({
     type: Date,
     required: [true, 'invoiceDate is empty'],
   },
+  startDate: {
+    type: Date,
+    required: [true, 'startDate is empty'],
+  },
+  endDate: {
+    type: Date,
+    required: [true, 'endDate is empty'],
+  },
   dueDate: {
     type: Date,
     required: [true, 'dueDate is empty'],
+  },
+  quantity: {
+    type: Number,
+    required: [true, 'quantity is empty'],
   },
   totalAmount: {
     type: Number,
@@ -31,11 +43,16 @@ const invoiceSchema = new mongoose.Schema({
   },
   paid: {
     type: Boolean,
-    default: true,
+    default: false,
   },
   amountPaid: {
     type: Number,
     default: 0,
+  },
+  type: {
+    type: String,
+    enum: ['BUYER', 'SUPPLIER'],
+    required: [true, 'type cannot be empty'],
   },
 
 }, { timestamps: true });

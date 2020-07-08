@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 /* eslint-disable no-underscore-dangle */
 const express = require('express');
 
@@ -110,6 +111,7 @@ const printOrder = async (req, res, next) => {
       orderId: req.params._id,
       startDate: new Date(req.query.startDate),
       endDate: new Date(req.query.endDate),
+      dueDate: req.query.dueDate,
     };
     await purchaseOrderController.print(payload, res);
     // res.end();

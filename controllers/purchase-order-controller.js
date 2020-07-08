@@ -8,7 +8,7 @@ const ExcelJS = require('exceljs');
 const PurchaseOrder = require('../models/purchase-order');
 const Customer = require('../models/customer');
 const Transaction = require('../models/transaction');
-const User = require('../models/user');
+const InvoiceController = require('./invoice-controller');
 const Product = require('../models/product');
 const redisCache = require('../redis');
 
@@ -310,8 +310,12 @@ module.exports = {
 
   print: (payload, res) => new Promise(async (resolve, reject) => {
     try {
-      const { orderId, startDate, endDate } = payload;
-      startDate.setHours(0, 0, 0, 0);
+      const {
+        orderId, startDate, endDate, dueDate,
+      } = payload;
+      // console.log(startDate);
+      // startDate.setHours(0, 0, 0, 0);
+
       endDate.setHours(23, 59, 59, 999);
       const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId }).populate('transactions', null, { dateDelivered: { $gte: startDate, $lte: endDate }, status: 'COMPLETED' }, { populate: 'productId' }).populate('approvedBy');
       if (!purchaseOrder) {
@@ -332,6 +336,8 @@ module.exports = {
       let sumQuantity = 0;
       let colNo = 8;
       const colAdd = 18;
+      let invoiceTotalAmount = 0;
+      let invoiceTotalQuantity = 0;
       for (let i = 0; i < purchaseOrder.transactions.length; i += 1) {
         // if (i > 10) {
         //   POworksheet.spliceRows(colAdd, 0, [i,
@@ -348,6 +354,9 @@ module.exports = {
         //   });
         //   colAdd += 1;
         // }
+        invoiceTotalQuantity += purchaseOrder.transactions[i].actualAmount;
+        invoiceTotalAmount += Number(purchaseOrder.transactions[i].sellingPrice) * Number(purchaseOrder.transactions[i].actualAmount);
+
         const itemName = POworksheet.getCell(`B${colNo}`);
         itemName.value = purchaseOrder.transactions[i].productId.name;
 
@@ -369,6 +378,19 @@ module.exports = {
         colNo += 1;
       }
       const invoiceWorksheet = book.getWorksheet('Invoice');
+
+      await InvoiceController.createInvoice({
+        customerId: purchaseOrder.customerId,
+        purchaseOrderId: purchaseOrder._id,
+        transactionId: purchaseOrder.transactions,
+        invoiceDate: new Date(),
+        dueDate,
+        startDate,
+        endDate,
+        totalAmount: invoiceTotalAmount,
+        quantity: invoiceTotalQuantity,
+        type: purchaseOrder.type,
+      });
 
       const to = invoiceWorksheet.getCell('B7');
       to.value = purchaseOrder.customerName;

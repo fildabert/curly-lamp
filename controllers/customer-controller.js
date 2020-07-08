@@ -43,7 +43,7 @@ module.exports = {
 
   editCustomer: (customerId, payload) => new Promise(async (resolve, reject) => {
     try {
-      const { name, phone, address } = payload;
+      const { name, phone, address, balance, } = payload;
       const customer = await Customer.findOne({ _id: customerId });
       if (!customer) {
         throw Object.assign(new Error('Customer not found'), { code: 400 });
@@ -51,6 +51,7 @@ module.exports = {
       customer.name = name || customer.name;
       customer.phone = phone || customer.phone;
       customer.address = address || customer.address;
+      customer.balance = balance || customer.balance;
 
       const updatedCustomer = await customer.save();
       return resolve(updatedCustomer);
@@ -81,13 +82,13 @@ module.exports = {
         if (!PO.customerId) {
           const checkCustomer = await Customer.findOne({ name: PO.customerName });
           if (!checkCustomer) {
-            console.log(PO.customerName, 'notfound')
+            console.log(PO, 'notfound')
             const cust = new Customer({ name: PO.customerName, type: 'SUPPLIER', });
             const newCust = await cust.save();
             PO.customerId = newCust._id;
             await PO.save();
           } else {
-            console.log(checkCustomer, 'found');
+            // console.log(checkCustomer, 'found');
             PO.customerId = checkCustomer._id;
             await PO.save();
           }
