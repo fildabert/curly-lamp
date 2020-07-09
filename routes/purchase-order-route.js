@@ -5,7 +5,6 @@ const express = require('express');
 const router = express.Router();
 const purchaseOrderController = require('../controllers/purchase-order-controller');
 
-
 const findAllOrders = async (req, res, next) => {
   try {
     const result = await purchaseOrderController.findAllOrders();
@@ -132,6 +131,21 @@ const editOrderSupplier = async (req, res, next) => {
   }
 };
 
+const printMany = async (req, res, next) => {
+  try {
+    const payload = {
+      orderIds: req.body.orderIds,
+      startDate: new Date(req.body.startDate),
+      endDate: new Date(req.body.endDate),
+      dueDate: req.body.dueDate,
+    };
+    const result = await purchaseOrderController.printMany(payload);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 router.get('/all', findAllOrders);
 router.get('/supplier', findAllOrdersSupplier);
 router.get('/supplier/active', findAllOrdersSupplierActive);
@@ -140,11 +154,11 @@ router.get('/search', searchOrder);
 router.put('/increase-quota', editOrderSupplier);
 router.get('/:_id', findOneOrder);
 router.get('/print/:_id', printOrder);
+router.post('/printMany', printMany);
 router.post('/', createOrder);
 router.post('/supplier', createOrderSupplier);
 router.put('/:_id', editOrder);
 router.patch('/:_id', patchOrder);
 router.delete('/:_id', deleteOrder);
-
 
 module.exports = router;

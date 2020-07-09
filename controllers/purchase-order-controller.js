@@ -308,6 +308,78 @@ module.exports = {
     }
   }),
 
+  printMany: ({
+    orderIds, startDate, endDate, dueDate,
+  }) => new Promise(async (resolve, reject) => {
+    try {
+      endDate.setHours(23, 59, 59, 999);
+      const promises = [];
+
+      orderIds.forEach((orderId) => {
+        promises.push(PurchaseOrder.findOne({ _id: orderId }).populate('transactions', null, { dateDelivered: { $gte: startDate, $lte: endDate }, status: 'COMPLETED' }, { populate: 'productId' }).populate('approvedBy'));
+      });
+
+      const result = await Promise.all(promises);
+
+      let checkNull = 0;
+      const checkCustomer = {};
+
+      for (let i = 0; i < result.length; i += 1) {
+        if (!checkCustomer[result[i].customerId]) {
+          checkCustomer[result[i].customerId] = 1;
+        } else {
+          checkCustomer[result[i].customerId] += 1;
+        }
+
+        if (result[i].transactions.length === 0) {
+          checkNull += 1;
+          delete result[i];
+        }
+      }
+
+      if (checkNull === result.length) {
+        throw Object.assign(new Error(`No invoice found between ${startDate} to ${endDate}`), { code: 400 });
+      }
+
+      if (Object.keys(checkCustomer).length > 1) {
+        throw Object.assign(new Error('Please only select POs that belong to the same Buyer'), { code: 400 });
+      }
+
+      const purchaseOrder = result[0];
+
+      for (let i = 1; i < result.length; i += 1) {
+        purchaseOrder.transactions.push(...result[i].transactions);
+        purchaseOrder.PONo += `|${result[i].PONo}`;
+      }
+
+      let invoiceTotalAmount = 0;
+      let invoiceTotalQuantity = 0;
+
+      purchaseOrder.transactions.forEach((trx) => {
+        invoiceTotalQuantity += trx.actualAmount;
+        invoiceTotalAmount += Number(trx.sellingPrice) * Number(trx.actualAmount);
+      });
+
+      await InvoiceController.createInvoice({
+        customerId: purchaseOrder.customerId,
+        name: purchaseOrder.PONo,
+        purchaseOrderId: purchaseOrder._id,
+        transactionId: purchaseOrder.transactions.map((trx) => trx._id),
+        invoiceDate: new Date(),
+        dueDate,
+        startDate,
+        endDate,
+        totalAmount: invoiceTotalAmount,
+        quantity: invoiceTotalQuantity,
+        type: purchaseOrder.type,
+      });
+
+      return resolve({ success: true });
+    } catch (error) {
+      return reject(error);
+    }
+  }),
+
   print: (payload, res) => new Promise(async (resolve, reject) => {
     try {
       const {
@@ -381,6 +453,7 @@ module.exports = {
 
       await InvoiceController.createInvoice({
         customerId: purchaseOrder.customerId,
+        name: purchaseOrder.PONo,
         purchaseOrderId: purchaseOrder._id,
         transactionId: purchaseOrder.transactions,
         invoiceDate: new Date(),

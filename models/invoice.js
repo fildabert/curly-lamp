@@ -11,6 +11,10 @@ const invoiceSchema = new mongoose.Schema({
     ref: 'Customer',
     required: [true, 'customer is empty'],
   },
+  name: {
+    type: String,
+    required: [true, 'invoice name is required'],
+  },
   purchaseOrder: {
     type: ObjectId,
     ref: 'PurchaseOrder',

@@ -11,6 +11,10 @@ const cashFlowSchema = new mongoose.Schema({
     ref: 'Customer',
     required: [true, 'customer is empty'],
   },
+  invoices: [{
+    type: ObjectId,
+    ref: 'Invoice',
+  }],
   amount: {
     type: Number,
     required: [true, 'amount is required'],

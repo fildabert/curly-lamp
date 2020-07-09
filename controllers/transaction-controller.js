@@ -19,7 +19,6 @@ const redisHelper = require('../helpers/redis.js');
 
 // eslint-disable-next-line no-new
 
-
 module.exports = {
   createTransaction: ({
     orderId,
@@ -484,8 +483,8 @@ module.exports = {
       const transaction = await Transaction.findOne({ _id: trxId });
       const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId, type: 'BUYER' });
       const purchaseOrderSupplier = await PurchaseOrder.findOne({ _id: transaction.orderIdSupplier });
-      
-      if(transaction && !purchaseOrder || transaction && !purchaseOrderSupplier) {
+
+      if (transaction && !purchaseOrder || transaction && !purchaseOrderSupplier) {
         await transaction.remove();
         axios({
           method: 'DELETE',
