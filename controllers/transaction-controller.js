@@ -179,7 +179,7 @@ module.exports = {
         throw Object.assign(new Error('Product Not Found'), { code: 400 });
       }
 
-      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId });
+      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId }).populate({ path: 'additionalFee', select: '_id amount product' });
       if (!purchaseOrder) {
         throw Object.assign(new Error('Purchase Order not found'), { code: 400 });
       }
@@ -202,6 +202,8 @@ module.exports = {
       //   throw Object.assign(new Error('Purchase Order may be completed or the amount you entered is too much'), { code: 400, data: purchaseOrder });
       // }
 
+      const { additionalFee } = purchaseOrder;
+
       if (actualAmount) {
         if (!transaction.actualAmount) {
           checkProduct.stock -= (Number(actualAmount) - Number(amount));
@@ -217,6 +219,15 @@ module.exports = {
           purchaseOrderSupplier.ordersCompleted += (Number(actualAmount) - Number(transaction.actualAmount));
         }
       }
+
+      transaction.netProfit = transaction.profit;
+      if (additionalFee && additionalFee.length > 0) {
+        const feeIndex = additionalFee.findIndex((fee) => fee.product.toString() === productId);
+        if (feeIndex !== -1) {
+          transaction.netProfit = transaction.profit - (additionalFee[feeIndex].amount * Number(actualAmount));
+        }
+      }
+
       transaction.buyingPrice = buyingPrice || transaction.buyingPrice;
       transaction.sellingPrice = sellingPrice || transaction.sellingPrice;
       transaction.carNo = carNo || transaction.carNo;

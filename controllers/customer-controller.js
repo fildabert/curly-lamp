@@ -29,10 +29,23 @@ module.exports = {
       return reject(error);
     }
   }),
-
-  createCustomer: ({ name, phone, address, type }) => new Promise(async (resolve, reject) => {
+  findAllAgents: () => new Promise(async (resolve, reject) => {
     try {
-      const customer = new Customer({ name, phone, address, type });
+      const agents = await Customer.find({ type: 'AGENT' });
+
+      return resolve(agents);
+    } catch (error) {
+      return reject(error);
+    }
+  }),
+
+  createCustomer: ({
+    name, phone, address, type,
+  }) => new Promise(async (resolve, reject) => {
+    try {
+      const customer = new Customer({
+        name, phone, address, type,
+      });
 
       const newCustomer = await customer.save();
       return resolve(newCustomer);
@@ -43,7 +56,9 @@ module.exports = {
 
   editCustomer: (customerId, payload) => new Promise(async (resolve, reject) => {
     try {
-      const { name, phone, address, balance, } = payload;
+      const {
+        name, phone, address, balance,
+      } = payload;
       const customer = await Customer.findOne({ _id: customerId });
       if (!customer) {
         throw Object.assign(new Error('Customer not found'), { code: 400 });
@@ -75,15 +90,15 @@ module.exports = {
 
   refreshCustomer: () => new Promise(async (resolve, reject) => {
     try {
-      const POs = await PurchaseOrder.find({ type: 'SUPPLIER', $or: [{status: 'ACTIVE'}, {status: 'COMPLETED'}] });
+      const POs = await PurchaseOrder.find({ type: 'SUPPLIER', $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }] });
       // const transactions = await Transaction.find({});
 
       POs.forEach(async (PO) => {
         if (!PO.customerId) {
           const checkCustomer = await Customer.findOne({ name: PO.customerName });
           if (!checkCustomer) {
-            console.log(PO, 'notfound')
-            const cust = new Customer({ name: PO.customerName, type: 'SUPPLIER', });
+            console.log(PO, 'notfound');
+            const cust = new Customer({ name: PO.customerName, type: 'SUPPLIER' });
             const newCust = await cust.save();
             PO.customerId = newCust._id;
             await PO.save();

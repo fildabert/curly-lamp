@@ -49,6 +49,9 @@ const transactionSchema = new mongoose.Schema({
   profit: {
     type: Number,
   },
+  netProfit: {
+    type: Number,
+  },
   customerName: {
     type: String,
     required: [true, 'customerName is empty'],

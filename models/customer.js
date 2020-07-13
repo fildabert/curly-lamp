@@ -20,7 +20,7 @@ const customerSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['BUYER', 'SUPPLIER'],
+    enum: ['BUYER', 'SUPPLIER', 'AGENT'],
   },
 }, { timestamps: true });
 

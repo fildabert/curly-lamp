@@ -9,6 +9,7 @@ const PurchaseOrder = require('../models/purchase-order');
 const Customer = require('../models/customer');
 const Transaction = require('../models/transaction');
 const InvoiceController = require('./invoice-controller');
+const FeeController = require('./fee-controller');
 const Product = require('../models/product');
 const redisCache = require('../redis');
 
@@ -135,7 +136,7 @@ module.exports = {
         if (cache) {
           resolve(JSON.parse(cache));
         } else {
-          const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'BUYER' }).sort({ createdAt: 'desc' }).populate({ path: 'transactions', populate: { path: 'productId', select: 'name -_id' } }).populate('productId');
+          const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'BUYER' }).sort({ createdAt: 'desc' }).populate({ path: 'transactions', select: 'invoice _id dateDelivered status actualAmount', populate: { path: 'productId', select: 'name -_id' } }).populate('additionalFee').populate('productId', 'name _id');
           redisCache.setex('purchaseOrder', (60 * 60), JSON.stringify(orders));
           resolve(orders);
         }
@@ -193,6 +194,7 @@ module.exports = {
       ordersCompleted,
       PONo,
       price,
+      fees,
       // dueDate,
     } = payload;
 
@@ -201,6 +203,15 @@ module.exports = {
       if (!newOrder) {
         throw Object.assign(new Error('Order Not Found'), { code: 400 });
       }
+
+      
+      const promises = [];
+
+      fees.forEach((fee) => {
+        const createFee = FeeController.createFee({ productId: fee.productId, amount: fee.amount, customerId: fee.agentId, customerName: fee.agent, productName: fee.product });
+        promises.push(createFee);
+      });
+      const additionalFee = await Promise.all(promises);
 
       newOrder.productId = productId || newOrder.productId;
       newOrder.price = price || newOrder.price;
@@ -211,6 +222,7 @@ module.exports = {
       newOrder.totalAmount = totalAmount || newOrder.totalAmount;
       // newOrder.ordersCompleted = ordersCompleted || newOrder.ordersCompleted;
       newOrder.PONo = PONo || newOrder.PONo;
+      newOrder.additionalFee = additionalFee;
       // newOrder.dueDate = dueDate || newOrder.dueDate;
 
       if (newOrder.totalAmount - newOrder.ordersCompleted > 0) {

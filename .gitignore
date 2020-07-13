@@ -4,3 +4,4 @@ temp
 newrelic_agent.log
 config
 .env
+helpers/aws.js

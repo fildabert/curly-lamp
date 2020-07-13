@@ -12,6 +12,7 @@ const PurchaseOrder = require('../models/purchase-order');
 const Product = require('../models/product');
 
 const auth = require('../helpers/auth');
+// const aws = require('../helpers/aws');
 
 const router = express.Router();
 const transactionController = require('../controllers/transaction-controller');
@@ -164,6 +165,21 @@ const elasticSearch = async (req, res, next) => {
   }
 };
 
+
+router.get('/refrez', async (req, res) => {
+  try {
+    const purchaseOrder = await PurchaseOrder.findOne({ _id: '5ef048fe15c2c40007ddb1db' }).populate('transactions');
+
+    purchaseOrder.transactions.forEach((trx) => {
+      aws.sendMessage(trx);
+    });
+
+    res.status(200).json('o yea');
+  } catch (error) {
+    res.status(400).json(error);
+  }
+})
+
 router.get('/all', findAllTransactions);
 router.get('/elastic', elasticSearch);
 router.get('/:_id', findOneTransaction);
@@ -172,5 +188,6 @@ router.post('/supplier', createTransactionSupplier);
 router.put('/:_id', updateTransaction);
 router.post('/upload/:_id', multer().single('file'), upload);
 router.post('/delete', auth, deleteTransaction);
+
 
 module.exports = router;

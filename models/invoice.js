@@ -55,7 +55,7 @@ const invoiceSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['BUYER', 'SUPPLIER'],
+    enum: ['BUYER', 'SUPPLIER', 'AGENT'],
     required: [true, 'type cannot be empty'],
   },
 

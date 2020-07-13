@@ -30,6 +30,10 @@ const purchaseOrderSchema = new mongoose.Schema({
   customerAddress: {
     type: String,
   },
+  additionalFee: [{
+    type: ObjectId,
+    ref: 'Fee',
+  }],
   customerId: {
     type: ObjectId,
     ref: 'Customer',

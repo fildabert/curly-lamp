@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/fildabert/curly-lamp#readme",
   "dependencies": {
+    "aws-sdk": "^2.713.0",
     "axios": "^0.19.1",
     "bcrypt": "^3.0.7",
     "bcryptjs": "^2.4.3",

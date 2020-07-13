@@ -15,7 +15,6 @@ const findAllBuyer = async (req, res, next) => {
   }
 };
 
-
 const findAllCustomer = async (req, res, next) => {
   try {
     const result = await customerController.findAllCustomer();
@@ -28,6 +27,15 @@ const findAllCustomer = async (req, res, next) => {
 const findAllSupplier = async (req, res, next) => {
   try {
     const result = await customerController.findAllSuppliers();
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const findAllAgents = async (req, res, next) => {
+  try {
+    const result = await customerController.findAllAgents();
     res.status(200).json(result);
   } catch (error) {
     next(error);
@@ -78,6 +86,7 @@ const refresh = async (req, res, next) => {
 router.get('/all', findAllBuyer);
 router.get('/all/all', findAllCustomer);
 router.get('/all/supplier', findAllSupplier);
+router.get('/all/agents', findAllAgents);
 router.post('/', createCustomer);
 router.put('/:_id', editCustomer);
 router.delete('/:_id', deleteCustomer);
