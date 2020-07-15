@@ -9,12 +9,69 @@ const Invoice = require('../models/invoice');
 const Customer = require('../models/customer');
 const CashFlow = require('../models/cashflow');
 const Balance = require('../models/balance');
+const PurchaseOrder = require('../models/purchase-order');
 
 const balanceId = '5f054d0d60d1e55b14f5723d';
 
 // const CashFlowController = require('./cashflow-contoller');
 
 // console.log(CashFlowController)
+
+const createInvoiceAgent = ({
+  purchaseOrder, startDate, endDate, invoiceDate, dueDate, name,
+}) => new Promise(async (resolve, reject) => {
+  try {
+    const result = {};
+    const invoiceAgents = [];
+    const agentFees = {};
+    const agentQuantity = {};
+    const transactionz = [];
+    purchaseOrder.forEach((PO) => {
+      transactionz.push(...PO.transactions);
+      PO.transactions.forEach((trx) => {
+        for (let i = 0; i < PO.additionalFee.length; i += 1) {
+          if (trx.productId._id.toString() === PO.additionalFee[i].product.toString()) {
+            if (!agentFees[PO.additionalFee[i].customer.toString()]) {
+              agentFees[PO.additionalFee[i].customer.toString()] = 0;
+            }
+            console.log(trx.actualAmount, PO.additionalFee[i].amount)
+            agentFees[PO.additionalFee[i].customer.toString()] += trx.actualAmount * PO.additionalFee[i].amount;
+
+            if (!agentQuantity[PO.additionalFee[i].customer.toString()]) {
+              agentQuantity[PO.additionalFee[i].customer.toString()] = 0;
+            }
+            agentQuantity[PO.additionalFee[i].customer.toString()] += trx.actualAmount;
+          }
+        }
+      });
+    });
+    const agentIds = Object.keys(agentFees);
+
+    agentIds.forEach((agentId) => {
+      invoiceAgents.push(Invoice.create({
+        customer: agentId,
+        name,
+        purchaseOrder,
+        transactions: transactionz,
+        invoiceDate,
+        dueDate: moment(new Date()).add(Number(dueDate), 'days'),
+        startDate,
+        endDate,
+        quantity: agentQuantity[agentId],
+        totalAmount: agentFees[agentId],
+        paid: false,
+        amountPaid: 0,
+        type: 'AGENT',
+      }));
+    });
+
+    await Promise.all(invoiceAgents);
+    return resolve(true);
+  } catch (error) {
+    console.log(error);
+    reject(error);
+  }
+});
 
 const findAllInvoiceBuyer = () => new Promise(async (resolve, reject) => {
   try {
@@ -28,7 +85,7 @@ const findAllInvoiceBuyer = () => new Promise(async (resolve, reject) => {
 
 const findAllInvoiceSupplier = () => new Promise(async (resolve, reject) => {
   try {
-    const invoices = await Invoice.find({ type: 'SUPPLIER' }).populate('customer').populate('purchaseOrder').populate('transactions');
+    const invoices = await Invoice.find({ $or: [{ type: 'SUPPLIER' }, { type: 'AGENT' }] }).populate('customer').populate('purchaseOrder').populate('transactions');
     return resolve(invoices);
   } catch (error) {
     return reject(error);
@@ -68,6 +125,9 @@ const createInvoice = ({
       }
       customer.balance -= totalAmount;
     }
+    await createInvoiceAgent({
+      purchaseOrder: purchaseOrderId, startDate, endDate, dueDate, invoiceDate, name,
+    });
 
     const temp = new Invoice({
       customer: customerId,
@@ -150,33 +210,6 @@ const updateInvoice = ({
     // }
 
     return resolve(result);
-  } catch (error) {
-    return reject(error);
-  }
-});
-
-const deleteCashFlow = ({ _id }) => new Promise(async (resolve, reject) => {
-  try {
-    const cashFlow = await CashFlow.findOne({ _id });
-    const balance = await Balance.findOne({ _id: balanceId });
-
-    if (!cashFlow) {
-      throw Object.assign(new Error('Cashflow not found'), { code: 400 });
-    }
-    const customer = await Customer.findOne({ _id: cashFlow.customer });
-    if (!customer) {
-      throw Object.assign(new Error('Customer not found'), { code: 400 });
-    }
-
-    if (customer.type === 'BUYER') {
-      balance.amount -= cashFlow.amount;
-    } else if (customer.type === 'SUPPLIER') {
-      balance.amount += cashFlow.amount;
-    }
-
-    await cashFlow.remove();
-    await balance.save();
-    return resolve({ success: true });
   } catch (error) {
     return reject(error);
   }

@@ -23,7 +23,7 @@ const createCashFlow = ({ customerId, amount }) => new Promise(async (resolve, r
 
     if (customer.type === 'BUYER') {
       accBalance.amount += amount;
-    } else if (customer.type === 'SUPPLIER') {
+    } else if (customer.type === 'SUPPLIER' || customer.type === 'AGENT') {
       accBalance.amount -= amount;
     }
     await accBalance.save();
@@ -103,7 +103,7 @@ const deleteCashFlow = ({ _id }) => new Promise(async (resolve, reject) => {
 
     if (customer.type === 'BUYER') {
       balance.amount -= cashFlow.amount;
-    } else if (customer.type === 'SUPPLIER') {
+    } else if (customer.type === 'SUPPLIER' || customer.type === 'AGENT') {
       balance.amount += cashFlow.amount;
     }
     await customer.save();

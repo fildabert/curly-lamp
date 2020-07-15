@@ -328,7 +328,7 @@ module.exports = {
       const promises = [];
 
       orderIds.forEach((orderId) => {
-        promises.push(PurchaseOrder.findOne({ _id: orderId }).populate('transactions', null, { dateDelivered: { $gte: startDate, $lte: endDate }, status: 'COMPLETED' }, { populate: 'productId' }).populate('approvedBy'));
+        promises.push(PurchaseOrder.findOne({ _id: orderId }).populate('transactions', null, { dateDelivered: { $gte: startDate, $lte: endDate }, status: 'COMPLETED' }, { populate: 'productId' }).populate('approvedBy').populate('additionalFee'));
       });
 
       const result = await Promise.all(promises);
@@ -375,8 +375,8 @@ module.exports = {
       await InvoiceController.createInvoice({
         customerId: purchaseOrder.customerId,
         name: purchaseOrder.PONo,
-        purchaseOrderId: purchaseOrder._id,
-        transactionId: purchaseOrder.transactions.map((trx) => trx._id),
+        purchaseOrderId: result,
+        transactionId: purchaseOrder.transactions,
         invoiceDate: new Date(),
         dueDate,
         startDate,
@@ -401,7 +401,7 @@ module.exports = {
       // startDate.setHours(0, 0, 0, 0);
 
       endDate.setHours(23, 59, 59, 999);
-      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId }).populate('transactions', null, { dateDelivered: { $gte: startDate, $lte: endDate }, status: 'COMPLETED' }, { populate: 'productId' }).populate('approvedBy');
+      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId }).populate('transactions', null, { dateDelivered: { $gte: startDate, $lte: endDate }, status: 'COMPLETED' }, { populate: 'productId' }).populate('approvedBy').populate('additionalFee');
       if (!purchaseOrder) {
         throw Object.assign(new Error('Puchase Order not found'), { code: 400 });
       }
@@ -466,7 +466,7 @@ module.exports = {
       await InvoiceController.createInvoice({
         customerId: purchaseOrder.customerId,
         name: purchaseOrder.PONo,
-        purchaseOrderId: purchaseOrder._id,
+        purchaseOrderId: [purchaseOrder],
         transactionId: purchaseOrder.transactions,
         invoiceDate: new Date(),
         dueDate,

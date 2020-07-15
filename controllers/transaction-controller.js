@@ -222,10 +222,13 @@ module.exports = {
 
       transaction.netProfit = transaction.profit;
       if (additionalFee && additionalFee.length > 0) {
-        const feeIndex = additionalFee.findIndex((fee) => fee.product.toString() === productId);
-        if (feeIndex !== -1) {
-          transaction.netProfit = transaction.profit - (additionalFee[feeIndex].amount * Number(actualAmount));
+        let feeCost = 0;
+        for (let i = 0; i < additionalFee.length; i += 1) {
+          if (additionalFee[i].product.toString() === productId) {
+            feeCost += additionalFee[i].amount * Number(actualAmount);
+          }
         }
+        transaction.netProfit = transaction.profit - feeCost;
       }
 
       transaction.buyingPrice = buyingPrice || transaction.buyingPrice;
