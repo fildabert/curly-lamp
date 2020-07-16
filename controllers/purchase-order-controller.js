@@ -204,11 +204,12 @@ module.exports = {
         throw Object.assign(new Error('Order Not Found'), { code: 400 });
       }
 
-      
       const promises = [];
 
       fees.forEach((fee) => {
-        const createFee = FeeController.createFee({ productId: fee.productId, amount: fee.amount, customerId: fee.agentId, customerName: fee.agent, productName: fee.product });
+        const createFee = FeeController.createFee({
+          productId: fee.productId, amount: fee.amount, customerId: fee.agentId, customerName: fee.agent, productName: fee.product,
+        });
         promises.push(createFee);
       });
       const additionalFee = await Promise.all(promises);
@@ -328,7 +329,7 @@ module.exports = {
       const promises = [];
 
       orderIds.forEach((orderId) => {
-        promises.push(PurchaseOrder.findOne({ _id: orderId }).populate('transactions', null, { dateDelivered: { $gte: startDate, $lte: endDate }, status: 'COMPLETED' }, { populate: 'productId' }).populate('approvedBy').populate('additionalFee'));
+        promises.push(PurchaseOrder.findOne({ _id: orderId }).populate('transactions', null, { dateDelivered: { $gte: startDate, $lte: endDate }, status: 'COMPLETED' }, { populate: 'productId' }).populate('productId').populate('additionalFee'));
       });
 
       const result = await Promise.all(promises);
@@ -398,10 +399,10 @@ module.exports = {
         orderId, startDate, endDate, dueDate,
       } = payload;
       // console.log(startDate);
-      // startDate.setHours(0, 0, 0, 0);
+      startDate.setHours(0, 0, 0, 0);
 
       endDate.setHours(23, 59, 59, 999);
-      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId }).populate('transactions', null, { dateDelivered: { $gte: startDate, $lte: endDate }, status: 'COMPLETED' }, { populate: 'productId' }).populate('approvedBy').populate('additionalFee');
+      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId }).populate('transactions', null, { dateDelivered: { $gte: startDate, $lte: endDate }, status: 'COMPLETED' }, { populate: 'productId' }).populate('productId').populate('additionalFee');
       if (!purchaseOrder) {
         throw Object.assign(new Error('Puchase Order not found'), { code: 400 });
       }
@@ -411,57 +412,41 @@ module.exports = {
       }
       const workbook = new ExcelJS.Workbook();
       const book = await workbook.xlsx.readFile(`${process.cwd()}/Invoice&PO-template.xlsx`);
-      const POworksheet = book.getWorksheet('PO');
+      const DOworksheet = book.getWorksheet('DO');
 
-      const title = POworksheet.getCell('A5');
-      title.value = `${purchaseOrder.customerName}
-      PO Number: ${purchaseOrder.PONo} (${startDate.toString()} - ${endDate.toString()})`;
+      const customerName = DOworksheet.getCell('A4');
+      customerName.value = purchaseOrder.customerName;
+      const title = DOworksheet.getCell('A5');
+      title.value = `PO Number: ${purchaseOrder.PONo} (${startDate.toString()} - ${endDate.toString()})`;
 
       let sumQuantity = 0;
-      let colNo = 8;
+      let colNo = 7;
       const colAdd = 18;
       let invoiceTotalAmount = 0;
       let invoiceTotalQuantity = 0;
       for (let i = 0; i < purchaseOrder.transactions.length; i += 1) {
-        // if (i > 10) {
-        //   POworksheet.spliceRows(colAdd, 0, [i,
-        //     purchaseOrder.transactions[i].productId.name,
-        //     purchaseOrder.transactions[i].invoice,
-        //     purchaseOrder.transactions[i].dateDelivered,
-        //     Number(purchaseOrder.transactions[i].actualAmount),
-        //     Number(purchaseOrder.transactions[i].sellingPrice),
-        //     Number(purchaseOrder.transactions[i].sellingPrice) * Number(purchaseOrder.transactions[i].actualAmount),
-        //   ]);
-        //   POworksheet.spliceRows(colAdd, 1, [0, 1, 2, 3, 4, 5, 6]);
-        //   POworksheet.getRow(colAdd).eachCell((cell) => {
-        //     cell.style = POworksheet.getCell('B8').style;
-        //   });
-        //   colAdd += 1;
-        // }
         invoiceTotalQuantity += purchaseOrder.transactions[i].actualAmount;
         invoiceTotalAmount += Number(purchaseOrder.transactions[i].sellingPrice) * Number(purchaseOrder.transactions[i].actualAmount);
 
-        const itemName = POworksheet.getCell(`B${colNo}`);
-        itemName.value = purchaseOrder.transactions[i].productId.name;
+        const DONumber = DOworksheet.getCell(`B${colNo}`);
+        DONumber.value = purchaseOrder.transactions[i].invoice;
 
-        const description = POworksheet.getCell(`C${colNo}`);
-        description.value = purchaseOrder.transactions[i].invoice;
+        const carNo = DOworksheet.getCell(`C${colNo}`);
+        carNo.value = purchaseOrder.transactions[i].carNo || 'XXX';
 
-        const poDate = POworksheet.getCell(`D${colNo}`);
-        poDate.value = purchaseOrder.transactions[i].dateDelivered;
+        const DODatedelivered = DOworksheet.getCell(`D${colNo}`);
+        DODatedelivered.value = purchaseOrder.transactions[i].dateDelivered;
 
-        const quantity = POworksheet.getCell(`E${colNo}`);
+        const quantity = DOworksheet.getCell(`E${colNo}`);
         quantity.value = +purchaseOrder.transactions[i].actualAmount;
         sumQuantity += +purchaseOrder.transactions[i].actualAmount;
 
-        const price = POworksheet.getCell(`F${colNo}`);
+        const price = DOworksheet.getCell(`F${colNo}`);
         price.value = +purchaseOrder.transactions[i].sellingPrice;
 
-        const amountSum = POworksheet.getCell(`G${colNo}`);
-        amountSum.value = +purchaseOrder.transactions[i].sellingPrice * +purchaseOrder.transactions[i].actualAmount;
         colNo += 1;
       }
-      const invoiceWorksheet = book.getWorksheet('Invoice');
+      const POWorksheet = book.getWorksheet('Invoice');
 
       await InvoiceController.createInvoice({
         customerId: purchaseOrder.customerId,
@@ -477,16 +462,25 @@ module.exports = {
         type: purchaseOrder.type,
       });
 
-      const to = invoiceWorksheet.getCell('B7');
+      const NO = POWorksheet.getCell('B4');
+      NO.value = purchaseOrder.PONo;
+
+      const date = POWorksheet.getCell('B5');
+      date.value = new Date().toString();
+
+      const to = POWorksheet.getCell('B7');
       to.value = purchaseOrder.customerName;
 
-      const productName = invoiceWorksheet.getCell('A13');
+      const PONo = POWorksheet.getCell('B10');
+      PONo.value = purchaseOrder.PONo;
+
+      const productName = POWorksheet.getCell('A14');
       productName.value = purchaseOrder.productId.name;
 
-      const totalQuantity = invoiceWorksheet.getCell('B13');
+      const totalQuantity = POWorksheet.getCell('C14');
       totalQuantity.value = sumQuantity;
 
-      const invoicePrice = invoiceWorksheet.getCell('C13');
+      const invoicePrice = POWorksheet.getCell('D14');
       invoicePrice.value = purchaseOrder.price;
 
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
