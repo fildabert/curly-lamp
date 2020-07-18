@@ -146,15 +146,24 @@ const printMany = async (req, res, next) => {
   }
 };
 
+const getPipe = async (req, res, next) => {
+  try {
+    const result = await purchaseOrderController.findOrderStream(res);
+  } catch (error) {
+    next(error);
+  }
+};
+
+router.get('/pipe', getPipe);
 router.get('/all', findAllOrders);
 router.get('/supplier', findAllOrdersSupplier);
 router.get('/supplier/active', findAllOrdersSupplierActive);
 router.get('/due', findOrdersDue);
 router.get('/search', searchOrder);
 router.put('/increase-quota', editOrderSupplier);
-router.get('/:_id', findOneOrder);
 router.get('/print/:_id', printOrder);
 router.post('/printMany', printMany);
+router.get('/:_id', findOneOrder);
 router.post('/', createOrder);
 router.post('/supplier', createOrderSupplier);
 router.put('/:_id', editOrder);

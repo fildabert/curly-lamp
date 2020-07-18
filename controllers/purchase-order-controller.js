@@ -5,6 +5,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-async-promise-executor */
 const ExcelJS = require('exceljs');
+const a = require('debug')('app');
 const PurchaseOrder = require('../models/purchase-order');
 const Customer = require('../models/customer');
 const Transaction = require('../models/transaction');
@@ -134,11 +135,15 @@ module.exports = {
     try {
       redisCache.get('purchaseOrder', async (err, cache) => {
         if (cache) {
+          a('plss');
           resolve(JSON.parse(cache));
         } else {
-          const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'BUYER' }).sort({ createdAt: 'desc' }).populate({ path: 'transactions', select: 'invoice _id dateDelivered status actualAmount', populate: { path: 'productId', select: 'name -_id' } }).populate('additionalFee').populate('productId', 'name _id');
+          a('Before Find');
+          const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'BUYER' }).sort({ createdAt: 'desc' }).populate({ path: 'transactions', select: 'invoice _id dateDelivered status actualAmount', populate: { path: 'productId', select: 'name -_id' } }).populate('additionalFee').populate('productId', 'name _id').lean();
+          a('After Find');
           redisCache.setex('purchaseOrder', (60 * 60), JSON.stringify(orders));
           resolve(orders);
+          a('After Resolve');
         }
       });
     } catch (error) {
@@ -152,13 +157,61 @@ module.exports = {
         if (cache) {
           resolve(JSON.parse(cache));
         } else {
-          const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'SUPPLIER' }).sort({ createdAt: 'desc' }).populate('transactions').populate('productId');
+          const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'SUPPLIER' }).sort({ createdAt: 'desc' }).populate('transactions').populate('productId').lean();
           redisCache.setex('purchaseOrderSupplier', (60 * 60), JSON.stringify(orders));
           resolve(orders);
         }
       });
     } catch (error) {
       reject(error);
+    }
+  }),
+
+  findOrderStream: (res) => new Promise(async (resolve, reject) => {
+    try {
+      // eslint-disable-next-line no-restricted-syntax
+      const count = await PurchaseOrder.count({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'BUYER' });
+      const cursor = PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'BUYER' })
+        .populate({ path: 'transactions', select: 'invoice _id dateDelivered status actualAmount', populate: { path: 'productId', select: 'name -_id' } })
+        .populate('additionalFee')
+        .populate('productId', 'name _id')
+        .sort({ createdAt: 'desc' }).cursor();
+
+      const result = [];
+      let current = 0;
+      cursor.on('data', (doc) => {
+        current += 1;
+        console.log(doc.PONo);
+        res.write(JSON.stringify(doc));
+
+        if (count - current > 5) {
+          cursor.next((error, nextDoc) => {
+            current += 1;
+            if (error) {
+              console.log(error);
+            } else {
+              console.log(nextDoc.PONo);
+              res.write(JSON.stringify(nextDoc));
+            }
+          });
+        }
+
+        if (count - current > 5) {
+          cursor.next((error, nextDoc) => {
+            current += 1;
+            if (error) {
+              console.log(error);
+            } else {
+              console.log(nextDoc.PONo);
+              res.write(JSON.stringify(nextDoc));
+            }
+          });
+        }
+      });
+
+      cursor.on('end', () => res.end());
+    } catch (error) {
+      // reject(error);
     }
   }),
 
