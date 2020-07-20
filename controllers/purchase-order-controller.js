@@ -479,7 +479,11 @@ module.exports = {
       let invoiceTotalQuantity = 0;
       for (let i = 0; i < purchaseOrder.transactions.length; i += 1) {
         invoiceTotalQuantity += purchaseOrder.transactions[i].actualAmount;
-        invoiceTotalAmount += Number(purchaseOrder.transactions[i].sellingPrice) * Number(purchaseOrder.transactions[i].actualAmount);
+        if (purchaseOrder.type === 'BUYER') {
+          invoiceTotalAmount += Number(purchaseOrder.transactions[i].sellingPrice) * Number(purchaseOrder.transactions[i].actualAmount);
+        } else if (purchaseOrder.type === 'SUPPLIER') {
+          invoiceTotalAmount += Number(purchaseOrder.transactions[i].buyingPrice) * Number(purchaseOrder.transactions[i].actualAmount);
+        }
 
         const DONumber = DOworksheet.getCell(`B${colNo}`);
         DONumber.value = purchaseOrder.transactions[i].invoice;
@@ -538,18 +542,6 @@ module.exports = {
 
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
       res.setHeader('Content-Disposition', 'attachment; filename=' + `Invoice[${purchaseOrder.PONo}] - ${purchaseOrder.productId.name}.xlsx`);
-
-      // await book.xlsx.writeFile(`${process.cwd()}/temp.xlsx`);
-
-      // cloudinary.uploader.upload(`${process.cwd()}/temp.xlsx`,
-      //   { resource_type: 'raw', public_id: `Invoice[${purchaseOrder.PONo}] - ${purchaseOrder.productId.name}.xlsx` },
-      //   (err, result) => {
-      //     if (err) {
-      //       console.log(err);
-      //     } else {
-      //       const imageUrl = result.secure_url;
-      //     }
-      //   });
       await book.xlsx.write(res);
       res.end();
       resolve(true);
