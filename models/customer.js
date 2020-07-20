@@ -18,6 +18,9 @@ const customerSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  npwp: {
+    type: String,
+  },
   type: {
     type: String,
     enum: ['BUYER', 'SUPPLIER', 'AGENT'],

@@ -55,6 +55,10 @@ const purchaseOrderSchema = new mongoose.Schema({
     type: Date,
     // required: [true, 'dueDate is empty'],
   },
+  dateIssued: {
+    type: Date,
+    // required: [true, 'dueDate is empty'],
+  },
   status: {
     type: String,
     enum: ['ACTIVE', 'COMPLETED', 'CLOSED', 'DELETED'],

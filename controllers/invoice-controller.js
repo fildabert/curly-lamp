@@ -235,7 +235,7 @@ const deleteInvoice = ({ _id }) => new Promise(async (resolve, reject) => {
       throw Object.assign(new Error('Customer not found'), { code: 400 });
     }
 
-    const refund = invoice.totalAmount - invoice.amountPaid;
+    const refund = invoice.totalAmount;
 
     customer.balance += refund;
 

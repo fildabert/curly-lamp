@@ -22,6 +22,7 @@ module.exports = {
     ordersCompleted = 0,
     approvedBy,
     PONo,
+    dateIssued,
     // dueDate,
   }) => new Promise(async (resolve, reject) => {
     try {
@@ -45,6 +46,7 @@ module.exports = {
         transactions: [],
         totalAmount,
         ordersCompleted,
+        dateIssued,
         approvedBy,
         PONo,
         type: 'BUYER',
@@ -71,7 +73,7 @@ module.exports = {
     ordersCompleted = 0,
     approvedBy,
     PONo,
-    dueDate,
+    dateIssued,
   }) => new Promise(async (resolve, reject) => {
     try {
       const product = await Product.findOne({ _id: productId });
@@ -103,7 +105,7 @@ module.exports = {
         approvedBy,
         PONo,
         type: 'SUPPLIER',
-        dueDate,
+        dateIssued,
       });
 
       product.stock += Number(totalAmount);
@@ -239,6 +241,7 @@ module.exports = {
       customerAddress,
       customerId,
       totalAmount,
+      dateIssued,
       ordersCompleted,
       PONo,
       price,
@@ -254,12 +257,14 @@ module.exports = {
 
       const promises = [];
 
-      fees.forEach((fee) => {
-        const createFee = FeeController.createFee({
-          productId: fee.productId, amount: fee.amount, customerId: fee.agentId, customerName: fee.agent, productName: fee.product,
+      if (fees) {
+        fees.forEach((fee) => {
+          const createFee = FeeController.createFee({
+            productId: fee.productId, amount: fee.amount, customerId: fee.agentId, customerName: fee.agent, productName: fee.product,
+          });
+          promises.push(createFee);
         });
-        promises.push(createFee);
-      });
+      }
       const additionalFee = await Promise.all(promises);
 
       newOrder.productId = productId || newOrder.productId;
@@ -272,7 +277,7 @@ module.exports = {
       // newOrder.ordersCompleted = ordersCompleted || newOrder.ordersCompleted;
       newOrder.PONo = PONo || newOrder.PONo;
       newOrder.additionalFee = additionalFee;
-      // newOrder.dueDate = dueDate || newOrder.dueDate;
+      newOrder.dateIssued = dateIssued || newOrder.dateIssued;
 
       if (newOrder.totalAmount - newOrder.ordersCompleted > 0) {
         newOrder.status = 'ACTIVE';
@@ -450,7 +455,7 @@ module.exports = {
       startDate.setHours(0, 0, 0, 0);
 
       endDate.setHours(23, 59, 59, 999);
-      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId }).populate('transactions', null, { dateDelivered: { $gte: startDate, $lte: endDate }, status: 'COMPLETED' }, { populate: 'productId' }).populate('productId').populate('additionalFee');
+      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId }).populate('transactions', null, { dateDelivered: { $gte: startDate, $lte: endDate }, status: 'COMPLETED' }, { populate: 'productId' }).populate('productId').populate('additionalFee').populate('customerId');
       if (!purchaseOrder) {
         throw Object.assign(new Error('Puchase Order not found'), { code: 400 });
       }
@@ -465,7 +470,7 @@ module.exports = {
       const customerName = DOworksheet.getCell('A4');
       customerName.value = purchaseOrder.customerName;
       const title = DOworksheet.getCell('A5');
-      title.value = `PO Number: ${purchaseOrder.PONo} (${startDate.toString()} - ${endDate.toString()})`;
+      title.value = `PO Number: ${purchaseOrder.PONo} (${startDate.toString().replace(' GMT+0700 (Western Indonesia Time)', '')} - ${endDate.toString().replace(' GMT+0700 (Western Indonesia Time)', '')})`;
 
       let sumQuantity = 0;
       let colNo = 7;
@@ -501,7 +506,7 @@ module.exports = {
       const POWorksheet = book.getWorksheet('Invoice');
 
       await InvoiceController.createInvoice({
-        customerId: purchaseOrder.customerId,
+        customerId: purchaseOrder.customerId._id,
         name: purchaseOrder.PONo,
         purchaseOrderId: [purchaseOrder],
         transactionId: purchaseOrder.transactions,
@@ -521,7 +526,13 @@ module.exports = {
       date.value = new Date().toString();
 
       const to = POWorksheet.getCell('B7');
-      to.value = purchaseOrder.customerName;
+      to.value = purchaseOrder.customerId.name;
+
+      const customerAddress = POWorksheet.getCell('A8');
+      customerAddress.value = purchaseOrder.customerId.address;
+
+      const NPWP = POWorksheet.getCell('B11');
+      NPWP.value = purchaseOrder.customerId.npwp;
 
       const PONo = POWorksheet.getCell('B10');
       PONo.value = purchaseOrder.PONo;

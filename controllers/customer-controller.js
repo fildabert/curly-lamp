@@ -40,11 +40,11 @@ module.exports = {
   }),
 
   createCustomer: ({
-    name, phone, address, type,
+    name, phone, address, type, npwp,
   }) => new Promise(async (resolve, reject) => {
     try {
       const customer = new Customer({
-        name, phone, address, type,
+        name, phone, address, type, npwp,
       });
 
       const newCustomer = await customer.save();
@@ -57,7 +57,7 @@ module.exports = {
   editCustomer: (customerId, payload) => new Promise(async (resolve, reject) => {
     try {
       const {
-        name, phone, address, balance,
+        name, phone, address, balance, npwp,
       } = payload;
       const customer = await Customer.findOne({ _id: customerId });
       if (!customer) {
@@ -67,6 +67,7 @@ module.exports = {
       customer.phone = phone || customer.phone;
       customer.address = address || customer.address;
       customer.balance = balance || customer.balance;
+      customer.npwp = npwp || customer.npwp;
 
       const updatedCustomer = await customer.save();
       return resolve(updatedCustomer);
