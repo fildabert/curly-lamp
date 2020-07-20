@@ -12,7 +12,7 @@ const PurchaseOrder = require('../models/purchase-order');
 const Product = require('../models/product');
 
 const auth = require('../helpers/auth');
-const aws = require('../helpers/aws');
+// const aws = require('../helpers/aws');
 
 const router = express.Router();
 const transactionController = require('../controllers/transaction-controller');
@@ -166,19 +166,19 @@ const elasticSearch = async (req, res, next) => {
 };
 
 
-router.get('/refrez', async (req, res) => {
-  try {
-    const purchaseOrder = await PurchaseOrder.findOne({ _id: '5ef04c1b15c2c40007ddb20d' }).populate('transactions');
+// router.get('/refrez', async (req, res) => {
+//   try {
+//     const purchaseOrder = await PurchaseOrder.findOne({ _id: '5ef04c1b15c2c40007ddb20d' }).populate('transactions');
 
-    purchaseOrder.transactions.forEach((trx) => {
-      aws.sendMessage(trx);
-    });
+//     purchaseOrder.transactions.forEach((trx) => {
+//       aws.sendMessage(trx);
+//     });
 
-    res.status(200).json('o yea');
-  } catch (error) {
-    res.status(400).json(error);
-  }
-})
+//     res.status(200).json('o yea');
+//   } catch (error) {
+//     res.status(400).json(error);
+//   }
+// })
 
 router.get('/all', findAllTransactions);
 router.get('/elastic', elasticSearch);

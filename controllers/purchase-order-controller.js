@@ -5,7 +5,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-async-promise-executor */
 const ExcelJS = require('exceljs');
-const a = require('debug')('app');
 const PurchaseOrder = require('../models/purchase-order');
 const Customer = require('../models/customer');
 const Transaction = require('../models/transaction');
@@ -135,15 +134,11 @@ module.exports = {
     try {
       redisCache.get('purchaseOrder', async (err, cache) => {
         if (cache) {
-          a('plss');
           resolve(JSON.parse(cache));
         } else {
-          a('Before Find');
           const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'BUYER' }).sort({ createdAt: 'desc' }).populate({ path: 'transactions', select: 'invoice _id dateDelivered status actualAmount', populate: { path: 'productId', select: 'name -_id' } }).populate('additionalFee').populate('productId', 'name _id').lean();
-          a('After Find');
           redisCache.setex('purchaseOrder', (60 * 60), JSON.stringify(orders));
           resolve(orders);
-          a('After Resolve');
         }
       });
     } catch (error) {

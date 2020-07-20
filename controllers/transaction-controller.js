@@ -9,7 +9,6 @@
 /* eslint-disable no-async-promise-executor */
 const fs = require('fs');
 const axios = require('axios');
-const a = require('debug')('app');
 const PurchaseOrder = require('../models/purchase-order');
 const Customer = require('../models/customer');
 const Transaction = require('../models/transaction');
@@ -467,10 +466,8 @@ module.exports = {
         if (cache) {
           resolve(JSON.parse(cache));
         } else {
-          a('Before Find');
           const transaction = await Transaction.find({ active: true }).sort({ dateDelivered: 'desc' }).populate('orderId').populate('productId')
             .lean();
-          a('After Find');
           if (!transaction) {
             throw Object.assign(new Error('Transaction not found'), { code: 400 });
           }
