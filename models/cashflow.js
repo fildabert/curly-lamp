@@ -19,6 +19,10 @@ const cashFlowSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'amount is required'],
   },
+  dateIssued: {
+    type: Date,
+    required: [true, 'dateIssued is required'],
+  },
 
 }, { timestamps: true });
 

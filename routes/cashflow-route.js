@@ -43,9 +43,20 @@ const deleteCashFlow = async (req, res, next) => {
   }
 };
 
+const editCashFlow = async (req, res, next) => {
+  try {
+    const result = await CashflowController.editCashFlow({ _id: req.params._id, dateIssued: req.body.dateIssued });
+
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 router.get('/all', findAllCashflow);
 router.post('/create', createCashflow);
 router.get('/balance', getBalance);
+router.put('/:_id', editCashFlow);
 router.delete('/:_id', deleteCashFlow);
 
 module.exports = router;

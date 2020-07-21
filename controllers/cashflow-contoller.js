@@ -9,7 +9,9 @@ const InvoiceController = require('./invoice-controller.js');
 
 const balanceId = '5f054d0d60d1e55b14f5723d';
 
-const createCashFlow = ({ customerId, amount }) => new Promise(async (resolve, reject) => {
+const createCashFlow = ({
+  customerId, amount, dateIssued,
+}) => new Promise(async (resolve, reject) => {
   try {
     const customer = await Customer.findOne({ _id: customerId });
 
@@ -17,7 +19,7 @@ const createCashFlow = ({ customerId, amount }) => new Promise(async (resolve, r
       throw Object.assign(new Error('Customer not found'), { code: 400 });
     }
 
-    const temp = new CashFlow({ customer: customerId, amount });
+    const temp = new CashFlow({ customer: customerId, amount, dateIssued });
 
     const accBalance = await Balance.findOne({ _id: balanceId });
 
@@ -52,6 +54,23 @@ const getBalance = () => new Promise(async (resolve, reject) => {
   try {
     const balance = await Balance.findOne({ _id: balanceId });
     return resolve(balance);
+  } catch (error) {
+    return reject(error);
+  }
+});
+
+const editCashFlow = ({ _id, dateIssued }) => new Promise(async (resolve, reject) => {
+  try {
+    const cashFlow = await CashFlow.findOne({ _id });
+    if (!cashFlow) {
+      throw Object.assign(new Error('Cashflow not found'), { code: 400 });
+    }
+
+    cashFlow.dateIssued = dateIssued || cashFlow.dateIssued;
+
+    await cashFlow.save();
+
+    return resolve(cashFlow);
   } catch (error) {
     return reject(error);
   }
@@ -120,4 +139,5 @@ module.exports = {
   getBalance,
   findAllCashFlow,
   deleteCashFlow,
+  editCashFlow,
 };
