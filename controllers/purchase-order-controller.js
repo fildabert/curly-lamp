@@ -138,7 +138,7 @@ module.exports = {
         if (cache) {
           resolve(JSON.parse(cache));
         } else {
-          const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'BUYER' }).sort({ createdAt: 'desc' }).populate({ path: 'transactions', select: 'invoice _id dateDelivered status actualAmount', populate: { path: 'productId', select: 'name -_id' } }).populate('additionalFee').populate('productId', 'name _id').lean();
+          const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'BUYER' }).sort({ dateIssued: 'desc' }).populate({ path: 'transactions', select: 'invoice _id dateDelivered status actualAmount', populate: { path: 'productId', select: 'name -_id' } }).populate('additionalFee').populate('productId', 'name _id').lean();
           redisCache.setex('purchaseOrder', (60 * 60), JSON.stringify(orders));
           resolve(orders);
         }
@@ -154,7 +154,7 @@ module.exports = {
         if (cache) {
           resolve(JSON.parse(cache));
         } else {
-          const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'SUPPLIER' }).sort({ createdAt: 'desc' }).populate('transactions').populate('productId').lean();
+          const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'SUPPLIER' }).sort({ dateIssued: 'desc' }).populate('transactions').populate('productId').lean();
           redisCache.setex('purchaseOrderSupplier', (60 * 60), JSON.stringify(orders));
           resolve(orders);
         }
