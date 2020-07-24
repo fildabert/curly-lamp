@@ -499,7 +499,11 @@ module.exports = {
         sumQuantity += +purchaseOrder.transactions[i].actualAmount;
 
         const price = DOworksheet.getCell(`F${colNo}`);
-        price.value = +purchaseOrder.transactions[i].sellingPrice;
+        if (purchaseOrder.type === 'BUYER') {
+          price.value = +purchaseOrder.transactions[i].sellingPrice;
+        } else if (purchaseOrder.type === 'SUPPLIER') {
+          price.value = +purchaseOrder.transactions[i].buyingPrice;
+        }
 
         colNo += 1;
       }
