@@ -111,6 +111,7 @@ const printOrder = async (req, res, next) => {
       startDate: new Date(req.query.startDate),
       endDate: new Date(req.query.endDate),
       dueDate: req.query.dueDate,
+      invoiceName: req.query.invoiceName,
     };
     await purchaseOrderController.print(payload, res);
     // res.end();
@@ -138,6 +139,7 @@ const printMany = async (req, res, next) => {
       startDate: new Date(req.body.startDate),
       endDate: new Date(req.body.endDate),
       dueDate: req.body.dueDate,
+      invoiceName: req.body.invoiceName,
     };
     const result = await purchaseOrderController.printMany(payload);
     res.status(200).json(result);

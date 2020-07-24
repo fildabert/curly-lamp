@@ -43,11 +43,19 @@ const deleteInvoice = async (req, res, next) => {
   }
 };
 
-
+const editInvoice = async (req, res, next) => {
+  try {
+    const result = await InvoiceController.editInvoice(req.body);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
 
 router.get('/all/buyer', findAllInvoiceBuyer);
 router.get('/all/supplier', findAllInvoiceSupplier);
 router.patch('/', updateInvoice);
+router.patch('/editInvoice', editInvoice);
 router.delete('/:_id', deleteInvoice);
 
 module.exports = router;

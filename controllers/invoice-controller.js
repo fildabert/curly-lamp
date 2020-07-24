@@ -34,7 +34,7 @@ const createInvoiceAgent = ({
             if (!agentFees[PO.additionalFee[i].customer.toString()]) {
               agentFees[PO.additionalFee[i].customer.toString()] = 0;
             }
-            console.log(trx.actualAmount, PO.additionalFee[i].amount)
+            console.log(trx.actualAmount, PO.additionalFee[i].amount);
             agentFees[PO.additionalFee[i].customer.toString()] += trx.actualAmount * PO.additionalFee[i].amount;
 
             if (!agentQuantity[PO.additionalFee[i].customer.toString()]) {
@@ -251,10 +251,29 @@ const deleteInvoice = ({ _id }) => new Promise(async (resolve, reject) => {
   }
 });
 
+const editInvoice = ({ _id, name }) => new Promise(async (resolve, reject) => {
+  try {
+    const invoice = await Invoice.findOne({ _id });
+
+    if (!invoice) {
+      throw Object.assign(new Error('Invoice not found'), { code: 400 });
+    }
+
+    invoice.name = name || invoice.name;
+
+    await invoice.save();
+
+    return resolve(true);
+  } catch (error) {
+    return reject(error);
+  }
+});
+
 module.exports = {
   findAllInvoiceBuyer,
   findAllInvoiceSupplier,
   updateInvoice,
   createInvoice,
   deleteInvoice,
+  editInvoice,
 };

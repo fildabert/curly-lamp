@@ -375,7 +375,7 @@ module.exports = {
   }),
 
   printMany: ({
-    orderIds, startDate, endDate, dueDate,
+    orderIds, startDate, endDate, dueDate, invoiceName,
   }) => new Promise(async (resolve, reject) => {
     try {
       endDate.setHours(23, 59, 59, 999);
@@ -428,7 +428,7 @@ module.exports = {
 
       await InvoiceController.createInvoice({
         customerId: purchaseOrder.customerId,
-        name: purchaseOrder.PONo,
+        name: invoiceName,
         purchaseOrderId: result,
         transactionId: purchaseOrder.transactions,
         invoiceDate: new Date(),
@@ -449,7 +449,7 @@ module.exports = {
   print: (payload, res) => new Promise(async (resolve, reject) => {
     try {
       const {
-        orderId, startDate, endDate, dueDate,
+        orderId, startDate, endDate, dueDate, invoiceName,
       } = payload;
       // console.log(startDate);
       startDate.setHours(0, 0, 0, 0);
@@ -507,7 +507,7 @@ module.exports = {
 
       await InvoiceController.createInvoice({
         customerId: purchaseOrder.customerId._id,
-        name: purchaseOrder.PONo,
+        name: invoiceName,
         purchaseOrderId: [purchaseOrder],
         transactionId: purchaseOrder.transactions,
         invoiceDate: new Date(),

@@ -188,12 +188,14 @@ module.exports = {
       if (!transaction.orderIdSupplier) {
         purchaseOrderSupplier = await PurchaseOrder.findOne({ productId, status: 'ACTIVE', type: 'SUPPLIER' });
         if (!purchaseOrderSupplier) {
+          console.log(transaction);
           throw Object.assign(new Error('Purchase Order (SUPPLIER) not found'), { code: 400 });
         }
         transaction.orderIdSupplier = purchaseOrderSupplier._id;
       } else {
         purchaseOrderSupplier = await PurchaseOrder.findOne({ _id: transaction.orderIdSupplier });
         if (!purchaseOrderSupplier) {
+          console.log(transaction);
           throw Object.assign(new Error('Purchase Order (SUPPLIER) not found'), { code: 400 });
         }
       }
