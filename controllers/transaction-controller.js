@@ -468,7 +468,7 @@ module.exports = {
         if (cache) {
           resolve(JSON.parse(cache));
         } else {
-          const transaction = await Transaction.find({ active: true }).sort({ dateDelivered: 'desc' }).populate('orderId').populate('productId')
+          const transaction = await Transaction.find({ active: true }).sort({ dateDelivered: 'desc' }).populate('orderId', 'PONo').populate('productId', 'name')
             .lean();
           if (!transaction) {
             throw Object.assign(new Error('Transaction not found'), { code: 400 });
