@@ -122,7 +122,7 @@ module.exports = {
 
   findOneOrder: (orderId) => new Promise(async (resolve, reject) => {
     try {
-      const order = await PurchaseOrder.findOne({ _id: orderId }).populate('transactions').populate('productId').populate('approvedBy');
+      const order = await PurchaseOrder.findOne({ _id: orderId }).populate({ path: 'transactions', select: 'invoice _id dateDelivered status actualAmount', populate: { path: 'productId', select: 'name -_id' } }).populate('productId', 'name _id price').populate('additionalFee').lean();
       if (!order) {
         throw Object.assign(new Error('Purchase Order not found'), { code: 400 });
       }
@@ -138,7 +138,8 @@ module.exports = {
         if (cache) {
           resolve(JSON.parse(cache));
         } else {
-          const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'BUYER' }).sort({ dateIssued: 'desc' }).populate({ path: 'transactions', select: 'invoice _id dateDelivered status actualAmount', populate: { path: 'productId', select: 'name -_id' } }).populate('additionalFee').populate('productId', 'name _id').lean();
+          // .populate({ path: 'transactions', select: 'invoice _id dateDelivered status actualAmount', populate: { path: 'productId', select: 'name -_id' } })
+          const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'BUYER' }).sort({ dateIssued: 'desc' }).populate('additionalFee').populate('productId', 'name _id').lean();
           redisCache.setex('purchaseOrder', (60 * 60), JSON.stringify(orders));
           resolve(orders);
         }
@@ -154,7 +155,7 @@ module.exports = {
         if (cache) {
           resolve(JSON.parse(cache));
         } else {
-          const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'SUPPLIER' }).sort({ dateIssued: 'desc' }).populate('transactions').populate('productId').lean();
+          const orders = await PurchaseOrder.find({ $or: [{ status: 'ACTIVE' }, { status: 'COMPLETED' }], type: 'SUPPLIER' }).sort({ dateIssued: 'desc' }).populate('productId').lean();
           redisCache.setex('purchaseOrderSupplier', (60 * 60), JSON.stringify(orders));
           resolve(orders);
         }
