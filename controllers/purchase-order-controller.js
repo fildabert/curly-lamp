@@ -122,7 +122,7 @@ module.exports = {
 
   findOneOrder: (orderId) => new Promise(async (resolve, reject) => {
     try {
-      const order = await PurchaseOrder.findOne({ _id: orderId }).populate({ path: 'transactions', select: 'invoice _id dateDelivered status actualAmount', populate: { path: 'productId', select: 'name -_id' } }).populate('productId', 'name _id price').populate('additionalFee').lean();
+      const order = await PurchaseOrder.findOne({ _id: orderId }).populate({ path: 'transactions', select: 'invoice _id dateDelivered status actualAmount amount', populate: { path: 'productId', select: 'name -_id' } }).populate('productId', 'name _id price').populate('additionalFee').lean();
       if (!order) {
         throw Object.assign(new Error('Purchase Order not found'), { code: 400 });
       }
