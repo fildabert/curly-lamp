@@ -407,7 +407,6 @@ module.exports = {
       if (checkNull === result.length) {
         throw Object.assign(new Error(`No invoice found between ${startDate} to ${endDate}`), { code: 400 });
       }
-
       if (Object.keys(checkCustomer).length > 1) {
         throw Object.assign(new Error('Please only select POs that belong to the same Buyer'), { code: 400 });
       }

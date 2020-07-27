@@ -43,7 +43,7 @@ const createCashFlow = ({
 
 const findAllCashFlow = () => new Promise(async (resolve, reject) => {
   try {
-    const cashFlows = await CashFlow.find({}).populate('customer').populate('invoices');
+    const cashFlows = await CashFlow.find({}).populate('customer').populate('invoices').sort({ createdAt: 'desc' });
     return resolve(cashFlows);
   } catch (error) {
     return reject(error);
