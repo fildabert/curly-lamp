@@ -20,6 +20,7 @@ const invoiceSchema = new mongoose.Schema({
     ref: 'PurchaseOrder',
   }],
   transactions: [{ type: ObjectId, ref: 'Transaction' }],
+  invoiceInfos: [{ type: ObjectId, ref: 'InvoiceInfo' }],
   invoiceDate: {
     type: Date,
     required: [true, 'invoiceDate is empty'],

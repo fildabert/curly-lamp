@@ -52,6 +52,11 @@ const editInvoice = async (req, res, next) => {
   }
 };
 
+router.get('/temp', async (req, res, next) => {
+   const result = await InvoiceController.temp();
+
+   res.status(200).json(result);
+})
 router.get('/all/buyer', findAllInvoiceBuyer);
 router.get('/all/supplier', findAllInvoiceSupplier);
 router.patch('/', updateInvoice);

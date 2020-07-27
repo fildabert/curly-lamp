@@ -5,10 +5,12 @@
 /* eslint-disable func-names */
 
 const moment = require('moment');
+const e = require('express');
 const Invoice = require('../models/invoice');
 const Customer = require('../models/customer');
 const CashFlow = require('../models/cashflow');
 const Balance = require('../models/balance');
+const InvoiceInfo = require('../models/invoice-info');
 const PurchaseOrder = require('../models/purchase-order');
 
 const balanceId = '5f054d0d60d1e55b14f5723d';
@@ -16,15 +18,45 @@ const balanceId = '5f054d0d60d1e55b14f5723d';
 // const CashFlowController = require('./cashflow-contoller');
 
 // console.log(CashFlowController)
+const createInvoiceInfo = (transactions, type, agentPrice) => new Promise(async (resolve, reject) => {
+  try {
+    const invoiceInfoz = [];
+    const promises = [];
+    transactions.forEach((trx) => {
+      const index = invoiceInfoz.findIndex((invoiceInfo) => invoiceInfo.product === trx.productId._id.toString());
+      if (index === -1) {
+        let price;
+        if (type === 'BUYER') price = trx.sellingPrice;
+        else if (type === 'SUPPLIER') price = trx.buyingPrice;
+        else if (type === 'AGENT') price = agentPrice;
+        invoiceInfoz.push({
+          product: trx.productId._id.toString(),
+          totalQuantity: trx.actualAmount,
+          price,
+        });
+      } else {
+        invoiceInfoz[index].totalQuantity += trx.actualAmount;
+      }
+    });
+
+    invoiceInfoz.forEach((invoiceInfo) => {
+      const temp = new InvoiceInfo(invoiceInfo);
+      promises.push(temp.save());
+    });
+    const result = await Promise.all(promises);
+    resolve(result);
+  } catch (error) {
+    reject(error);
+  }
+});
 
 const createInvoiceAgent = ({
   purchaseOrder, startDate, endDate, invoiceDate, dueDate, name,
 }) => new Promise(async (resolve, reject) => {
   try {
-    const result = {};
-    const invoiceAgents = [];
     const agentFees = {};
     const agentQuantity = {};
+    const agentPrice = {};
     const transactionz = [];
     purchaseOrder.forEach((PO) => {
       transactionz.push(...PO.transactions);
@@ -41,18 +73,32 @@ const createInvoiceAgent = ({
               agentQuantity[PO.additionalFee[i].customer.toString()] = 0;
             }
             agentQuantity[PO.additionalFee[i].customer.toString()] += trx.actualAmount;
+
+            if (!agentPrice[PO.additionalFee[i].customer.toString()]) {
+              agentPrice[PO.additionalFee[i].customer.toString()] = PO.additionalFee[i].amount;
+            }
           }
         }
       });
     });
     const agentIds = Object.keys(agentFees);
 
+    const invoiceInfosPromise = [];
+
     agentIds.forEach((agentId) => {
+      invoiceInfosPromise.push(createInvoiceInfo(transactionz, 'AGENT', agentPrice[agentId]));
+    });
+
+    const invoiceInfos = await Promise.all(invoiceInfosPromise);
+
+    const invoiceAgents = [];
+    agentIds.forEach((agentId, index) => {
       invoiceAgents.push(Invoice.create({
         customer: agentId,
         name,
         purchaseOrder,
         transactions: transactionz,
+        invoiceInfos: invoiceInfos[index],
         invoiceDate,
         dueDate: moment(new Date()).add(Number(dueDate), 'days'),
         startDate,
@@ -76,6 +122,7 @@ const createInvoiceAgent = ({
 const findAllInvoiceBuyer = () => new Promise(async (resolve, reject) => {
   try {
     const invoices = await Invoice.find({ type: 'BUYER' }).populate('customer').populate('purchaseOrder').populate('transactions')
+      .populate({ path: 'invoiceInfos', populate: { path: 'product' } })
       .sort({ createdAt: 'desc' });
     return resolve(invoices);
   } catch (error) {
@@ -86,6 +133,7 @@ const findAllInvoiceBuyer = () => new Promise(async (resolve, reject) => {
 const findAllInvoiceSupplier = () => new Promise(async (resolve, reject) => {
   try {
     const invoices = await Invoice.find({ $or: [{ type: 'SUPPLIER' }, { type: 'AGENT' }] }).populate('customer').populate('purchaseOrder').populate('transactions')
+      .populate({ path: 'invoiceInfos', populate: { path: 'product' } })
       .sort({ createdAt: 'desc' });
     return resolve(invoices);
   } catch (error) {
@@ -130,11 +178,14 @@ const createInvoice = ({
       purchaseOrder: purchaseOrderId, startDate, endDate, dueDate, invoiceDate, name,
     });
 
+    const invoiceInfos = await createInvoiceInfo(transactionId, type);
+
     const temp = new Invoice({
       customer: customerId,
       name,
       purchaseOrder: purchaseOrderId,
       transactions: transactionId,
+      invoiceInfos,
       invoiceDate,
       dueDate: moment(new Date()).add(Number(dueDate), 'days'),
       startDate,
@@ -252,16 +303,46 @@ const deleteInvoice = ({ _id }) => new Promise(async (resolve, reject) => {
   }
 });
 
-const editInvoice = ({ _id, name }) => new Promise(async (resolve, reject) => {
+const editInvoice = ({
+  _id, name, dueDate, invoiceInfos,
+}) => new Promise(async (resolve, reject) => {
   try {
     const invoice = await Invoice.findOne({ _id });
-
     if (!invoice) {
       throw Object.assign(new Error('Invoice not found'), { code: 400 });
     }
 
-    invoice.name = name || invoice.name;
+    const customer = await Customer.findOne({ _id: invoice.customer });
+    if (!customer) {
+      throw Object.assign(new Error('Customer not found'), { code: 400 });
+    }
 
+    invoice.name = name || invoice.name;
+    invoice.dueDate = new Date(dueDate) || invoice.dueDate;
+    invoice.invoiceInfos = invoiceInfos || invoice.invoiceInfos;
+
+    let newTotalQuantity = 0;
+    let newTotalAmount = 0;
+    const invoiceInfosPromise = [];
+    invoiceInfos.forEach((invoiceInfo) => {
+      newTotalAmount += (invoiceInfo.totalQuantity * invoiceInfo.price);
+      newTotalQuantity += invoiceInfo.totalQuantity;
+      invoiceInfosPromise.push(
+        InvoiceInfo.updateOne(
+          { _id: invoiceInfo._id },
+          { totalQuantity: invoiceInfo.totalQuantity, price: invoiceInfo.price },
+        ),
+      );
+    });
+
+    await Promise.all(invoiceInfosPromise);
+
+    customer.balance += invoice.totalAmount - newTotalAmount;
+
+    invoice.quantity = newTotalQuantity;
+    invoice.totalAmount = newTotalAmount;
+
+    await customer.save();
     await invoice.save();
 
     return resolve(true);
@@ -270,7 +351,49 @@ const editInvoice = ({ _id, name }) => new Promise(async (resolve, reject) => {
   }
 });
 
+const temp = () => new Promise(async (resolve, reject) => {
+  try {
+    const invoices = await Invoice.find({ type: 'SUPPLIER' }).populate('transactions');
+    console.log(invoices.length);
+    const promises = [];
+
+    invoices.forEach(async (invoice) => {
+      const invoiceInfoz = [];
+      invoice.transactions.forEach((trx) => {
+        const index = invoiceInfoz.findIndex((invoiceInfo) => invoiceInfo.product === trx.productId.toString());
+        if (index === -1) {
+          invoiceInfoz.push({
+            product: trx.productId.toString(),
+            totalQuantity: trx.actualAmount,
+            price: trx.buyingPrice,
+          });
+        } else {
+          invoiceInfoz[index].totalQuantity += trx.actualAmount;
+        }
+      });
+      invoiceInfoz.forEach(async (invoiceInfo) => {
+        const temp = new InvoiceInfo(invoiceInfo);
+        const newInvoiceInfo = await temp.save();
+        invoice.invoiceInfos.push(newInvoiceInfo);
+        console.log('push invoice');
+      });
+      await setTimeout(() => {
+        promises.push(invoice.save());
+        console.log(invoice.invoiceInfos);
+      }, 500);
+    });
+    await setTimeout(async () => {
+      const asd = await Promise.all(promises);
+      console.log('ASDASD');
+    }, 10000);
+    resolve(true);
+  } catch (error) {
+    return reject(error);
+  }
+});
+
 module.exports = {
+  temp,
   findAllInvoiceBuyer,
   findAllInvoiceSupplier,
   updateInvoice,
