@@ -85,7 +85,8 @@ const findAllInvoiceBuyer = () => new Promise(async (resolve, reject) => {
 
 const findAllInvoiceSupplier = () => new Promise(async (resolve, reject) => {
   try {
-    const invoices = await Invoice.find({ $or: [{ type: 'SUPPLIER' }, { type: 'AGENT' }] }).populate('customer').populate('purchaseOrder').populate('transactions');
+    const invoices = await Invoice.find({ $or: [{ type: 'SUPPLIER' }, { type: 'AGENT' }] }).populate('customer').populate('purchaseOrder').populate('transactions')
+      .sort({ createdAt: 'desc' });
     return resolve(invoices);
   } catch (error) {
     return reject(error);
