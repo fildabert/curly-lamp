@@ -408,36 +408,33 @@ module.exports = {
         throw Object.assign(new Error(`No invoice found between ${startDate} to ${endDate}`), { code: 400 });
       }
       if (Object.keys(checkCustomer).length > 1) {
-        throw Object.assign(new Error('Please only select POs that belong to the same Buyer'), { code: 400 });
-      }
-
-      const purchaseOrder = result[0];
-
-      for (let i = 1; i < result.length; i += 1) {
-        purchaseOrder.transactions.push(...result[i].transactions);
-        purchaseOrder.PONo += `|${result[i].PONo}`;
+        throw Object.assign(new Error('Please only select POs that belong to the same Vendor'), { code: 400 });
       }
 
       let invoiceTotalAmount = 0;
       let invoiceTotalQuantity = 0;
 
-      purchaseOrder.transactions.forEach((trx) => {
-        invoiceTotalQuantity += trx.actualAmount;
-        invoiceTotalAmount += Number(trx.sellingPrice) * Number(trx.actualAmount);
+      const transactionz = [];
+      result.forEach((PO) => {
+        transactionz.push(...PO.transactions);
+        PO.transactions.forEach((trx) => {
+          invoiceTotalQuantity += trx.actualAmount;
+          invoiceTotalAmount += Number(trx.sellingPrice) * Number(trx.actualAmount);
+        });
       });
 
       await InvoiceController.createInvoice({
-        customerId: purchaseOrder.customerId,
+        customerId: result[0].customerId,
         name: invoiceName,
         purchaseOrderId: result,
-        transactionId: purchaseOrder.transactions,
+        transactionId: transactionz,
         invoiceDate: new Date(),
         dueDate,
         startDate,
         endDate,
         totalAmount: invoiceTotalAmount,
         quantity: invoiceTotalQuantity,
-        type: purchaseOrder.type,
+        type: result[0].type,
       });
 
       return resolve({ success: true });
@@ -452,6 +449,7 @@ module.exports = {
         orderId, startDate, endDate, dueDate, invoiceName,
       } = payload;
       // console.log(startDate);
+      console.log(dueDate);
       startDate.setHours(0, 0, 0, 0);
 
       endDate.setHours(23, 59, 59, 999);

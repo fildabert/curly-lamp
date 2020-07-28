@@ -84,6 +84,11 @@ const createInvoiceAgent = ({
     const agentIds = Object.keys(agentFees);
 
     const invoiceInfosPromise = [];
+    console.log(purchaseOrder);
+    console.log(purchaseOrder.length, 'PO length')
+    console.log(transactionz.length, 'trx length');
+    console.log(agentQuantity);
+    console.log(agentFees);
 
     agentIds.forEach((agentId) => {
       invoiceInfosPromise.push(createInvoiceInfo(transactionz, 'AGENT', agentPrice[agentId]));
@@ -174,6 +179,7 @@ const createInvoice = ({
       }
       customer.balance -= totalAmount;
     }
+
     await createInvoiceAgent({
       purchaseOrder: purchaseOrderId, startDate, endDate, dueDate, invoiceDate, name,
     });
