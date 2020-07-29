@@ -12,6 +12,7 @@ const CashFlow = require('../models/cashflow');
 const Balance = require('../models/balance');
 const InvoiceInfo = require('../models/invoice-info');
 const PurchaseOrder = require('../models/purchase-order');
+const cashflow = require('../models/cashflow');
 
 const balanceId = '5f054d0d60d1e55b14f5723d';
 
@@ -84,11 +85,6 @@ const createInvoiceAgent = ({
     const agentIds = Object.keys(agentFees);
 
     const invoiceInfosPromise = [];
-    console.log(purchaseOrder);
-    console.log(purchaseOrder.length, 'PO length')
-    console.log(transactionz.length, 'trx length');
-    console.log(agentQuantity);
-    console.log(agentFees);
 
     agentIds.forEach((agentId) => {
       invoiceInfosPromise.push(createInvoiceInfo(transactionz, 'AGENT', agentPrice[agentId]));
@@ -146,6 +142,101 @@ const findAllInvoiceSupplier = () => new Promise(async (resolve, reject) => {
   }
 });
 
+const updateInvoice = ({
+  _id, customerId, topUpAmount,
+}) => new Promise(async (resolve, reject) => {
+  try {
+    // 75,048,000
+    const invoices = await Invoice.find({ customer: customerId }).sort({ createdAt: 'asc' });
+
+    const cashFlows = await CashFlow.find({ customer: customerId });
+
+    let invoiceIndex = 0;
+
+    let totalCustomerCashFlow = 0;
+    let totalCustomerInvoice = 0;
+
+    invoices.forEach((invoice) => {
+      invoice.amountPaid = 0;
+      totalCustomerInvoice += invoice.totalAmount;
+    });
+
+    cashFlows.forEach((cashFlow) => {
+      let cashFlowAmount = cashFlow.amount;
+      cashFlow.invoices = [];
+      if (invoiceIndex < invoices.length) {
+        while (cashFlowAmount !== 0) {
+          // console.log(cashFlowAmount);
+          if (invoiceIndex >= invoices.length) {
+            break;
+          }
+          const amountToBePaid = invoices[invoiceIndex].totalAmount - invoices[invoiceIndex].amountPaid;
+          if (cashFlowAmount >= amountToBePaid) {
+            invoices[invoiceIndex].amountPaid += amountToBePaid;
+            cashFlow.invoices.push(invoices[invoiceIndex]._id);
+            invoiceIndex += 1;
+            cashFlowAmount -= amountToBePaid;
+          } else {
+            console.log('helo??');
+            invoices[invoiceIndex].amountPaid += cashFlowAmount;
+            cashFlowAmount = 0;
+            cashFlow.invoices.push(invoices[invoiceIndex]._id);
+          }
+        }
+        // console.log(cashFlow);
+      }
+      totalCustomerCashFlow += cashFlow.amount;
+    });
+
+    const customer = await Customer.findOne({ _id: customerId });
+
+    if (!customer) {
+      throw Object.assign(new Error('Customer not found'), { code: 400 });
+    }
+    customer.balance = totalCustomerCashFlow - totalCustomerInvoice;
+    const promises = [];
+
+    promises.push(customer.save());
+
+    cashFlows.forEach((cashFlow) => {
+      promises.push(cashFlow.save());
+    });
+
+    invoices.forEach((invoice) => {
+      promises.push(invoice.save());
+    });
+    // customer.balance += topUpAmount;
+    // if (invoices.length > 0) {
+    //   for (let i = 0; i < invoices.length; i += 1) {
+    //     if (topUpAmount <= 0) {
+    //       break;
+    //     }
+    //     let payAmount = 0;
+    //     if (topUpAmount >= (invoices[i].totalAmount - invoices[i].amountPaid)) {
+    //       payAmount = invoices[i].totalAmount - invoices[i].amountPaid;
+    //       invoices[i].amountPaid += payAmount;
+    //       topUpAmount -= payAmount;
+    //     } else {
+    //       payAmount = topUpAmount;
+    //       invoices[i].amountPaid += payAmount;
+    //       topUpAmount -= payAmount;
+    //     }
+
+    //     if (invoices[i].totalAmount === invoices[i].amountPaid) {
+    //       invoices[i].paid = true;
+    //     }
+    //     promises.push(invoices[i].save());
+    //   }
+    // }
+
+    const result = await Promise.all(promises);
+
+    return resolve(result);
+  } catch (error) {
+    return reject(error);
+  }
+});
+
 const createInvoice = ({
   customerId,
   name,
@@ -168,17 +259,17 @@ const createInvoice = ({
       throw Object.assign(new Error('Customer not found'), { code: 400 });
     }
 
-    if (customer.type === 'BUYER') {
-      // 20 120 100
-      if (customer.balance > 0) {
-        if (customer.balance > totalAmount) {
-          amountPaid = totalAmount;
-        } else {
-          amountPaid = customer.balance;
-        }
-      }
-      customer.balance -= totalAmount;
-    }
+    // if (customer.type === 'BUYER') {
+    //   // 20 120 100
+    //   if (customer.balance > 0) {
+    //     if (customer.balance > totalAmount) {
+    //       amountPaid = totalAmount;
+    //     } else {
+    //       amountPaid = customer.balance;
+    //     }
+    //   }
+    //   customer.balance -= totalAmount;
+    // }
 
     await createInvoiceAgent({
       purchaseOrder: purchaseOrderId, startDate, endDate, dueDate, invoiceDate, name,
@@ -203,71 +294,10 @@ const createInvoice = ({
       type,
     });
     const newInvoice = await temp.save();
-    await customer.save();
+    // await customer.save();
+
+    await updateInvoice({ customerId });
     return resolve(newInvoice);
-  } catch (error) {
-    return reject(error);
-  }
-});
-
-const updateInvoice = ({
-  _id, customerId, topUpAmount,
-}) => new Promise(async (resolve, reject) => {
-  try {
-    // 75,048,000
-    const invoices = await Invoice.find({ customer: customerId, paid: false }).sort({ createdAt: 'asc' });
-
-    const customer = await Customer.findOne({ _id: customerId });
-
-    if (!customer) {
-      throw Object.assign(new Error('Customer not found'), { code: 400 });
-    }
-
-    const promises = [];
-
-    customer.balance += topUpAmount;
-    if (invoices.length > 0) {
-      for (let i = 0; i < invoices.length; i += 1) {
-        if (topUpAmount <= 0) {
-          break;
-        }
-        let payAmount = 0;
-        if (topUpAmount >= (invoices[i].totalAmount - invoices[i].amountPaid)) {
-          payAmount = invoices[i].totalAmount - invoices[i].amountPaid;
-          invoices[i].amountPaid += payAmount;
-          topUpAmount -= payAmount;
-        } else {
-          payAmount = topUpAmount;
-          invoices[i].amountPaid += payAmount;
-          topUpAmount -= payAmount;
-        }
-
-        if (invoices[i].totalAmount === invoices[i].amountPaid) {
-          invoices[i].paid = true;
-        }
-        promises.push(invoices[i].save());
-      }
-    }
-
-    await customer.save();
-
-    const result = await Promise.all(promises);
-
-    // let deduct = 0;
-    // if (invoice.amountPaid < invoice.totalAmount) {
-    //   // 100        100 - 20
-    //   if (customer.balance >= (invoice.totalAmount - invoice.amountPaid)) {
-    //     deduct = invoice.totalAmount - invoice.amountPaid;
-    //     customer.balance -= deduct;
-    //     invoice.amountPaid += deduct;
-    //   } else {
-    //     deduct = customer.balance;
-    //     customer.balance -= deduct;
-    //     invoice.amountPaid += deduct;
-    //   }
-    // }
-
-    return resolve(result);
   } catch (error) {
     return reject(error);
   }

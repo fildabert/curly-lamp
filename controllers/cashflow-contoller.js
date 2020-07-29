@@ -6,6 +6,7 @@ const Balance = require('../models/balance');
 const Customer = require('../models/customer');
 const Invoice = require('../models/invoice');
 const InvoiceController = require('./invoice-controller.js');
+const { updateInvoice } = require('./invoice-controller.js');
 
 const balanceId = '5f054d0d60d1e55b14f5723d';
 
@@ -29,13 +30,17 @@ const createCashFlow = ({
       accBalance.amount -= amount;
     }
     await accBalance.save();
-    const invoices = await InvoiceController.updateInvoice({ customerId, topUpAmount: amount });
 
-    temp.invoices = invoices.map((invoice) => invoice._id);
-    console.log(temp.invoices);
-    const newCashFlow = await temp.save();
+    await temp.save();
 
-    return resolve(newCashFlow);
+    await InvoiceController.updateInvoice({ customerId });
+    // const invoices = await InvoiceController.updateInvoice({ customerId, topUpAmount: amount });
+
+    // temp.invoices = invoices.map((invoice) => invoice._id);
+    // console.log(temp.invoices);
+    // const newCashFlow = await temp.save();
+
+    return resolve(true);
   } catch (error) {
     return reject(error);
   }
@@ -92,42 +97,44 @@ const deleteCashFlow = ({ _id }) => new Promise(async (resolve, reject) => {
       throw Object.assign(new Error('Customer not found'), { code: 400 });
     }
 
-    const promises = [];
-    // eslint-disable-next-line prefer-destructuring
-    let amount = cashFlow.amount;
-    if (customer.type === 'BUYER') {
-      customer.balance -= amount;
-    }
-    for (let i = 0; i < cashFlow.invoices.length; i += 1) {
-      if (amount === 0) {
-        break;
-      }
-      if ((cashFlow.invoices[i].amountPaid - amount) < 0) {
-        // eslint-disable-next-line operator-assignment
-        amount -= cashFlow.invoices[i].amountPaid;
-        cashFlow.invoices[i].amountPaid = 0;
-      } else {
-        cashFlow.invoices[i].amountPaid -= amount;
-        amount = 0;
-      }
+    // const promises = [];
+    // // eslint-disable-next-line prefer-destructuring
+    // let amount = cashFlow.amount;
+    // if (customer.type === 'BUYER') {
+    //   customer.balance -= amount;
+    // }
+    // for (let i = 0; i < cashFlow.invoices.length; i += 1) {
+    //   if (amount === 0) {
+    //     break;
+    //   }
+    //   if ((cashFlow.invoices[i].amountPaid - amount) < 0) {
+    //     // eslint-disable-next-line operator-assignment
+    //     amount -= cashFlow.invoices[i].amountPaid;
+    //     cashFlow.invoices[i].amountPaid = 0;
+    //   } else {
+    //     cashFlow.invoices[i].amountPaid -= amount;
+    //     amount = 0;
+    //   }
 
-      if (cashFlow.invoices[i].amountPaid !== cashFlow.invoices[i].totalAmount) {
-        cashFlow.invoices[i].paid = false;
-      }
+    //   if (cashFlow.invoices[i].amountPaid !== cashFlow.invoices[i].totalAmount) {
+    //     cashFlow.invoices[i].paid = false;
+    //   }
 
-      promises.push(cashFlow.invoices[i].save());
-    }
-    console.log(promises);
-    await Promise.all(promises);
+    //   promises.push(cashFlow.invoices[i].save());
+    // }
+    // console.log(promises);
+    // await Promise.all(promises);
 
     if (customer.type === 'BUYER') {
       balance.amount -= cashFlow.amount;
     } else if (customer.type === 'SUPPLIER' || customer.type === 'AGENT') {
       balance.amount += cashFlow.amount;
     }
-    await customer.save();
+    // await customer.save();
     await cashFlow.remove();
     await balance.save();
+
+    await updateInvoice({ customerId: customer._id });
     return resolve({ success: true });
   } catch (error) {
     return reject(error);
