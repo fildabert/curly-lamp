@@ -29,7 +29,6 @@ const createCashFlow = ({
     } else if (customer.type === 'SUPPLIER' || customer.type === 'AGENT') {
       accBalance.amount -= amount;
     }
-    await accBalance.save();
 
     await temp.save();
 
@@ -39,7 +38,7 @@ const createCashFlow = ({
     // temp.invoices = invoices.map((invoice) => invoice._id);
     // console.log(temp.invoices);
     // const newCashFlow = await temp.save();
-
+    await accBalance.save();
     return resolve(true);
   } catch (error) {
     return reject(error);
@@ -48,7 +47,7 @@ const createCashFlow = ({
 
 const findAllCashFlow = () => new Promise(async (resolve, reject) => {
   try {
-    const cashFlows = await CashFlow.find({}).populate('customer').populate('invoices').sort({ createdAt: 'desc' });
+    const cashFlows = await CashFlow.find({}).populate('customer').populate('invoices').sort({ dateIssued: 'desc' });
     return resolve(cashFlows);
   } catch (error) {
     return reject(error);

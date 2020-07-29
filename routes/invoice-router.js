@@ -52,15 +52,25 @@ const editInvoice = async (req, res, next) => {
   }
 };
 
-router.get('/temp', async (req, res, next) => {
-   const result = await InvoiceController.temp();
+const findOneInvoice = async (req, res, next) => {
+  try {
+    const result = await InvoiceController.findOneInvoice({ _id: req.params._id });
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
 
-   res.status(200).json(result);
-})
+// router.get('/temp', async (req, res, next) => {
+//    const result = await InvoiceController.temp();
+
+//    res.status(200).json(result);
+// })
 router.get('/all/buyer', findAllInvoiceBuyer);
 router.get('/all/supplier', findAllInvoiceSupplier);
 router.patch('/', updateInvoice);
 router.patch('/editInvoice', editInvoice);
 router.delete('/:_id', deleteInvoice);
+router.get('/:_id', findOneInvoice);
 
 module.exports = router;

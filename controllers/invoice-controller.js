@@ -120,11 +120,23 @@ const createInvoiceAgent = ({
   }
 });
 
+const findOneInvoice = ({ _id }) => new Promise(async (resolve, reject) => {
+  try {
+    const invoice = await Invoice.findOne({ _id }).populate('customer').populate('purchaseOrder').populate('transactions')
+      .populate({ path: 'invoiceInfos', populate: { path: 'product' } })
+      .lean();
+    return resolve(invoice);
+  } catch (error) {
+    return reject(error);
+  }
+});
+
 const findAllInvoiceBuyer = () => new Promise(async (resolve, reject) => {
   try {
-    const invoices = await Invoice.find({ type: 'BUYER' }).populate('customer').populate('purchaseOrder').populate('transactions')
+    const invoices = await Invoice.find({ type: 'BUYER' }).populate('customer').populate('purchaseOrder')
       .populate({ path: 'invoiceInfos', populate: { path: 'product' } })
-      .sort({ createdAt: 'desc' });
+      .sort({ createdAt: 'desc' })
+      .lean();
     return resolve(invoices);
   } catch (error) {
     return reject(error);
@@ -133,9 +145,10 @@ const findAllInvoiceBuyer = () => new Promise(async (resolve, reject) => {
 
 const findAllInvoiceSupplier = () => new Promise(async (resolve, reject) => {
   try {
-    const invoices = await Invoice.find({ $or: [{ type: 'SUPPLIER' }, { type: 'AGENT' }] }).populate('customer').populate('purchaseOrder').populate('transactions')
+    const invoices = await Invoice.find({ $or: [{ type: 'SUPPLIER' }, { type: 'AGENT' }] }).populate('customer').populate('purchaseOrder')
       .populate({ path: 'invoiceInfos', populate: { path: 'product' } })
-      .sort({ createdAt: 'desc' });
+      .sort({ createdAt: 'desc' })
+      .lean();
     return resolve(invoices);
   } catch (error) {
     return reject(error);
@@ -177,7 +190,6 @@ const updateInvoice = ({
             invoiceIndex += 1;
             cashFlowAmount -= amountToBePaid;
           } else {
-            console.log('helo??');
             invoices[invoiceIndex].amountPaid += cashFlowAmount;
             cashFlowAmount = 0;
             cashFlow.invoices.push(invoices[invoiceIndex]._id);
@@ -203,6 +215,9 @@ const updateInvoice = ({
     });
 
     invoices.forEach((invoice) => {
+      if (invoice.totalAmount === invoice.amountPaid) {
+        invoice.paid = true;
+      }
       promises.push(invoice.save());
     });
     // customer.balance += topUpAmount;
@@ -436,4 +451,5 @@ module.exports = {
   createInvoice,
   deleteInvoice,
   editInvoice,
+  findOneInvoice,
 };
