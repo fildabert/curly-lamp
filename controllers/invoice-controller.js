@@ -217,6 +217,8 @@ const updateInvoice = ({
     invoices.forEach((invoice) => {
       if (invoice.totalAmount === invoice.amountPaid) {
         invoice.paid = true;
+      } else {
+        invoice.paid = false;
       }
       promises.push(invoice.save());
     });
