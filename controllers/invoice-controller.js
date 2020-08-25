@@ -162,7 +162,7 @@ const updateInvoice = ({
     // 75,048,000
     const invoices = await Invoice.find({ customer: customerId }).sort({ createdAt: 'asc' });
 
-    const cashFlows = await CashFlow.find({ customer: customerId }).sort({ createdAt: 'asc' });
+    const cashFlows = await CashFlow.find({ customer: customerId }).sort({ dateIssued: 'asc' });
 
     let invoiceIndex = 0;
 
