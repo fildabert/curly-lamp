@@ -159,7 +159,7 @@ const updateInvoice = ({
   _id, customerId, topUpAmount,
 }) => new Promise(async (resolve, reject) => {
   try {
-    // 75,048,0001
+    // 75,048,000
     const invoices = await Invoice.find({ customer: customerId }).sort({ createdAt: 'asc' });
 
     const cashFlows = await CashFlow.find({ customer: customerId }).sort({ dateIssued: 'asc' });
