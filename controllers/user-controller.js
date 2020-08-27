@@ -112,8 +112,8 @@ module.exports = {
         const jwtToken = signToken(jwtPayload);
         return resolve(jwtToken);
       } else {
-        throw Object.assign(new Error('Unauthorized'), { code: 400 });
-      }
+        // throw Object.assign(new Error('Unauthorized'), { code: 400 });
+      
       const newUser = new User({
         username: payload.name,
         email: payload.email,
@@ -131,6 +131,7 @@ module.exports = {
       };
       const jwtToken = signToken(jwtPayload);
       return resolve(jwtToken);
+    }
     } catch (error) {
       return reject(error);
     }
