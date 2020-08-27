@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
     required: [true, 'password is empty'],
   },
   admin: {
-    type: Boolean,
+    type: Number,
     default: false,
   },
   picture: {

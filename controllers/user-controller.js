@@ -45,7 +45,7 @@ const client = new OAuth2Client(CLIENT_ID);
 
 module.exports = {
   createUser: ({
-    username, email, password, admin = false,
+    username, email, password, admin = 1,
   }) => new Promise(async (resolve, reject) => {
     try {
       const newUser = new User({
@@ -118,7 +118,7 @@ module.exports = {
         username: payload.name,
         email: payload.email,
         password: payload.jti,
-        admin: false,
+        admin: 1,
       });
 
       const userCreated = await newUser.save();
