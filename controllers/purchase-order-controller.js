@@ -500,7 +500,7 @@ module.exports = {
 
         const price = DOworksheet.getCell(`F${colNo}`);
         if (purchaseOrder.type === 'BUYER') {
-          price.value = +purchaseOrder.transactions[i].sellingPrice;
+          price.value = +purchaseOrder.transactions[i].sellingPrice * 0.9;
         } else if (purchaseOrder.type === 'SUPPLIER') {
           price.value = +purchaseOrder.transactions[i].buyingPrice;
         }
