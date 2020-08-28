@@ -27,11 +27,9 @@ db.once('open', () => {
   console.log('Connected to the database');
 });
 
-
 app.use(cors());
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
-app.use(express.json({limit: '50mb'}));
-
+app.use(express.json({ limit: '50mb' }));
 
 app.use('/', routes);
 
@@ -47,7 +45,7 @@ app.use((err, req, res, next) => {
     const newerr = err.message.split(' ');
     res.status(400).json(`${newerr[7].split('_')[0]} : ${newerr[12]} already exist`);
   } else if (err.name === 'ValidationError') {
-    res.status(400).json(err.message);
+    res.status(400).json({ message: err.message });
   } else {
     console.log(err);
     res.status(500).json(
@@ -57,7 +55,6 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(port, () => console.log(`Worker ${process.pid} is listening on port ${port}!`));
-
 
 // if (cluster.isMaster) {
 //   for (let i = 0; i < numCPUs; i++) {

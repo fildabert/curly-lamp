@@ -61,6 +61,16 @@ const findOneInvoice = async (req, res, next) => {
   }
 };
 
+const takeOutDeliveryOrder = async (req, res, next) => {
+  try {
+    const { invoiceId, transactionId } = req.body;
+    const result = await InvoiceController.takeOutDeliveryOrder({ invoiceId, transactionId });
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 // router.get('/temp', async (req, res, next) => {
 //    const result = await InvoiceController.temp();
 
@@ -70,6 +80,7 @@ router.get('/all/buyer', findAllInvoiceBuyer);
 router.get('/all/supplier', findAllInvoiceSupplier);
 router.patch('/', updateInvoice);
 router.patch('/editInvoice', editInvoice);
+router.patch('/takeOutDeliveryOrder', takeOutDeliveryOrder);
 router.delete('/:_id', deleteInvoice);
 router.get('/:_id', findOneInvoice);
 

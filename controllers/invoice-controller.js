@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-async-promise-executor */
 /* eslint-disable linebreak-style */
@@ -13,6 +14,7 @@ const Balance = require('../models/balance');
 const InvoiceInfo = require('../models/invoice-info');
 const PurchaseOrder = require('../models/purchase-order');
 const cashflow = require('../models/cashflow');
+const { end } = require('../redis');
 
 const balanceId = '5f054d0d60d1e55b14f5723d';
 
@@ -156,7 +158,7 @@ const findAllInvoiceSupplier = () => new Promise(async (resolve, reject) => {
 });
 
 const updateInvoice = ({
-  _id, customerId, topUpAmount,
+  customerId,
 }) => new Promise(async (resolve, reject) => {
   try {
     // 75,048,00012233452
@@ -404,6 +406,42 @@ const editInvoice = ({
   }
 });
 
+const takeOutDeliveryOrder = ({
+  invoiceId,
+  transactionId,
+}) => new Promise(async (resolve, reject) => {
+  try {
+    const invoice = await Invoice.findOne({ _id: invoiceId }).populate('transactions');
+
+    if (!invoice) {
+      throw Object.assign(new Error('Invoice not found'), { code: 400 });
+    }
+
+    const index = invoice.transactions.findIndex((transaction) => transaction._id.toString() === transactionId);
+    console.log(index);
+    if (index !== -1) {
+      invoice.transactions.splice(index, 1);
+    }
+    let quantity = 0;
+    let totalAmount = 0;
+
+    invoice.transactions.forEach((transaction) => {
+      quantity += transaction.actualAmount;
+      totalAmount += transaction.actualAmount * transaction.sellingPrice;
+    });
+
+    invoice.quantity = quantity;
+    invoice.totalAmount = totalAmount;
+    // console.log(invoice);
+    await invoice.save();
+    await updateInvoice({ customerId: invoice.customer });
+
+    return resolve(true);
+  } catch (error) {
+    return reject(error);
+  }
+});
+
 const temp = () => new Promise(async (resolve, reject) => {
   try {
     const invoices = await Invoice.find({ type: 'SUPPLIER' }).populate('transactions');
@@ -454,4 +492,5 @@ module.exports = {
   deleteInvoice,
   editInvoice,
   findOneInvoice,
+  takeOutDeliveryOrder,
 };

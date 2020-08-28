@@ -450,11 +450,11 @@ module.exports = {
       const {
         orderId, startDate, endDate, dueDate, invoiceName,
       } = payload;
-      // console.log(startDate);
-      console.log(dueDate);
-      startDate.setHours(0, 0, 0, 0);
+
+      // startDate.setHours(0, 0, 0, 0);
 
       endDate.setHours(23, 59, 59, 999);
+
       const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId }).populate('transactions', null, { dateDelivered: { $gte: startDate, $lte: endDate }, status: 'COMPLETED' }, { populate: 'productId' }).populate('productId').populate('additionalFee').populate('customerId');
       if (!purchaseOrder) {
         throw Object.assign(new Error('Puchase Order not found'), { code: 400 });
@@ -508,6 +508,7 @@ module.exports = {
         colNo += 1;
       }
       const POWorksheet = book.getWorksheet('Invoice');
+
 
       await InvoiceController.createInvoice({
         customerId: purchaseOrder.customerId._id,

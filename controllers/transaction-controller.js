@@ -80,6 +80,7 @@ module.exports = {
 
       checkProduct.stock -= amount;
       await checkProduct.save();
+      console.log(checkProduct)
 
       const newTransanction = new Transaction({
         productId,
@@ -101,6 +102,8 @@ module.exports = {
       });
 
       const transactionCreated = await newTransanction.save();
+
+      console.log(transactionCreated);
 
       purchaseOrder.transactions.push(transactionCreated);
       purchaseOrderSupplier.transactions.push(transactionCreated);
