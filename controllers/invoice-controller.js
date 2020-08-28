@@ -411,14 +411,13 @@ const takeOutDeliveryOrder = ({
   transactionId,
 }) => new Promise(async (resolve, reject) => {
   try {
-    const invoice = await Invoice.findOne({ _id: invoiceId }).populate('transactions');
+    const invoice = await Invoice.findOne({ _id: invoiceId }).populate('transactions').populate('invoiceInfos');
 
     if (!invoice) {
       throw Object.assign(new Error('Invoice not found'), { code: 400 });
     }
 
     const index = invoice.transactions.findIndex((transaction) => transaction._id.toString() === transactionId);
-    console.log(index);
     if (index !== -1) {
       invoice.transactions.splice(index, 1);
     }
@@ -426,8 +425,15 @@ const takeOutDeliveryOrder = ({
     let totalAmount = 0;
 
     invoice.transactions.forEach((transaction) => {
-      quantity += transaction.actualAmount;
-      totalAmount += transaction.actualAmount * transaction.sellingPrice;
+      const invoiceInfoIndex = invoice.invoiceInfos.findIndex((invoiceInfo) => invoiceInfo.product.toString() === transaction.productId.toString());
+      if (invoiceInfoIndex !== -1) {
+        quantity += transaction.actualAmount;
+        totalAmount += transaction.actualAmount * invoice.invoiceInfos[invoiceInfoIndex].price;
+      } else {
+        throw Object.assign(new Error('cannot'), { code: 400 });
+      }
+      // quantity += transaction.actualAmount;
+      // totalAmount += transaction.actualAmount * transaction.sellingPrice;
     });
 
     invoice.quantity = quantity;
