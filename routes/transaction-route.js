@@ -7,6 +7,14 @@ const express = require('express');
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 
+require('dotenv').config();
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
 const Transaction = require('../models/transaction');
 const PurchaseOrder = require('../models/purchase-order');
 const Product = require('../models/product');
@@ -165,7 +173,6 @@ const elasticSearch = async (req, res, next) => {
   }
 };
 
-
 // router.get('/refrez', async (req, res) => {
 //   try {
 //     // const purchaseOrder = await PurchaseOrder.findOne({ _id: '5ef04c1b15c2c40007ddb20d' }).populate('transactions');
@@ -189,6 +196,5 @@ router.post('/supplier', createTransactionSupplier);
 router.put('/:_id', updateTransaction);
 router.post('/upload/:_id', multer().single('file'), upload);
 router.post('/delete', auth, deleteTransaction);
-
 
 module.exports = router;
