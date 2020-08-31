@@ -221,7 +221,7 @@ const updateInvoice = ({
     });
 
     invoices.forEach((invoice) => {
-      if (invoice.totalAmount === invoice.amountPaid) {
+      if (Math.round(invoice.totalAmount) === Math.round(invoice.amountPaid)) {
         invoice.paid = true;
       } else {
         invoice.paid = false;
