@@ -137,7 +137,7 @@ const findAllInvoiceBuyer = () => new Promise(async (resolve, reject) => {
   try {
     const invoices = await Invoice.find({ type: 'BUYER' }).populate('customer').populate('purchaseOrder')
       .populate({ path: 'invoiceInfos', populate: { path: 'product' } })
-      .sort({ createdAt: 'desc' })
+      .sort({ dueDate: 'desc' })
       .lean();
 
     invoices.sort((x, y) => x.paid - y.paid);
@@ -151,7 +151,7 @@ const findAllInvoiceSupplier = () => new Promise(async (resolve, reject) => {
   try {
     const invoices = await Invoice.find({ $or: [{ type: 'SUPPLIER' }, { type: 'AGENT' }] }).populate('customer').populate('purchaseOrder')
       .populate({ path: 'invoiceInfos', populate: { path: 'product' } })
-      .sort({ createdAt: 'desc' })
+      .sort({ dueDate: 'desc' })
       .lean();
 
     invoices.sort((x, y) => x.paid - y.paid);
@@ -166,7 +166,7 @@ const updateInvoice = ({
 }) => new Promise(async (resolve, reject) => {
   try {
     // 75,048,00012233452
-    const invoices = await Invoice.find({ customer: customerId }).sort({ createdAt: 'asc' });
+    const invoices = await Invoice.find({ customer: customerId }).sort({ dueDate: 'asc' });
 
     const cashFlows = await CashFlow.find({ customer: customerId }).sort({ dateIssued: 'asc' });
 
