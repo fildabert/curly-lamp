@@ -139,6 +139,8 @@ const findAllInvoiceBuyer = () => new Promise(async (resolve, reject) => {
       .populate({ path: 'invoiceInfos', populate: { path: 'product' } })
       .sort({ createdAt: 'desc' })
       .lean();
+
+    invoices.sort((x, y) => x.paid - y.paid);
     return resolve(invoices);
   } catch (error) {
     return reject(error);
