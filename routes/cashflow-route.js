@@ -45,7 +45,11 @@ const deleteCashFlow = async (req, res, next) => {
 
 const editCashFlow = async (req, res, next) => {
   try {
-    const result = await CashflowController.editCashFlow({ _id: req.params._id, dateIssued: req.body.dateIssued });
+    const result = await CashflowController.editCashFlow({
+      _id: req.params._id,
+      dateIssued: req.body.dateIssued,
+      remarks: req.body.remarks,
+    });
 
     res.status(200).json(result);
   } catch (error) {

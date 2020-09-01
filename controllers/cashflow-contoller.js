@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-async-promise-executor */
 /* eslint-disable linebreak-style */
+const axios = require('axios');
 const CashFlow = require('../models/cashflow');
 const Balance = require('../models/balance');
 const Customer = require('../models/customer');
@@ -11,7 +12,7 @@ const { updateInvoice } = require('./invoice-controller.js');
 const balanceId = '5f054d0d60d1e55b14f5723d';
 
 const createCashFlow = ({
-  customerId, amount, dateIssued,
+  customerId, amount, dateIssued, remarks,
 }) => new Promise(async (resolve, reject) => {
   try {
     const customer = await Customer.findOne({ _id: customerId });
@@ -20,7 +21,9 @@ const createCashFlow = ({
       throw Object.assign(new Error('Customer not found'), { code: 400 });
     }
 
-    const temp = new CashFlow({ customer: customerId, amount, dateIssued });
+    const temp = new CashFlow({
+      customer: customerId, amount, dateIssued, remarks,
+    });
 
     const accBalance = await Balance.findOne({ _id: balanceId });
 
@@ -38,9 +41,17 @@ const createCashFlow = ({
     // temp.invoices = invoices.map((invoice) => invoice._id);
     // console.log(temp.invoices);
     // const newCashFlow = await temp.save();
-    await accBalance.save();
+    const updatedBalance = await accBalance.save();
+    axios({
+      method: 'PUT',
+      url: `https://ni4m1c9j8p:oojdvhi83y@curly-lamp-9585578215.ap-southeast-2.bonsaisearch.net/balance/_doc/${balanceId}`,
+      data: {
+        amount: updatedBalance.amount,
+      },
+    });
     return resolve(true);
   } catch (error) {
+    console.log(error);
     return reject(error);
   }
 });
@@ -63,7 +74,7 @@ const getBalance = () => new Promise(async (resolve, reject) => {
   }
 });
 
-const editCashFlow = ({ _id, dateIssued }) => new Promise(async (resolve, reject) => {
+const editCashFlow = ({ _id, dateIssued, remarks }) => new Promise(async (resolve, reject) => {
   try {
     const cashFlow = await CashFlow.findOne({ _id });
     if (!cashFlow) {
@@ -71,6 +82,7 @@ const editCashFlow = ({ _id, dateIssued }) => new Promise(async (resolve, reject
     }
 
     cashFlow.dateIssued = dateIssued || cashFlow.dateIssued;
+    cashFlow.remarks = remarks;
 
     await cashFlow.save();
 
@@ -131,7 +143,15 @@ const deleteCashFlow = ({ _id }) => new Promise(async (resolve, reject) => {
     }
     // await customer.save();
     await cashFlow.remove();
-    await balance.save();
+    const updatedBalance = await balance.save();
+
+    axios({
+      method: 'PUT',
+      url: `https://ni4m1c9j8p:oojdvhi83y@curly-lamp-9585578215.ap-southeast-2.bonsaisearch.net/balance/_doc/${balanceId}`,
+      data: {
+        amount: updatedBalance.amount,
+      },
+    });
 
     await updateInvoice({ customerId: customer._id });
     return resolve({ success: true });
