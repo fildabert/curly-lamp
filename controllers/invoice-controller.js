@@ -143,8 +143,8 @@ const findAllInvoiceBuyer = () => new Promise(async (resolve, reject) => {
     const paidInvoices = invoices.filter((invoice) => invoice.paid === true);
     const unpaidInvoices = invoices.filter((invoice) => invoice.paid === false);
 
-    paidInvoices.sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate));
-    unpaidInvoices.sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate));
+    // paidInvoices.sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate));
+    // unpaidInvoices.sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate));
 
     const result = [...unpaidInvoices, ...paidInvoices];
 
@@ -161,8 +161,12 @@ const findAllInvoiceSupplier = () => new Promise(async (resolve, reject) => {
       .sort({ dueDate: 'desc' })
       .lean();
 
-    invoices.sort((x, y) => x.paid - y.paid);
-    return resolve(invoices);
+    const paidInvoices = invoices.filter((invoice) => invoice.paid === true);
+    const unpaidInvoices = invoices.filter((invoice) => invoice.paid === false);
+
+    const result = [...unpaidInvoices, ...paidInvoices];
+
+    return resolve(result);
   } catch (error) {
     return reject(error);
   }
