@@ -140,6 +140,7 @@ const findAllInvoiceBuyer = () => new Promise(async (resolve, reject) => {
       .sort({ dueDate: 'desc' })
       .lean();
 
+    invoices.sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate));
     invoices.sort((x, y) => x.paid - y.paid);
     return resolve(invoices);
   } catch (error) {
