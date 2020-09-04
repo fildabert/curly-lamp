@@ -9,6 +9,9 @@ const userSchema = new mongoose.Schema({
     required: [true, 'username is empty'],
     unique: true,
   },
+  fullName: {
+    type: String,
+  },
   email: {
     type: String,
     required: [true, 'email is empty'],

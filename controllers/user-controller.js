@@ -11,7 +11,6 @@ const { signToken } = require('../helpers/jwt');
 const CLIENT_ID = '202223336560-46k4lh950qbhudoi797tfhnqmdmkgpjl.apps.googleusercontent.com';
 const client = new OAuth2Client(CLIENT_ID);
 
-
 // eslint-disable-next-line no-new
 // new CronJob('0 */24 * * *', (async () => {
 //   try {
@@ -70,6 +69,7 @@ module.exports = {
       const payload = {
         _id: user._id,
         username: user.username,
+        fullName: user.fullName,
         email: user.email,
         admin: user.admin,
       };
@@ -101,23 +101,28 @@ module.exports = {
         audience: CLIENT_ID,
       });
       const payload = ticket.getPayload();
+      console.log(payload);
       const user = await User.findOne({ email: payload.email });
       if (user) {
         const jwtPayload = {
           _id: user._id,
           username: user.username,
+          fullName: user.fullName,
+          picture: payload.picture,
           email: user.email,
           admin: user.admin,
         };
         const jwtToken = signToken(jwtPayload);
         return resolve(jwtToken);
-      } else {
-        // throw Object.assign(new Error('Unauthorized'), { code: 400 });
-      
+      }
+      // throw Object.assign(new Error('Unauthorized'), { code: 400 });
+
       const newUser = new User({
         username: payload.name,
         email: payload.email,
+        fullName: payload.name,
         password: payload.jti,
+        picture: payload.picture,
         admin: 1,
       });
 
@@ -131,7 +136,6 @@ module.exports = {
       };
       const jwtToken = signToken(jwtPayload);
       return resolve(jwtToken);
-    }
     } catch (error) {
       return reject(error);
     }
