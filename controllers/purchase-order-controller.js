@@ -500,7 +500,7 @@ module.exports = {
 
         const price = DOworksheet.getCell(`F${colNo}`);
         if (purchaseOrder.type === 'BUYER') {
-          price.value = +purchaseOrder.transactions[i].sellingPrice * 0.9;
+          price.value = +purchaseOrder.transactions[i].sellingPrice;
         } else if (purchaseOrder.type === 'SUPPLIER') {
           price.value = +purchaseOrder.transactions[i].buyingPrice;
         }
@@ -549,7 +549,7 @@ module.exports = {
       totalQuantity.value = sumQuantity;
 
       const invoicePrice = POWorksheet.getCell('D14');
-      invoicePrice.value = purchaseOrder.price;
+      invoicePrice.value = purchaseOrder.price / 1.1;
 
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
       res.setHeader('Content-Disposition', 'attachment; filename=' + `Invoice[${purchaseOrder.PONo}] - ${purchaseOrder.productId.name}.xlsx`);
