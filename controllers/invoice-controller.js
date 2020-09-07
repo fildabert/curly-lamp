@@ -124,7 +124,9 @@ const createInvoiceAgent = ({
 
 const findOneInvoice = ({ _id }) => new Promise(async (resolve, reject) => {
   try {
-    const invoice = await Invoice.findOne({ _id }).populate('customer').populate('purchaseOrder').populate('transactions')
+    const invoice = await Invoice.findOne({ _id }).populate('customer').populate('purchaseOrder').populate({
+      path: 'transactions', options: { sort: { dateDelivered: 'desc' } }, select: 'invoice _id dateDelivered status actualAmount amount', populate: { path: 'productId', select: 'name -_id unit' },
+    })
       .populate({ path: 'invoiceInfos', populate: { path: 'product' } })
       .lean();
     return resolve(invoice);
