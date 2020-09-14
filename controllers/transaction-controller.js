@@ -80,7 +80,7 @@ module.exports = {
 
       checkProduct.stock -= amount;
       await checkProduct.save();
-      console.log(checkProduct)
+      console.log(checkProduct);
 
       const newTransanction = new Transaction({
         productId,
@@ -492,6 +492,24 @@ module.exports = {
         throw Object.assign(new Error('Transaction not found'), { code: 400 });
       }
       resolve(transaction);
+    } catch (error) {
+      reject(error);
+    }
+  }),
+
+  updateManyTransaction: ({
+    trxIds, dateDelivered, buyingPrice, sellingPrice,
+  }) => new Promise(async (resolve, reject) => {
+    try {
+      const promises = [];
+
+      trxIds.forEach((trxId) => {
+        promises.push(Transaction.updateOne({ _id: trxId }, { dateDelivered: new Date(dateDelivered), buyingPrice, sellingPrice }));
+      });
+
+      await Promise.all(promises);
+      redisCache.del('transactions');
+      resolve(true);
     } catch (error) {
       reject(error);
     }

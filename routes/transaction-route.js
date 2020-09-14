@@ -173,6 +173,20 @@ const elasticSearch = async (req, res, next) => {
   }
 };
 
+const updateManyTransaction = async (req, res, next) => {
+  try {
+    const {
+      trxIds, dateDelivered, buyingPrice, sellingPrice,
+    } = req.body;
+    const result = await transactionController.updateManyTransaction({
+      trxIds, dateDelivered, buyingPrice, sellingPrice,
+    });
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 // router.get('/refrez', async (req, res) => {
 //   try {
 //     // const purchaseOrder = await PurchaseOrder.findOne({ _id: '5ef04c1b15c2c40007ddb20d' }).populate('transactions');
@@ -193,6 +207,7 @@ router.get('/elastic', elasticSearch);
 router.get('/:_id', findOneTransaction);
 router.post('/', createTransaction);
 router.post('/supplier', createTransactionSupplier);
+router.put('/updateMany', updateManyTransaction);
 router.put('/:_id', updateTransaction);
 router.post('/upload/:_id', multer().single('file'), upload);
 router.post('/delete', auth, deleteTransaction);

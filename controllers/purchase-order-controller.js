@@ -455,7 +455,11 @@ module.exports = {
 
       endDate.setHours(23, 59, 59, 999);
 
-      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId }).populate('transactions', null, { dateDelivered: { $gte: startDate, $lte: endDate }, status: 'COMPLETED' }, { populate: 'productId' }).populate('productId').populate('additionalFee').populate('customerId');
+      const purchaseOrder = await PurchaseOrder.findOne({ _id: orderId })
+        .populate('transactions', null, { dateDelivered: { $gte: startDate, $lte: endDate }, status: 'COMPLETED' }, { populate: 'productId' }, { sort: { dateDelivered: 'asc' } })
+        .populate('productId')
+        .populate('additionalFee')
+        .populate('customerId');
       if (!purchaseOrder) {
         throw Object.assign(new Error('Puchase Order not found'), { code: 400 });
       }
@@ -508,7 +512,6 @@ module.exports = {
         colNo += 1;
       }
       const POWorksheet = book.getWorksheet('Invoice');
-
 
       await InvoiceController.createInvoice({
         customerId: purchaseOrder.customerId._id,
