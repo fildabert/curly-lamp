@@ -148,7 +148,7 @@ module.exports = {
 
       axios({
         method: 'PUT',
-        url: `https://ni4m1c9j8p:oojdvhi83y@curly-lamp-9585578215.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transactionCreated._id}`,
+        url: `https://584d4hzxg0:6kga236wrm@wls-7397656438.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transactionCreated._id}`,
         data: elasticSearchPayload,
       });
 
@@ -264,7 +264,7 @@ module.exports = {
 
       axios({
         method: 'PUT',
-        url: `https://ni4m1c9j8p:oojdvhi83y@curly-lamp-9585578215.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transaction._id}`,
+        url: `https://584d4hzxg0:6kga236wrm@wls-7397656438.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transaction._id}`,
         data: elasticSearchPayload,
       });
 
@@ -379,7 +379,7 @@ module.exports = {
       // console.log(jsonn);
       // await axios({
       //   method: 'PUT',
-      //   url: 'https://ni4m1c9j8p:oojdvhi83y@curly-lamp-9585578215.ap-southeast-2.bonsaisearch.net/transactions/_bulk?pretty',
+      //   url: 'https://584d4hzxg0:6kga236wrm@wls-7397656438.ap-southeast-2.bonsaisearch.net/transactions/_bulk?pretty',
       //   data: jsonn,
       // });
       resolve(newTransanction);
@@ -455,7 +455,7 @@ module.exports = {
 
       // axios({
       //   method: 'PUT',
-      //   url: `https://ni4m1c9j8p:oojdvhi83y@curly-lamp-9585578215.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transactionCreated._id}`,
+      //   url: `https://584d4hzxg0:6kga236wrm@wls-7397656438.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transactionCreated._id}`,
       //   data: elasticSearchPayload,
       // });
 
@@ -526,7 +526,7 @@ module.exports = {
         await transaction.remove();
         axios({
           method: 'DELETE',
-          url: `https://ni4m1c9j8p:oojdvhi83y@curly-lamp-9585578215.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transaction._id}`,
+          url: `https://584d4hzxg0:6kga236wrm@wls-7397656438.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transaction._id}`,
         });
         redisCache.del('purchaseOrder');
         redisCache.del('purchaseOrderSupplier');
@@ -543,7 +543,7 @@ module.exports = {
       }
       axios({
         method: 'DELETE',
-        url: `https://ni4m1c9j8p:oojdvhi83y@curly-lamp-9585578215.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transaction._id}`,
+        url: `https://584d4hzxg0:6kga236wrm@wls-7397656438.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transaction._id}`,
       });
 
       transaction.active = false;
@@ -591,7 +591,7 @@ module.exports = {
         delete elasticSearchPayload._id;
         // await axios({
         //   method: 'PUT',
-        //   url: `https://ni4m1c9j8p:oojdvhi83y@curly-lamp-9585578215.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transaction._id}`,
+        //   url: `https://584d4hzxg0:6kga236wrm@wls-7397656438.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transaction._id}`,
         //   data: elasticSearchPayload,
         // });
         str += `{ "index" : { "_index" : "transactions", "_id" : "${transaction._id}" } }
@@ -599,7 +599,7 @@ module.exports = {
         `;
         result.push(elasticSearchPayload);
       });
-      fs.writeFileSync('./temp/result.json', str);
+      fs.writeFileSync('result.json', str);
       resolve(result);
     } catch (error) {
       reject(error);
