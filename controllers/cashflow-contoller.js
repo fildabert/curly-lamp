@@ -44,7 +44,7 @@ const createCashFlow = ({
     const updatedBalance = await accBalance.save();
     axios({
       method: 'PUT',
-      url: `https://ni4m1c9j8p:oojdvhi83y@curly-lamp-9585578215.ap-southeast-2.bonsaisearch.net/balance/_doc/${balanceId}`,
+      url: `https://584d4hzxg0:6kga236wrm@wls-7397656438.ap-southeast-2.bonsaisearch.net/balance/_doc/${balanceId}`,
       data: {
         amount: updatedBalance.amount,
       },
