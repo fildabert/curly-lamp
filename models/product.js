@@ -3,35 +3,64 @@
 /* eslint-disable func-names */
 const mongoose = require('mongoose');
 
-const productSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, 'name is empty'],
-  },
+const { Schema } = mongoose;
+
+const priceHistorySchema = new Schema({
   price: {
     type: Number,
-    required: [true, 'price is empty'],
   },
-  stock: {
+  date: {
+    type: String,
+  },
+});
+
+const scheduledPriceChange = new Schema({
+  futurePrice: {
     type: Number,
-    default: 0,
   },
-  unit: {
+  date: {
     type: String,
   },
-  description: {
-    type: String,
+});
+
+const productSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, 'name is empty'],
+    },
+    price: {
+      type: Number,
+      required: [true, 'price is empty'],
+    },
+    stock: {
+      type: Number,
+      default: 0,
+    },
+    unit: {
+      type: String,
+    },
+    description: {
+      type: String,
+    },
+    productImage: {
+      type: String,
+    },
+    category: {
+      type: String,
+    },
+    active: {
+      type: Boolean,
+      default: true,
+    },
+    buyingPriceHistory: {
+      type: [priceHistorySchema],
+    },
+    scheduledPriceChanges: {
+      type: [scheduledPriceChange],
+    },
   },
-  productImage: {
-    type: String,
-  },
-  category: {
-    type: String,
-  },
-  active: {
-    type: Boolean,
-    default: true,
-  },
-}, { timestamps: true });
+  { timestamps: true },
+);
 
 module.exports = mongoose.model('Product', productSchema);

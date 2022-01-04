@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable linebreak-style */
 /* eslint-disable no-async-promise-executor */
 const Product = require('../models/product');
@@ -14,8 +15,21 @@ module.exports = {
     unit,
   }) => new Promise(async (resolve, reject) => {
     try {
+      const buyingPriceHistory = [
+        {
+          price,
+          date: new Date().toISOString(),
+        },
+      ];
       const newProduct = new Product({
-        name, price, stock, description, category, productImage, unit,
+        name,
+        price,
+        stock,
+        description,
+        category,
+        productImage,
+        unit,
+        buyingPriceHistory,
       });
       await newProduct.save();
       redisCache.del('products');
@@ -31,8 +45,10 @@ module.exports = {
         if (cache) {
           resolve(JSON.parse(cache));
         } else {
-          const result = await Product.find({ active: true }).sort({ createdAt: 'desc' });
-          redisCache.setex('products', (60 * 60), JSON.stringify(result));
+          const result = await Product.find({ active: true }).sort({
+            createdAt: 'desc',
+          });
+          redisCache.setex('products', 60 * 60, JSON.stringify(result));
           resolve(result);
         }
       });
@@ -55,7 +71,9 @@ module.exports = {
 
   searchProduct: (payload) => new Promise(async (resolve, reject) => {
     try {
-      const result = await Product.find({ name: { $regex: payload.name, $options: 'i' } });
+      const result = await Product.find({
+        name: { $regex: payload.name, $options: 'i' },
+      });
       if (!result || result.length === 0) {
         throw Object.assign(new Error('No results found'), { code: 400 });
       }
@@ -74,9 +92,55 @@ module.exports = {
       category,
       productImage,
       unit,
+      scheduledPriceChange,
     } = payload;
     try {
       const newProduct = await Product.findOne({ _id: productId });
+      console.log(payload, 'plis');
+      if (price) {
+        // eslint-disable-next-line max-len
+        const lastPrice = newProduct.buyingPriceHistory[
+          newProduct.buyingPriceHistory.length - 1
+        ].price;
+        if (lastPrice !== price) {
+          newProduct.buyingPriceHistory.push({
+            price,
+            date: new Date().toISOString(),
+          });
+        }
+      }
+
+      if (!newProduct.scheduledPriceChanges) {
+        newProduct.scheduledPriceChanges = [];
+      }
+      if (scheduledPriceChange) {
+        // eslint-disable-next-line max-len
+        const lastSchedule = newProduct.scheduledPriceChanges[
+          newProduct.scheduledPriceChanges.length - 1
+        ];
+
+        const today00 = new Date().toISOString().split('T')[0];
+        if (new Date(scheduledPriceChange.date) < new Date(today00)) {
+          throw Object.assign(
+            new Error(
+              'Next scheduled date cannot be before today',
+            ),
+            { code: 400 },
+          );
+        }
+
+        if (
+          lastSchedule && new Date(scheduledPriceChange.date) <= new Date(lastSchedule.date)
+        ) {
+          throw Object.assign(
+            new Error(
+              'Next scheduled date cannot be before last scheduled date',
+            ),
+            { code: 400 },
+          );
+        }
+        newProduct.scheduledPriceChanges.push(scheduledPriceChange);
+      }
 
       newProduct.name = name || newProduct.name;
       newProduct.price = price || newProduct.price;
@@ -101,7 +165,28 @@ module.exports = {
 
       await targetProduct.save();
       redisCache.del('products');
-      resolve({ productId, success: true, message: 'Product is now inactive' });
+      resolve({
+        productId,
+        success: true,
+        message: 'Product is now inactive',
+      });
+    } catch (error) {
+      reject(error);
+    }
+  }),
+
+  removeSchedule: (productId, scheduleId) => new Promise(async (resolve, reject) => {
+    try {
+      const product = await Product.findOne({ _id: productId });
+      const deleteIndex = product.scheduledPriceChanges.findIndex(
+        (sched) => sched._id.toString() === scheduleId,
+      );
+      if (deleteIndex !== -1) {
+        product.scheduledPriceChanges.splice(deleteIndex, 1);
+      }
+      await product.save();
+      redisCache.del('products');
+      resolve(true);
     } catch (error) {
       reject(error);
     }

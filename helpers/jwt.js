@@ -11,7 +11,7 @@ module.exports = {
     throw new Error('Invalid Token');
   },
   signToken: (payload) => {
-    const token = jwt.sign(payload, SECRET, { expiresIn: '2 days' });
+    const token = jwt.sign(payload, SECRET, { expiresIn: '30 days' });
     return token;
   },
 };
