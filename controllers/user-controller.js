@@ -91,27 +91,27 @@ module.exports = {
         const jwtToken = signToken(jwtPayload);
         return resolve(jwtToken);
       }
-      // throw Object.assign(new Error('Unauthorized'), { code: 400 });
+      throw Object.assign(new Error('Unauthorized'), { code: 400 });
 
-      const newUser = new User({
-        username: payload.name,
-        email: payload.email,
-        fullName: payload.name,
-        password: payload.jti,
-        picture: payload.picture,
-        admin: 1,
-      });
+      // const newUser = new User({
+      //   username: payload.name,
+      //   email: payload.email,
+      //   fullName: payload.name,
+      //   password: payload.jti,
+      //   picture: payload.picture,
+      //   admin: 1,
+      // });
 
-      const userCreated = await newUser.save();
+      // const userCreated = await newUser.save();
 
-      const jwtPayload = {
-        _id: userCreated._id,
-        username: userCreated.username,
-        email: userCreated.email,
-        admin: userCreated.admin,
-      };
-      const jwtToken = signToken(jwtPayload);
-      return resolve(jwtToken);
+      // const jwtPayload = {
+      //   _id: userCreated._id,
+      //   username: userCreated.username,
+      //   email: userCreated.email,
+      //   admin: userCreated.admin,
+      // };
+      // const jwtToken = signToken(jwtPayload);
+      // return resolve(jwtToken);
     } catch (error) {
       return reject(error);
     }
