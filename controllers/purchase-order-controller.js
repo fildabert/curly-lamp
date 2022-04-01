@@ -552,7 +552,7 @@ module.exports = {
       totalQuantity.value = sumQuantity;
 
       const invoicePrice = POWorksheet.getCell('D14');
-      invoicePrice.value = purchaseOrder.price / 1.1;
+      invoicePrice.value = purchaseOrder.price / 1.11;
 
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
       res.setHeader('Content-Disposition', 'attachment; filename=' + `Invoice[${purchaseOrder.PONo}] - ${purchaseOrder.productId.name}.xlsx`);
