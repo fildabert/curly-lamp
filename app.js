@@ -21,7 +21,7 @@ require('dotenv').config();
 const atlasURL = process.env.ATLAS_URL;
 const mongodbLocal = 'mongodb://127.0.0.1:27017/curly-lamp';
 
-mongoose.connect(atlasURL, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true });
+mongoose.connect(mongodbLocal, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true });
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', () => {
   console.log('Connected to the database');

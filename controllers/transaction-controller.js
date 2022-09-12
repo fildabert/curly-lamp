@@ -146,11 +146,12 @@ module.exports = {
 
       delete elasticSearchPayload._id;
 
-      axios({
-        method: 'PUT',
-        url: `https://584d4hzxg0:6kga236wrm@wls-7397656438.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transactionCreated._id}`,
-        data: elasticSearchPayload,
-      });
+      // ES
+      // axios({
+      //   method: 'PUT',
+      //   url: `https://584d4hzxg0:6kga236wrm@wls-7397656438.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transactionCreated._id}`,
+      //   data: elasticSearchPayload,
+      // });
 
       resolve(newTransanction);
     } catch (error) {
@@ -261,12 +262,12 @@ module.exports = {
       };
 
       delete elasticSearchPayload._id;
-
-      axios({
-        method: 'PUT',
-        url: `https://584d4hzxg0:6kga236wrm@wls-7397656438.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transaction._id}`,
-        data: elasticSearchPayload,
-      });
+      // ES
+      // axios({
+      //   method: 'PUT',
+      //   url: `https://584d4hzxg0:6kga236wrm@wls-7397656438.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transaction._id}`,
+      //   data: elasticSearchPayload,
+      // });
 
       const updatedTransaction = await transaction.save();
       await checkProduct.save();
@@ -524,10 +525,11 @@ module.exports = {
 
       if (transaction && !purchaseOrder || transaction && !purchaseOrderSupplier) {
         await transaction.remove();
-        axios({
-          method: 'DELETE',
-          url: `https://584d4hzxg0:6kga236wrm@wls-7397656438.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transaction._id}`,
-        });
+        // ES
+        // axios({
+        //   method: 'DELETE',
+        //   url: `https://584d4hzxg0:6kga236wrm@wls-7397656438.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transaction._id}`,
+        // });
         redisCache.del('purchaseOrder');
         redisCache.del('purchaseOrderSupplier');
         redisCache.del('products');
@@ -541,10 +543,11 @@ module.exports = {
       if (!purchaseOrderSupplier) {
         throw Object.assign(new Error('Purchase Order (Supplier) not found'), { code: 400 });
       }
-      axios({
-        method: 'DELETE',
-        url: `https://584d4hzxg0:6kga236wrm@wls-7397656438.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transaction._id}`,
-      });
+      // ES
+      // axios({
+      //   method: 'DELETE',
+      //   url: `https://584d4hzxg0:6kga236wrm@wls-7397656438.ap-southeast-2.bonsaisearch.net/transactions/_doc/${transaction._id}`,
+      // });
 
       transaction.active = false;
       const trxIndex = purchaseOrder.transactions.indexOf(trxId);

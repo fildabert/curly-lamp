@@ -42,13 +42,14 @@ const createCashFlow = ({
     // console.log(temp.invoices);
     // const newCashFlow = await temp.save();
     const updatedBalance = await accBalance.save();
-    axios({
-      method: 'PUT',
-      url: `https://584d4hzxg0:6kga236wrm@wls-7397656438.ap-southeast-2.bonsaisearch.net/balance/_doc/${balanceId}`,
-      data: {
-        amount: updatedBalance.amount,
-      },
-    });
+    // ES
+    // axios({
+    //   method: 'PUT',
+    //   url: `https://584d4hzxg0:6kga236wrm@wls-7397656438.ap-southeast-2.bonsaisearch.net/balance/_doc/${balanceId}`,
+    //   data: {
+    //     amount: updatedBalance.amount,
+    //   },
+    // });
     return resolve(true);
   } catch (error) {
     console.log(error);
@@ -144,14 +145,14 @@ const deleteCashFlow = ({ _id }) => new Promise(async (resolve, reject) => {
     // await customer.save();
     await cashFlow.remove();
     const updatedBalance = await balance.save();
-
-    axios({
-      method: 'PUT',
-      url: `https://584d4hzxg0:6kga236wrm@wls-7397656438.ap-southeast-2.bonsaisearch.net/balance/_doc/${balanceId}`,
-      data: {
-        amount: updatedBalance.amount,
-      },
-    });
+    // ES
+    // axios({
+    //   method: 'PUT',
+    //   url: `https://584d4hzxg0:6kga236wrm@wls-7397656438.ap-southeast-2.bonsaisearch.net/balance/_doc/${balanceId}`,
+    //   data: {
+    //     amount: updatedBalance.amount,
+    //   },
+    // });
 
     await updateInvoice({ customerId: customer._id });
     return resolve({ success: true });
